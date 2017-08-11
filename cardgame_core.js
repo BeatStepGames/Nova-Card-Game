@@ -8,6 +8,9 @@ var grabbed_card = false; //Tells if we have a card in our hand and cannot take 
 
 var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
 
+//HOT FIX, NOT KEEP THIS CODE !
+var lastCard = undefined;
+
 var card_elements = { //width and height of all elements in card
 	card_lenght_x: 160,
 	card_lenght_y: 240,
@@ -122,12 +125,13 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 			temp_x = mouse.x-this.x;
 			temp_y = mouse.y-this.y;
 			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
-			
+			lastCard = this;
 			
 		}
 		if(moving == 1){
 			this.x = mouse.x-temp_x;
 			this.y = mouse.y-temp_y;
+			lastCard = this;
 		}
 		
 		//If mouse is not clicked anymore but card is in moving state, fix the card where it is
@@ -184,6 +188,7 @@ function animate(){
 	all_cards[2].update();
 	all_cards[3].update();
 	//ctx.fillRect(x_card,0,150,220);
+	lastCard.draw();
 	
 	
 	//x_card +=vel;
@@ -205,7 +210,9 @@ function start(){
 	all_cards.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
 	all_cards.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
 	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
-	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
+	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
+	
+	lastCard = all_cards[0];
 
 	img.src='cards/Emperor of Fire Destiny.png';
 }
