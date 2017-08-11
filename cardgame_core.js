@@ -1,12 +1,12 @@
 var canvas = document.getElementById("canvas");
 
 var ctx = canvas.getContext("2d");
-var card_back = canvas.getContext("2d"); //card canvas
 var global_x;
 var global_y;
 var all_cards=[]; //array of cards (field card[2x4],cards in hand[from 0 to 7])
+var grabbed_card = false; //Tells if we have a card in our hand and cannot take another one
 
-
+var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
 
 var card_elements = { //width and height of all elements in card
 	card_lenght_x: 160,
@@ -14,12 +14,13 @@ var card_elements = { //width and height of all elements in card
 	top_space_card: 30,
 	image_space_card: 110,
 	comment_card: 70,
-	atk_def_rank: 30,
+	atk_def_rank: 30
 };
 
 var mouse = { //mouse position every istant
 	x: undefined,
 	y: undefined,
+	clicked: false,
 	click_x: undefined, //mouse position clicked
 	click_y: undefined
 };
@@ -35,18 +36,27 @@ window.addEventListener('mousemove', //mouse position every istant listener
 		mouse.x = event.x;
 		mouse.y = event.y;
 	});
-	
-window.addEventListener('click', //mouse position clicked listener
-	function(event){ 
+
+window.addEventListener('mousedown',
+	function(event){
+		mouse.clicked = true;
 		mouse.click_x = event.x;
 		mouse.click_y = event.y;
 	});
+
+window.addEventListener('mouseup',
+	function(event){
+		mouse.clicked = false;
+		mouse.click_x = event.x;
+		mouse.click_y = event.y;
+	});
+
 
 //card
 
 var vel = 4; //velocity
 
-function Card(x,y,name,level,comment,atk,life){ //Create and draw the card
+function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.x = x;
 	this.y = y;
 	this.name = name;
@@ -54,81 +64,103 @@ function Card(x,y,name,level,comment,atk,life){ //Create and draw the card
 	this.comment = comment;
 	this.atk = atk;
 	this.life = life;
-	var flag =0;
+	var moving =0; //Ex flag, this one is a better name
 	var temp_x;
 	var temp_y;
 	
 	this.draw = function(){ //Do not touch that ლ(ಠ_ಠლ)
 		var width_m;
 		var height_m;
-		card_back.beginPath();
-		card_back.textAlign = "center";
-		card_back.fillStyle = 'black';
-		card_back.fillRect(this.x,this.y,card_elements.card_lenght_x,card_elements.card_lenght_y);
+		ctx.beginPath();
+		ctx.textAlign = "center";
+		ctx.fillStyle = 'black';
+		ctx.fillRect(this.x,this.y,card_elements.card_lenght_x,card_elements.card_lenght_y);
 		
-		card_back.strokeStyle='silver';
-		card_back.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
-		card_back.fillStyle = 'white'; //text color
-		card_back.font="12px Arial";
-		card_back.fillStyle = "silver";
-		width_m = ctx.measureText(this.name).width;
-		card_back.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
+		ctx.strokeStyle='silver';
+		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
+		//INCONSISTENCY, YOU SET 2 COLORS WITHOUT USING ONE OF THEM
+		//ctx.fillStyle = 'white'; //text color
+		ctx.font="12px Arial";
+		ctx.fillStyle = "silver";
+		//INCONSISTENCY, NEVER USED WIDTH_M WITH THIS VALUE
+		//width_m = ctx.measureText(this.name).width;
+		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
-		card_back.font="18px Arial";
+		ctx.font="18px Arial";
 		width_m = ctx.measureText(100 - this.level).width;
 		height_m = ctx.measureText("gggg").width;
-		card_back.rect(this.x+card_elements.card_lenght_x-card_elements.top_space_card,this.y,card_elements.top_space_card, card_elements.top_space_card); //level part (top right)
-		card_back.fillText(this.level,this.x+card_elements.card_lenght_x-card_elements.top_space_card/2,this.y+(height_m/2)); //level number (top right)
+		ctx.rect(this.x+card_elements.card_lenght_x-card_elements.top_space_card,this.y,card_elements.top_space_card, card_elements.top_space_card); //level part (top right)
+		ctx.fillText(this.level,this.x+card_elements.card_lenght_x-card_elements.top_space_card/2,this.y+(height_m/2)); //level number (top right)
 		
 		
 		ctx.drawImage(img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
-		card_back.rect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card); //image part
+		ctx.rect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card); //image part
 		
-		card_back.font="11px Arial";
+		ctx.font="11px Arial";
 		//var length_text = ctx.measureText(this.comment).width;
 		//var str=this.comment.split(' ');
 		
-		card_back.fillStyle = "white";
-		card_back.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
-		//card_back.fillText(this.comment,this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+10);
+		ctx.fillStyle = "white";
+		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
+		//ctx.fillText(this.comment,this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+10);
 		splitNewLine(this.comment,this.x,this.y); //text comment
 		
-		card_back.font="18px Arial";
-		card_back.fillStyle = "red";
-		card_back.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card,card_elements.card_lenght_x,card_elements.atk_def_rank); //atk def ecc. part
-		card_back.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
-		card_back.fillStyle = "green";
-		card_back.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
-		card_back.stroke();
+		ctx.font="18px Arial";
+		ctx.fillStyle = "red";
+		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card,card_elements.card_lenght_x,card_elements.atk_def_rank); //atk def ecc. part
+		ctx.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.fillStyle = "green";
+		ctx.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.stroke();
 		
 	}
 	
 	this.update = function(){ //update card in new position
-		if(mouse.click_x>=this.x && mouse.click_x<=this.x+card_elements.card_lenght_x && mouse.click_y>=this.y && mouse.click_y<=this.y+card_elements.card_lenght_y && flag == 0){
+		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && moving == 0){
 			console.log("clicked!");
-			flag = 1;
-			temp_x = mouse.click_x-this.x;
-			temp_y = mouse.click_y-this.y;
+			moving = 1;
+			temp_x = mouse.x-this.x;
+			temp_y = mouse.y-this.y;
+			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
+			
 			
 		}
-		if(flag == 1){
+		if(moving == 1){
 			this.x = mouse.x-temp_x;
 			this.y = mouse.y-temp_y;
 		}
-		//TO-DO: when clicked again, release the card
 		
-		//this.x += vel;
+		//If mouse is not clicked anymore but card is in moving state, fix the card where it is
+		if(mouse.clicked == false && moving == 1){
+			moving = 0;
+			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
+		}
+
 		this.draw();
 	}
 }
 
-//just 4 cards to try push method
+function splitNewLine(str,x,y){ //comment text of the card, don't touch that
+	var array = str.split(' ');
+	var line = "";
+	var newl=1;
+	for(var i=0;i<array.length;i++){
+		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
+			line = line + array[i]+ " ";
+		}
+		else{
+			//result = result + line + "\r\n";
+			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+			line = array[i] + " ";
+			newl++;
+		}
+	}
+	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+	return;
+}
 
-all_cards.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99));
-all_cards.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X"));
-all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X"));
-all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X"));
 
+//Looping function -- Work in here for the game logic
 function animate(){
 	requestAnimationFrame(animate);
 	
@@ -136,7 +168,7 @@ function animate(){
 	canvas.height = window.innerHeight;
 	
 	
-	//card_back.clearRect(0,0,innerWidth,innerHeight); //card!
+	//ctx.clearRect(0,0,innerWidth,innerHeight); //card!
 	
 	//Nova card game text
 	global_x = canvas.width/2; 
@@ -151,36 +183,29 @@ function animate(){
 	all_cards[1].update();
 	all_cards[2].update();
 	all_cards[3].update();
-	//card_back.fillRect(x_card,0,150,220);
+	//ctx.fillRect(x_card,0,150,220);
 	
 	
 	//x_card +=vel;
 }
 
-function splitNewLine(str,x,y){ //comment text of the card, don't touch that
-	var array = str.split(' ');
-	var line = "";
-	var newl=1;
-	for(var i=0;i<array.length;i++){
-		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
-			line = line + array[i]+ " ";
-		}
-		else{
-			//result = result + line + "\r\n";
-			card_back.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
-			line = array[i] + " ";
-			newl++;
-		}
-	}
-	card_back.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
-	return;
-}
 
-var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
 
-img=new Image();
+
+
+function start(){
+	img=new Image();
 		
-img.onload=function(){
-	animate();
+	img.onload=function(){
+		animate();
+	}
+
+	//just 4 cards to try push method
+
+	all_cards.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
+	all_cards.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
+	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
+	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
+
+	img.src='cards/Emperor of Fire Destiny.png';
 }
-img.src='cards/Emperor of Fire Destiny.png';
