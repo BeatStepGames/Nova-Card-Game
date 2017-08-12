@@ -20,40 +20,15 @@ var card_elements = { //width and height of all elements in card
 	atk_def_rank: 30
 };
 
-var mouse = { //mouse position every istant
-	x: undefined,
-	y: undefined,
-	clicked: false,
-	click_x: undefined, //mouse position clicked
-	click_y: undefined
-};
-
 var hand_cards = { //position of the cards in hand
 	x: 100,
 	y: 600, // 600+ to put them outside the screen (need a method to create a scrollbar when happens!(TO-DO: you need to solve this Pasquale))
-	gap: 10
+	gap: 10,
+	handStack: undefined,
+	printHand: function(){
+		
+	}
 };
-
-window.addEventListener('mousemove', //mouse position every istant listener
-	function(event){ 
-		mouse.x = event.x;
-		mouse.y = event.y;
-	});
-
-window.addEventListener('mousedown',
-	function(event){
-		mouse.clicked = true;
-		mouse.click_x = event.x;
-		mouse.click_y = event.y;
-	});
-
-window.addEventListener('mouseup',
-	function(event){
-		mouse.clicked = false;
-		mouse.click_x = event.x;
-		mouse.click_y = event.y;
-	});
-
 
 //card
 
@@ -70,6 +45,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	var moving =0; //Ex flag, this one is a better name
 	var temp_x;
 	var temp_y;
+	this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
 	
 	this.draw = function(){ //Do not touch that ლ(ಠ_ಠლ)
 		var width_m;
@@ -125,7 +101,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 			temp_x = mouse.x-this.x;
 			temp_y = mouse.y-this.y;
 			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
-			lastCard = this;
+			hand_cards.handStack.push(this,true);
 			
 		}
 		if(moving == 1){
@@ -183,12 +159,10 @@ function animate(){
 	//ctx.fillStyle = 'white';
 	ctx.fillText("Nova Card Game",global_x,global_y);
 	
-	all_cards[0].update();
-	all_cards[1].update();
-	all_cards[2].update();
-	all_cards[3].update();
+	for(var i=hand_cards.handStack.length-1; i >= 0; i--){
+		hand_cards.handStack.array[i].update();
+	}
 	//ctx.fillRect(x_card,0,150,220);
-	lastCard.draw();
 	
 	
 	//x_card +=vel;
@@ -204,15 +178,21 @@ function start(){
 	img.onload=function(){
 		animate();
 	}
+	
+	hand_cards.handStack = new Stack();
 
 	//just 4 cards to try push method
 
-	all_cards.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
-	all_cards.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
-	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
-	all_cards.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
-	
-	lastCard = all_cards[0];
+	hand_cards.handStack.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
+	hand_cards.handStack.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*4,hand_cards.y,"Lol3",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*5,hand_cards.y,"Lol4",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*6,hand_cards.y,"Lol5",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*7,hand_cards.y,"Lol6",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*8,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*9,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 
 	img.src='cards/Emperor of Fire Destiny.png';
 }
