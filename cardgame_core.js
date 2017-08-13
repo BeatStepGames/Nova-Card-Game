@@ -119,7 +119,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 			lastCard = this;
 		}
 		
-		if(mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y){//ADDED
+		if(mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y){//ADDED
 			//check mouse in the card!
 			hand_cards.mousein = true;
 		} else hand_cards.mousein = false;
