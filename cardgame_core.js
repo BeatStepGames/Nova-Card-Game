@@ -68,11 +68,9 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 		ctx.strokeStyle='silver';
 		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
-		//INCONSISTENCY, YOU SET 2 COLORS WITHOUT USING ONE OF THEM
-		//ctx.fillStyle = 'white'; //text color
 		ctx.font="12px Arial";
 		ctx.fillStyle = "silver";
-		//INCONSISTENCY, NEVER USED WIDTH_M WITH THIS VALUE
+		//INCONSISTENCY, NEVER USED WIDTH_M WITH THIS VALUE (used before to center name, now deprecated by the creation of the method splitNewLine() & ctx.textAlign = "center";)
 		//width_m = ctx.measureText(this.name).width;
 		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
@@ -121,8 +119,13 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 			lastCard = this;
 		}
 		
+		if(mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y){//ADDED
+			//check mouse in the card!
+			hand_cards.mousein = true;
+		} else hand_cards.mousein = false;
+		
 		//If mouse is not clicked anymore but card is in moving state, fix the card where it is
-		if(mouse.clicked == false && this.moving == 1){
+		if(mouse.clicked == false && this.moving == 1){ 
 			this.moving = 0;
 			//hand_cards.handStack.push(this,true);
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
@@ -168,9 +171,12 @@ var hand_cards = { //position of the cards in hand
 	y: canvas.height - card_elements.card_lenght_y,
 	gap: 50,
 	handStack: new Stack(),
+	mousein: false, //ADDED
+	
 	//This function places the card in the right spot on the screen
 	updateHandPosition: function(){
 		var deltaDistance = (canvas.width-(4*this.gap) )/ this.handStack.length;
+
 		if ( deltaDistance > (card_elements.card_lenght_x+this.gap) ) deltaDistance = card_elements.card_lenght_x+(this.gap/2);
 		for(var i=0; i<this.handStack.length; i++){
 			if(this.handStack.array[i].moving == 0){
@@ -184,7 +190,8 @@ var hand_cards = { //position of the cards in hand
 					this.handStack.array[i].x = cx - movDelta;
 				}
 				
-				var fy = canvas.height - card_elements.card_lenght_y -10; //Final y (added -10 just to put some distance)
+				var fy = canvas.height - 30; //Final y 
+				if( hand_cards.mousein ) fy = canvas.height - card_elements.card_lenght_y - 10;
 				var cy = this.handStack.array[i].y; //Current y
 				var movDelta = (cy-fy)/10;
 				if(Math.abs(movDelta) < 0.005){
@@ -195,6 +202,7 @@ var hand_cards = { //position of the cards in hand
 				}
 				
 			}
+			
 			else{
 				console.log(this.handStack.array[i].name);
 			}
