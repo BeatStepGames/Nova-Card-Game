@@ -69,7 +69,7 @@ function Stack(){
 	
 	this.push = function(obj,remove){
 		
-		if(obj._stackID != undefined){
+		if(obj["_stackID"] != undefined){
 			if(remove == true){
 				for(var i = 0; i<this.array.length; i++){
 					if(this.array[i]._stackID == obj._stackID){
@@ -80,7 +80,7 @@ function Stack(){
 			}
 		}
 		else{
-			obj._stackID = IDManager.getUniqueID();
+			obj["_stackID"] = IDManager.getUniqueID();
 		}
 		
 		this.array.splice(0,0,obj);

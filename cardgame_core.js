@@ -1,16 +1,41 @@
 var canvas = document.getElementById("canvas");
+canvas.width = window.innerWidth; //resize canvas!
+canvas.height = window.innerHeight;
+
+function splitNewLine(str,x,y){ //comment text of the card, don't touch that
+	var array = str.split(' ');
+	var line = "";
+	var newl=1;
+	for(var i=0;i<array.length;i++){
+		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
+			line = line + array[i]+ " ";
+		}
+		else{
+			//result = result + line + "\r\n";
+			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+			line = array[i] + " ";
+			newl++;
+		}
+	}
+	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+	return;
+}
+
 
 var ctx = canvas.getContext("2d");
-var global_x;
-var global_y;
+var global_x; //Center of the screen x
+var global_y; //Center of the screen y
 var all_cards=[]; //array of cards (field card[2x4],cards in hand[from 0 to 7])
 var grabbed_card = false; //Tells if we have a card in our hand and cannot take another one
 
 var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
 
-//HOT FIX, NOT KEEP THIS CODE !
-var lastCard = undefined;
+var floatingHandCard = undefined;
 
+
+
+
+//card
 var card_elements = { //width and height of all elements in card
 	card_lenght_x: 160,
 	card_lenght_y: 240,
@@ -20,20 +45,6 @@ var card_elements = { //width and height of all elements in card
 	atk_def_rank: 30
 };
 
-var hand_cards = { //position of the cards in hand
-	x: 100,
-	y: 600, // 600+ to put them outside the screen (need a method to create a scrollbar when happens!(TO-DO: you need to solve this Pasquale))
-	gap: 10,
-	handStack: undefined,
-	printHand: function(){
-		
-	}
-};
-
-//card
-
-var vel = 4; //velocity
-
 function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.x = x;
 	this.y = y;
@@ -42,7 +53,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.comment = comment;
 	this.atk = atk;
 	this.life = life;
-	var moving =0; //Ex flag, this one is a better name
+	this.moving =0; //Ex flag, this one is a better name
 	var temp_x;
 	var temp_y;
 	this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
@@ -95,49 +106,81 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	}
 	
 	this.update = function(){ //update card in new position
-		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && moving == 0){
+		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && this.moving == 0){
 			console.log("clicked!");
-			moving = 1;
+			this.moving = 1;
 			temp_x = mouse.x-this.x;
 			temp_y = mouse.y-this.y;
 			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
-			hand_cards.handStack.push(this,true);
+			floatingHandCard = this;
 			
 		}
-		if(moving == 1){
+		if(this.moving == 1){
 			this.x = mouse.x-temp_x;
 			this.y = mouse.y-temp_y;
 			lastCard = this;
 		}
 		
 		//If mouse is not clicked anymore but card is in moving state, fix the card where it is
-		if(mouse.clicked == false && moving == 1){
-			moving = 0;
+		if(mouse.clicked == false && this.moving == 1){
+			this.moving = 0;
+			//hand_cards.handStack.push(this,true);
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
+			floatingHandCard = undefined;
 		}
-
-		this.draw();
 	}
 }
 
-function splitNewLine(str,x,y){ //comment text of the card, don't touch that
-	var array = str.split(' ');
-	var line = "";
-	var newl=1;
-	for(var i=0;i<array.length;i++){
-		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
-			line = line + array[i]+ " ";
-		}
-		else{
-			//result = result + line + "\r\n";
-			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
-			line = array[i] + " ";
-			newl++;
+var field = {
+	
+	
+	
+	
+}
+
+
+
+var hand_cards = { //position of the cards in hand
+	y: canvas.height - card_elements.card_lenght_y,
+	gap: 50,
+	handStack: new Stack(),
+	//This function places the card in the right spot on the screen
+	updateHandPosition: function(){
+		var deltaDistance = (canvas.width-(2*this.gap) )/ this.handStack.length;
+		for(var i=0; i<this.handStack.length; i++){
+			if(this.handStack.array[i].moving == 0){
+				var fx = deltaDistance*i + this.gap; //Final x
+				var cx = this.handStack.array[i].x; //Current x
+				var movDelta = (cx-fx)/10;
+				if(Math.abs(movDelta) < 0.005){
+					this.handStack.array[i].x = fx;
+				}
+				else{
+					this.handStack.array[i].x = cx - movDelta;
+				}
+				
+				var fy = canvas.height - card_elements.card_lenght_y; //Final y
+				var cy = this.handStack.array[i].y; //Current y
+				var movDelta = (cy-fy)/10;
+				if(Math.abs(movDelta) < 0.005){
+					this.handStack.array[i].y = fy;
+				}
+				else{
+					this.handStack.array[i].y = cy - movDelta;
+				}
+				
+			}
+			else{
+				console.log(this.handStack.array[i].name);
+			}
 		}
 	}
-	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
-	return;
-}
+};
+
+
+
+
+var imageData;
 
 
 //Looping function -- Work in here for the game logic
@@ -159,13 +202,24 @@ function animate(){
 	//ctx.fillStyle = 'white';
 	ctx.fillText("Nova Card Game",global_x,global_y);
 	
-	for(var i=hand_cards.handStack.length-1; i >= 0; i--){
+	//Update position of hand cards
+	hand_cards.updateHandPosition();
+	
+	//Update hand cards
+	for(var i=0; i<hand_cards.handStack.length; i++){
 		hand_cards.handStack.array[i].update();
 	}
+	//Draw hand cards
+	for(var i=hand_cards.handStack.length-1; i >= 0; i--){
+		if(hand_cards.handStack.array[i].moving == 0){
+			hand_cards.handStack.array[i].draw();
+		}
+	}
 	//ctx.fillRect(x_card,0,150,220);
+	if(floatingHandCard != undefined){
+		floatingHandCard.draw();
+	}
 	
-	
-	//x_card +=vel;
 }
 
 
@@ -173,26 +227,28 @@ function animate(){
 
 
 function start(){
+	canvas.width = window.innerWidth; //resize canvas!
+	canvas.height = window.innerHeight;	
+	
 	img=new Image();
 		
-	img.onload=function(){
-		animate();
+	img.onload=function(){		
+		animate();		
 	}
-	
-	hand_cards.handStack = new Stack();
 
 	//just 4 cards to try push method
 
-	hand_cards.handStack.push(new Card(hand_cards.x,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
-	hand_cards.handStack.push(new Card(hand_cards.x + card_elements.card_lenght_x + hand_cards.gap,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*2,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*3,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*4,hand_cards.y,"Lol3",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*5,hand_cards.y,"Lol4",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*6,hand_cards.y,"Lol5",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*7,hand_cards.y,"Lol6",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*8,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(hand_cards.x + (card_elements.card_lenght_x + hand_cards.gap)*9,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 
 	img.src='cards/Emperor of Fire Destiny.png';
+
 }
