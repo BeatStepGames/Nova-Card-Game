@@ -133,11 +133,35 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 
 var field = {
 	
+	gap_from_border: 50,
+	n_of_pos: 4, //( pos = where you place a card )
+	pos_width: card_elements.card_lenght_x+20,
+	pos_height: card_elements.card_lenght_y+20,
 	
+	x: canvas.width/2 - (card_elements.card_lenght_x+20)*2,
+	y: 0,
 	
+	draw: function(){
+		ctx.beginPath();
+		ctx.textAlign = "center";
+		ctx.fillStyle = 'black';
+		ctx.strokeStyle="white";
+		
+		ctx.beginPath();
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				ctx.rect(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
+			}
+		}
+		ctx.fillStyle = 'black';
+		ctx.fill();
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = 'white';
+		ctx.stroke();
+		
+	}
 	
-}
-
+};
 
 
 var hand_cards = { //position of the cards in hand
@@ -146,7 +170,8 @@ var hand_cards = { //position of the cards in hand
 	handStack: new Stack(),
 	//This function places the card in the right spot on the screen
 	updateHandPosition: function(){
-		var deltaDistance = (canvas.width-(2*this.gap) )/ this.handStack.length;
+		var deltaDistance = (canvas.width-(4*this.gap) )/ this.handStack.length;
+		if ( deltaDistance > (card_elements.card_lenght_x+this.gap) ) deltaDistance = card_elements.card_lenght_x+(this.gap/2);
 		for(var i=0; i<this.handStack.length; i++){
 			if(this.handStack.array[i].moving == 0){
 				var fx = deltaDistance*i + this.gap; //Final x
@@ -159,7 +184,7 @@ var hand_cards = { //position of the cards in hand
 					this.handStack.array[i].x = cx - movDelta;
 				}
 				
-				var fy = canvas.height - card_elements.card_lenght_y; //Final y
+				var fy = canvas.height - card_elements.card_lenght_y -10; //Final y (added -10 just to put some distance)
 				var cy = this.handStack.array[i].y; //Current y
 				var movDelta = (cy-fy)/10;
 				if(Math.abs(movDelta) < 0.005){
@@ -201,6 +226,8 @@ function animate(){
 	ctx.fillStyle = "silver";
 	//ctx.fillStyle = 'white';
 	ctx.fillText("Nova Card Game",global_x,global_y);
+	
+	field.draw();
 	
 	//Update position of hand cards
 	hand_cards.updateHandPosition();
@@ -246,8 +273,8 @@ function start(){
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???][???: destroy a random card]","X","X",img));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???][???: destroy a random card]","X","X",img));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
+	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
+	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 
 	img.src='cards/Emperor of Fire Destiny.png';
 
