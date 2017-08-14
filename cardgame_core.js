@@ -35,7 +35,14 @@ var field;
 var hand_cards;
 var floatingHandCard = undefined;
 
-
+function onResize(){
+	canvas.width = window.innerWidth; //resize canvas!
+	canvas.height = window.innerHeight;
+	
+	field.onResize();
+	hand_cards.onResize();
+	
+}
 
 
 //card
@@ -168,9 +175,7 @@ function Field() {
 	}
 	
 	this.draw = function(){
-		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-		this.y = 10;
-		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
+		
 		ctx.beginPath();
 		ctx.textAlign = "center";
 		ctx.fillStyle = 'black';
@@ -180,7 +185,6 @@ function Field() {
 		for(var j=0;j<=1;j++){
 			for(var i=0;i<this.n_of_pos;i++){
 				ctx.rect(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
-				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
 			}
 		}
 		ctx.fillStyle = 'black';
@@ -212,7 +216,8 @@ function Field() {
 	};
 	
 	this.placeCard = function(x,y,card){
-		for(var j=0;j<=1;j++){
+		var j=1;
+		//for(var j=0;j<=1;j++){
 			for(var i=0;i<field.n_of_pos;i++){
 				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
 					card.x = this.collisionMasks[j+""+i].x + this.padding;
@@ -222,11 +227,33 @@ function Field() {
 					return true;
 				}
 			}
-		}
+		//}
 		
 		return false;
 	};
 	
+	this.onResize = function(){
+		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+		this.y = 10;
+		
+		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
+		
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<this.n_of_pos;i++){
+				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+			}
+		}
+		
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(field.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].x = this.collisionMasks[j+""+i].x + this.padding;
+					this.fieldCards[j+""+i].y = this.collisionMasks[j+""+i].y + this.padding;
+				}
+			}
+		}
+		
+	}
 	
 };
 
@@ -250,7 +277,7 @@ function HandCards() { //position of the cards in hand
 		}
 		
 		//check mouse in the hand cards area
-		if(mouse.y>=this.y){
+		if(mouse.y>=this.y ){ //this.handStack.length > 0 && mouse.x>=this.handStack.array[0].x && mouse.x <= this.handStack.array[this.handStack.array.length-1].x+card_elements.card_lenght_x 
 			this.mousein = true;
 		} 
 		else{
@@ -306,6 +333,9 @@ function HandCards() { //position of the cards in hand
 		}
 	};
 	
+	this.onResize = function(){
+		
+	}
 	
 };
 
@@ -317,11 +347,8 @@ function HandCards() { //position of the cards in hand
 function animate(){
 	requestAnimationFrame(animate);
 	
-	canvas.width = window.innerWidth; //resize canvas!
-	canvas.height = window.innerHeight;
 	
-	
-	//ctx.clearRect(0,0,innerWidth,innerHeight); //card!
+	ctx.clearRect(0,0,innerWidth,innerHeight);
 	
 	//Nova card game text
 	global_x = canvas.width/2; 
