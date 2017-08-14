@@ -14,12 +14,12 @@ function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 		}
 		else{
 			//result = result + line + "\r\n";
-			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl);
 			line = array[i] + " ";
 			newl++;
 		}
 	}
-	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+11*newl);
+	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl);
 	return;
 }
 
@@ -40,6 +40,7 @@ var floatingHandCard = undefined;
 function onResize(){
 	canvas.width = window.innerWidth; //resize canvas!
 	canvas.height = window.innerHeight;
+	//size factor
 	sizeFactor = canvas.width/1536;
 	
 	//Trash code
@@ -51,16 +52,19 @@ function onResize(){
 	card_elements.comment_card = 70*sizeFactor;
 	card_elements.atk_def_rank = 30*sizeFactor;
 	card_elements.atk_def_gap = 60*sizeFactor;
+	
 	//field elements:
 	field.gap_from_border = 50*sizeFactor;
 	field.padding = 10*sizeFactor;
 	field.pos_width = card_elements.card_lenght_x+(field.padding*2);
 	field.pos_height = card_elements.card_lenght_y+(field.padding*2);
 	
-	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-	this.y = 10*sizeFactor;
+	field.x = canvas.width/2 - (card_elements.card_lenght_x+(field.padding*2))*(field.n_of_pos/2);
+	field.y = 10*sizeFactor;
 	
-	
+	//hand cards elements:
+	hand_cards.gap = 50*sizeFactor;
+	hand_cards.bottomPadding = 10*sizeFactor;
 	
 	field.onResize();
 	hand_cards.onResize();
@@ -86,7 +90,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.y = y;
 	this.centerX;
 	this.centerY;
-	this.name = name;
+	this.name = name; //Unique ID! (key)
 	this.level = level;
 	this.comment = comment;
 	this.atk = atk;
@@ -295,8 +299,8 @@ function Field() {
 
 function HandCards() { //position of the cards in hand
 	this.y = canvas.height - card_elements.top_space_card;
-	this.gap = 50;
-	this.bottomPadding = 10;
+	this.gap = 50*sizeFactor;
+	this.bottomPadding = 10*sizeFactor;
 	this.handStack = new Stack();
 	this.mousein = false;
 	
