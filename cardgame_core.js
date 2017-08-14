@@ -2,6 +2,8 @@ var canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth; //resize canvas!
 canvas.height = window.innerHeight;
 
+var sizeFactor = canvas.width/1536;
+
 function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 	var array = str.split(' ');
 	var line = "";
@@ -35,17 +37,48 @@ var field;
 var hand_cards;
 var floatingHandCard = undefined;
 
-
+function onResize(){
+	canvas.width = window.innerWidth; //resize canvas!
+	canvas.height = window.innerHeight;
+	sizeFactor = canvas.width/1536;
+	
+	//Trash code
+	//card elements:
+	card_elements.card_lenght_x = 160*sizeFactor;
+	card_elements.card_lenght_y = 240*sizeFactor;
+	card_elements.top_space_card = 30*sizeFactor;
+	card_elements.image_space_card = 110*sizeFactor;
+	card_elements.comment_card = 70*sizeFactor;
+	card_elements.atk_def_rank = 30*sizeFactor;
+	card_elements.atk_def_gap = 60*sizeFactor;
+	//field elements:
+	field.gap_from_border = 50*sizeFactor;
+	field.padding = 10*sizeFactor;
+	field.pos_width = card_elements.card_lenght_x+(field.padding*2);
+	field.pos_height = card_elements.card_lenght_y+(field.padding*2);
+	
+	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+	this.y = 10*sizeFactor;
+	
+	
+	
+	field.onResize();
+	hand_cards.onResize();
+	
+	
+	
+}
 
 
 //card
 var card_elements = { //width and height of all elements in card
-	card_lenght_x: 160,
-	card_lenght_y: 240,
-	top_space_card: 30,
-	image_space_card: 110,
-	comment_card: 70,
-	atk_def_rank: 30
+	card_lenght_x: 160*sizeFactor,
+	card_lenght_y: 240*sizeFactor,
+	top_space_card: 30*sizeFactor,
+	image_space_card: 110*sizeFactor,
+	comment_card: 70*sizeFactor,
+	atk_def_rank: 30*sizeFactor,
+	atk_def_gap: 60*sizeFactor
 };
 
 function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
@@ -73,11 +106,11 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 		ctx.strokeStyle='silver';
 		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
-		ctx.font="12px Arial";
+		ctx.font=(12*sizeFactor)+"px Arial";
 		ctx.fillStyle = "silver";
 		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
-		ctx.font="18px Arial";
+		ctx.font=(18*sizeFactor)+"px Arial";
 		width_m = ctx.measureText(100 - this.level).width;
 		height_m = ctx.measureText("gggg").width;
 		ctx.rect(this.x+card_elements.card_lenght_x-card_elements.top_space_card,this.y,card_elements.top_space_card, card_elements.top_space_card); //level part (top right)
@@ -87,18 +120,18 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.drawImage(img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
 		ctx.rect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card); //image part
 		
-		ctx.font="11px Arial";
+		ctx.font=(11*sizeFactor)+"px Arial";
 		
 		ctx.fillStyle = "white";
 		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
 		splitNewLine(this.comment,this.x,this.y); //text comment
 		
-		ctx.font="18px Arial";
+		ctx.font=(18*sizeFactor)+"px Arial";
 		ctx.fillStyle = "red";
 		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card,card_elements.card_lenght_x,card_elements.atk_def_rank); //atk def ecc. part
-		ctx.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
 		ctx.fillStyle = "green";
-		ctx.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+60,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
 		ctx.stroke();
 		
 	}
@@ -149,15 +182,15 @@ function Field() {
 	this.fieldCards = new Array();
 	this.collisionMasks = new Array();
 	
-	this.gap_from_border = 50;
+	this.gap_from_border = 50*sizeFactor;
 	this.n_of_pos = 4; //( pos = where you place a card )
 	this.lines = 2;
-	this.padding = 10;
+	this.padding = 10*sizeFactor;
 	this.pos_width = card_elements.card_lenght_x+(this.padding*2);
 	this.pos_height = card_elements.card_lenght_y+(this.padding*2);
 	
 	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-	this.y = 10;
+	this.y = 10*sizeFactor;
 	
 	this.fieldArea = new Rectangle(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
 	
@@ -168,26 +201,21 @@ function Field() {
 	}
 	
 	this.draw = function(){
-		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-		this.y = 10;
-		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
-		ctx.beginPath();
-		ctx.textAlign = "center";
-		ctx.fillStyle = 'black';
-		ctx.strokeStyle="white";
 		
 		ctx.beginPath();
+		ctx.textAlign = "center";
+		ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+		
 		for(var j=0;j<=1;j++){
 			for(var i=0;i<this.n_of_pos;i++){
 				ctx.rect(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
-				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
 			}
 		}
-		ctx.fillStyle = 'black';
 		ctx.fill();
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = 'white';
 		ctx.stroke();
+		
 		
 	};
 	
@@ -212,7 +240,8 @@ function Field() {
 	};
 	
 	this.placeCard = function(x,y,card){
-		for(var j=0;j<=1;j++){
+		var j=1;
+		//for(var j=0;j<=1;j++){
 			for(var i=0;i<field.n_of_pos;i++){
 				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
 					card.x = this.collisionMasks[j+""+i].x + this.padding;
@@ -222,11 +251,33 @@ function Field() {
 					return true;
 				}
 			}
-		}
+		//}
 		
 		return false;
 	};
 	
+	this.onResize = function(){
+		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+		this.y = 10;
+		
+		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
+		
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<this.n_of_pos;i++){
+				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+			}
+		}
+		
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(field.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].x = this.collisionMasks[j+""+i].x + this.padding;
+					this.fieldCards[j+""+i].y = this.collisionMasks[j+""+i].y + this.padding;
+				}
+			}
+		}
+		
+	}
 	
 };
 
@@ -250,7 +301,7 @@ function HandCards() { //position of the cards in hand
 		}
 		
 		//check mouse in the hand cards area
-		if(mouse.y>=this.y){
+		if(mouse.y>=this.y ){ //this.handStack.length > 0 && mouse.x>=this.handStack.array[0].x && mouse.x <= this.handStack.array[this.handStack.array.length-1].x+card_elements.card_lenght_x 
 			this.mousein = true;
 		} 
 		else{
@@ -306,6 +357,9 @@ function HandCards() { //position of the cards in hand
 		}
 	};
 	
+	this.onResize = function(){
+		
+	}
 	
 };
 
@@ -317,17 +371,14 @@ function HandCards() { //position of the cards in hand
 function animate(){
 	requestAnimationFrame(animate);
 	
-	canvas.width = window.innerWidth; //resize canvas!
-	canvas.height = window.innerHeight;
 	
-	
-	//ctx.clearRect(0,0,innerWidth,innerHeight); //card!
+	ctx.clearRect(0,0,innerWidth,innerHeight);
 	
 	//Nova card game text
 	global_x = canvas.width/2; 
 	global_y = canvas.height/2;
 	ctx.textAlign = "center";
-	ctx.font = "30px Consolas";
+	ctx.font = (30*sizeFactor)+"px Consolas";
 	ctx.fillStyle = "silver";
 	//ctx.fillStyle = 'white';
 	ctx.fillText("Nova Card Game",global_x,global_y);
@@ -349,7 +400,6 @@ function animate(){
 	
 	//Draw hand cards
 	hand_cards.drawHandCards();
-	
 	
 }
 
