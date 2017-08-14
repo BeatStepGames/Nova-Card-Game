@@ -106,6 +106,7 @@ function Stack(){
 		for(var i = 0; i<this.array.length; i++){
 			if(this.array[i]._stackID == ID){
 				this.array.splice(i,1);
+				this.length = this.array.length;
 				break;
 			}
 		}
@@ -129,15 +130,14 @@ function Rectangle(x,y,width,height){
 	
 	this.contains = function(px,py){
 		if(px>this.x && px < (this.x+this.width)
-		  && py>(this.y-this.height) && py<this.y){
-			console.log("true");
+		  && py>this.y && py<(this.y+this.height) ){
 			return true;
 		}
-		console.log("false");
 		return false;
 	}
 	
 }
+
 
 
 

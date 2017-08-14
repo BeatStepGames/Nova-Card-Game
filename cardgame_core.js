@@ -31,7 +31,8 @@ var global_y; //Center of the screen y
 var grabbed_card = false; //Tells if we have a card in our hand and cannot take another one
 
 var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
-
+var field;
+var hand_cards;
 var floatingHandCard = undefined;
 
 
@@ -102,7 +103,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 	}
 	
-	this.update = function(){ //update card in new position
+	this.handUpdate = function(){ //update card in new position when in hand
 		
 		this.centerX = this.x + (card_elements.card_lenght_x/2);
 		this.centerY = this.y + (card_elements.card_lenght_y/2);
@@ -125,39 +126,51 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		if(mouse.clicked == false && this.moving == 1){
 			
 			this.moving = 0;
+			
 			//Check if player is placing a card on the field and place it
-			console.log("Is card inside field area");
-			if(field.fieldArea.contains(floatingHandCard.centerX,floatingHandCard.centerY)){
-				field.placeCard(floatingHandCard.centerX,floatingHandCard.centerY,floatingHandCard);
+			if(field.fieldArea.contains(this.centerX,this.centerY)){
+				field.placeCard(this.centerX,this.centerY,this);
 			}
-			//hand_cards.handStack.push(this,true);
+			
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
 			floatingHandCard = undefined;
 		}
+	};
+	
+	this.fieldUpdate = function(){
 		
 	}
 }
 
-var field = {
+
+
+function Field() {
 	
-	fieldCards: new Array(),
-	collisionMasks: new Array(),
+	this.fieldCards = new Array();
+	this.collisionMasks = new Array();
 	
-	gap_from_border: 50,
-	n_of_pos: 4, //( pos = where you place a card )
-	padding: 20,
-	pos_width: card_elements.card_lenght_x+20,
-	pos_height: card_elements.card_lenght_y+20,
+	this.gap_from_border = 50;
+	this.n_of_pos = 4; //( pos = where you place a card )
+	this.lines = 2;
+	this.padding = 10;
+	this.pos_width = card_elements.card_lenght_x+(this.padding*2);
+	this.pos_height = card_elements.card_lenght_y+(this.padding*2);
 	
-	x: canvas.width/2 - (card_elements.card_lenght_x+20)*2,
-	y: 10,
+	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+	this.y = 10;
 	
-	fieldArea: new Rectangle(this.x,this.y,this.pos_width*4,this.pos_height*2),
+	this.fieldArea = new Rectangle(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
 	
-	draw: function(){
-		this.x = canvas.width/2 - (card_elements.card_lenght_x+20)*2;
+	for(var j=0;j<=1;j++){
+		for(var i=0;i<this.n_of_pos;i++){
+			this.collisionMasks[j+""+i] = new Rectangle(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+		}
+	}
+	
+	this.draw = function(){
+		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
 		this.y = 10;
-		this.fieldArea.update(this.x,this.y,this.pos_width*4,this.pos_height*2);
+		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
 		ctx.beginPath();
 		ctx.textAlign = "center";
 		ctx.fillStyle = 'black';
@@ -165,9 +178,9 @@ var field = {
 		
 		ctx.beginPath();
 		for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
-				ctx.rect(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
-				this.collisionMasks[j+""+i] = new Rectangle(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
+			for(var i=0;i<this.n_of_pos;i++){
+				ctx.rect(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
 			}
 		}
 		ctx.fillStyle = 'black';
@@ -176,11 +189,29 @@ var field = {
 		ctx.strokeStyle = 'white';
 		ctx.stroke();
 		
-	},
+	};
 	
-	placeCard : function(x,y,card){
-		console.log("Card name " + card.name);
-		console.log()
+	this.updateFieldCards = function(){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(this.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].fieldUpdate();
+				}
+			}
+		}
+	};
+	
+	this.drawFieldCards = function(){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(this.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].draw();
+				}
+			}
+		}
+	};
+	
+	this.placeCard = function(x,y,card){
 		for(var j=0;j<=1;j++){
 			for(var i=0;i<field.n_of_pos;i++){
 				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
@@ -194,21 +225,22 @@ var field = {
 		}
 		
 		return false;
-	}
+	};
 	
 	
 };
 
 
-var hand_cards = { //position of the cards in hand
-	y: canvas.height - card_elements.top_space_card,
-	gap: 50,
-	bottomPadding: 10,
-	handStack: new Stack(),
-	mousein: false,
+
+function HandCards() { //position of the cards in hand
+	this.y = canvas.height - card_elements.top_space_card;
+	this.gap = 50;
+	this.bottomPadding = 10;
+	this.handStack = new Stack();
+	this.mousein = false;
 	
 	//This function places the card in the right spot on the screen
-	updateHandPosition: function(){
+	this.updateHandPosition = function(){
 		
 		if(this.mousein == false){
 			this.y = canvas.height - card_elements.top_space_card;
@@ -255,10 +287,27 @@ var hand_cards = { //position of the cards in hand
 				
 			}
 		}
-	}
+	};
+	
+	this.updateHandCards = function(){
+		for(var i=0; i<this.handStack.length; i++){
+			this.handStack.array[i].handUpdate();
+		}
+	};
+	
+	this.drawHandCards = function(){
+		for(var i=this.handStack.length-1; i >= 0; i--){
+			if(this.handStack.array[i].moving == 0){
+				this.handStack.array[i].draw();
+			}
+		}
+		if(floatingHandCard != undefined){
+			floatingHandCard.draw();
+		}
+	};
+	
+	
 };
-
-
 
 
 
@@ -287,23 +336,20 @@ function animate(){
 	hand_cards.updateHandPosition();
 	
 	//Update hand cards
-	for(var i=0; i<hand_cards.handStack.length; i++){
-		hand_cards.handStack.array[i].update();
-	}
+	hand_cards.updateHandCards();
+	
+	//Update field cards
+	field.updateFieldCards();
 	
 	//Draw the field
 	field.draw();
 	
+	//Draw field cards
+	field.drawFieldCards();
+	
 	//Draw hand cards
-	for(var i=hand_cards.handStack.length-1; i >= 0; i--){
-		if(hand_cards.handStack.array[i].moving == 0){
-			hand_cards.handStack.array[i].draw();
-		}
-	}
-	//ctx.fillRect(x_card,0,150,220);
-	if(floatingHandCard != undefined){
-		floatingHandCard.draw();
-	}
+	hand_cards.drawHandCards();
+	
 	
 }
 
@@ -321,6 +367,8 @@ function start(){
 		animate();		
 	}
 
+	field = new Field();
+	hand_cards = new HandCards();
 	//just 4 cards to try push method
 
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
