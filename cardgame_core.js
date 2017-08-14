@@ -25,11 +25,14 @@ function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 var ctx = canvas.getContext("2d");
 var global_x; //Center of the screen x
 var global_y; //Center of the screen y
-var all_cards=[]; //array of cards (field card[2x4],cards in hand[from 0 to 7])
+//var all_cards=[]; //array of cards (field card[2x4],cards in hand[from 0 to 7])
+
+
 var grabbed_card = false; //Tells if we have a card in our hand and cannot take another one
 
 var arrayImg = new Array(); //array of images, need a loading function of all the images in the folder cards (TO-DO)
-
+var field;
+var hand_cards;
 var floatingHandCard = undefined;
 
 
@@ -48,6 +51,8 @@ var card_elements = { //width and height of all elements in card
 function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.x = x;
 	this.y = y;
+	this.centerX;
+	this.centerY;
 	this.name = name;
 	this.level = level;
 	this.comment = comment;
@@ -58,7 +63,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	var temp_y;
 	this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
 	
-	this.draw = function(){ //Do not touch that ლ(ಠ_ಠლ)
+	this.draw = function(){
 		var width_m;
 		var height_m;
 		ctx.beginPath();
@@ -70,8 +75,6 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
 		ctx.font="12px Arial";
 		ctx.fillStyle = "silver";
-		//INCONSISTENCY, NEVER USED WIDTH_M WITH THIS VALUE (used before to center name, now deprecated by the creation of the method splitNewLine() & ctx.textAlign = "center";)
-		//width_m = ctx.measureText(this.name).width;
 		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
 		ctx.font="18px Arial";
@@ -85,12 +88,9 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.rect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card); //image part
 		
 		ctx.font="11px Arial";
-		//var length_text = ctx.measureText(this.comment).width;
-		//var str=this.comment.split(' ');
 		
 		ctx.fillStyle = "white";
 		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
-		//ctx.fillText(this.comment,this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+10);
 		splitNewLine(this.comment,this.x,this.y); //text comment
 		
 		ctx.font="18px Arial";
@@ -103,9 +103,13 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 	}
 	
-	this.update = function(){ //update card in new position
+	this.handUpdate = function(){ //update card in new position when in hand
+		
+		this.centerX = this.x + (card_elements.card_lenght_x/2);
+		this.centerY = this.y + (card_elements.card_lenght_y/2);
+		
 		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && this.moving == 0){
-			console.log("clicked!");
+			
 			this.moving = 1;
 			temp_x = mouse.x-this.x;
 			temp_y = mouse.y-this.y;
@@ -116,35 +120,57 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		if(this.moving == 1){
 			this.x = mouse.x-temp_x;
 			this.y = mouse.y-temp_y;
-			lastCard = this;
 		}
 		
-		if(mouse.x>=hand_cards.gap && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y){//ADDED
-			//check mouse in the card!
-			hand_cards.mousein = true;
-		} else hand_cards.mousein = false;
-		
-		//If mouse is not clicked anymore but card is in moving state, fix the card where it is
-		if(mouse.clicked == false && this.moving == 1){ 
+		//If mouse is not clicked anymore but card is in moving state, let it go back into the hand, or fixed on the field
+		if(mouse.clicked == false && this.moving == 1){
+			
 			this.moving = 0;
-			//hand_cards.handStack.push(this,true);
+			
+			//Check if player is placing a card on the field and place it
+			if(field.fieldArea.contains(this.centerX,this.centerY)){
+				field.placeCard(this.centerX,this.centerY,this);
+			}
+			
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
 			floatingHandCard = undefined;
 		}
+	};
+	
+	this.fieldUpdate = function(){
+		
 	}
 }
 
-var field = {
+
+
+function Field() {
 	
-	gap_from_border: 50,
-	n_of_pos: 4, //( pos = where you place a card )
-	pos_width: card_elements.card_lenght_x+20,
-	pos_height: card_elements.card_lenght_y+20,
+	this.fieldCards = new Array();
+	this.collisionMasks = new Array();
 	
-	x: canvas.width/2 - (card_elements.card_lenght_x+20)*2,
-	y: 0,
+	this.gap_from_border = 50;
+	this.n_of_pos = 4; //( pos = where you place a card )
+	this.lines = 2;
+	this.padding = 10;
+	this.pos_width = card_elements.card_lenght_x+(this.padding*2);
+	this.pos_height = card_elements.card_lenght_y+(this.padding*2);
 	
-	draw: function(){
+	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+	this.y = 10;
+	
+	this.fieldArea = new Rectangle(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
+	
+	for(var j=0;j<=1;j++){
+		for(var i=0;i<this.n_of_pos;i++){
+			this.collisionMasks[j+""+i] = new Rectangle(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+		}
+	}
+	
+	this.draw = function(){
+		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+		this.y = 10;
+		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
 		ctx.beginPath();
 		ctx.textAlign = "center";
 		ctx.fillStyle = 'black';
@@ -152,8 +178,9 @@ var field = {
 		
 		ctx.beginPath();
 		for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
-				ctx.rect(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
+			for(var i=0;i<this.n_of_pos;i++){
+				ctx.rect(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
 			}
 		}
 		ctx.fillStyle = 'black';
@@ -162,22 +189,79 @@ var field = {
 		ctx.strokeStyle = 'white';
 		ctx.stroke();
 		
-	}
+	};
+	
+	this.updateFieldCards = function(){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(this.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].fieldUpdate();
+				}
+			}
+		}
+	};
+	
+	this.drawFieldCards = function(){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(this.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].draw();
+				}
+			}
+		}
+	};
+	
+	this.placeCard = function(x,y,card){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
+					card.x = this.collisionMasks[j+""+i].x + this.padding;
+					card.y = this.collisionMasks[j+""+i].y + this.padding;
+					field.fieldCards[j+""+i] = card;
+					hand_cards.handStack.remove(card._stackID);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	};
+	
 	
 };
 
 
-var hand_cards = { //position of the cards in hand
-	y: canvas.height - card_elements.card_lenght_y,
-	gap: 50,
-	handStack: new Stack(),
-	mousein: false, //ADDED
+
+function HandCards() { //position of the cards in hand
+	this.y = canvas.height - card_elements.top_space_card;
+	this.gap = 50;
+	this.bottomPadding = 10;
+	this.handStack = new Stack();
+	this.mousein = false;
 	
 	//This function places the card in the right spot on the screen
-	updateHandPosition: function(){
+	this.updateHandPosition = function(){
+		
+		if(this.mousein == false){
+			this.y = canvas.height - card_elements.top_space_card;
+		}
+		else {
+			this.y = canvas.height - card_elements.card_lenght_y - this.bottomPadding;
+		}
+		
+		//check mouse in the hand cards area
+		if(mouse.y>=this.y){
+			this.mousein = true;
+		} 
+		else{
+			this.mousein = false;
+		}
+		
+		//Animation of moving cards
 		var deltaDistance = (canvas.width-(4*this.gap) )/ this.handStack.length;
 
 		if ( deltaDistance > (card_elements.card_lenght_x+this.gap) ) deltaDistance = card_elements.card_lenght_x+(this.gap/2);
+		
 		for(var i=0; i<this.handStack.length; i++){
 			if(this.handStack.array[i].moving == 0){
 				var fx = deltaDistance*i + this.gap; //Final x
@@ -190,8 +274,8 @@ var hand_cards = { //position of the cards in hand
 					this.handStack.array[i].x = cx - movDelta;
 				}
 				
-				var fy = canvas.height - 30; //Final y 
-				if( hand_cards.mousein ) fy = canvas.height - card_elements.card_lenght_y - 10;
+				var fy = canvas.height - card_elements.top_space_card; //Final y 
+				if( hand_cards.mousein ) fy = canvas.height - card_elements.card_lenght_y - this.bottomPadding;
 				var cy = this.handStack.array[i].y; //Current y
 				var movDelta = (cy-fy)/10;
 				if(Math.abs(movDelta) < 0.005){
@@ -202,18 +286,31 @@ var hand_cards = { //position of the cards in hand
 				}
 				
 			}
-			
-			else{
-				console.log(this.handStack.array[i].name);
+		}
+	};
+	
+	this.updateHandCards = function(){
+		for(var i=0; i<this.handStack.length; i++){
+			this.handStack.array[i].handUpdate();
+		}
+	};
+	
+	this.drawHandCards = function(){
+		for(var i=this.handStack.length-1; i >= 0; i--){
+			if(this.handStack.array[i].moving == 0){
+				this.handStack.array[i].draw();
 			}
 		}
-	}
+		if(floatingHandCard != undefined){
+			floatingHandCard.draw();
+		}
+	};
+	
+	
 };
 
 
 
-
-var imageData;
 
 
 //Looping function -- Work in here for the game logic
@@ -235,25 +332,24 @@ function animate(){
 	//ctx.fillStyle = 'white';
 	ctx.fillText("Nova Card Game",global_x,global_y);
 	
-	field.draw();
-	
 	//Update position of hand cards
 	hand_cards.updateHandPosition();
 	
 	//Update hand cards
-	for(var i=0; i<hand_cards.handStack.length; i++){
-		hand_cards.handStack.array[i].update();
-	}
+	hand_cards.updateHandCards();
+	
+	//Update field cards
+	field.updateFieldCards();
+	
+	//Draw the field
+	field.draw();
+	
+	//Draw field cards
+	field.drawFieldCards();
+	
 	//Draw hand cards
-	for(var i=hand_cards.handStack.length-1; i >= 0; i--){
-		if(hand_cards.handStack.array[i].moving == 0){
-			hand_cards.handStack.array[i].draw();
-		}
-	}
-	//ctx.fillRect(x_card,0,150,220);
-	if(floatingHandCard != undefined){
-		floatingHandCard.draw();
-	}
+	hand_cards.drawHandCards();
+	
 	
 }
 
@@ -271,6 +367,8 @@ function start(){
 		animate();		
 	}
 
+	field = new Field();
+	hand_cards = new HandCards();
 	//just 4 cards to try push method
 
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
