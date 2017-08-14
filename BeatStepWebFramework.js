@@ -71,12 +71,15 @@ function Stack(){
 		
 		if(obj["_stackID"] != undefined){
 			if(remove == true){
+				/*
 				for(var i = 0; i<this.array.length; i++){
 					if(this.array[i]._stackID == obj._stackID){
 						this.remove(i);
 						break;
 					}
 				}
+				*/
+				remove(obj._stackID);
 			}
 		}
 		else{
@@ -92,20 +95,40 @@ function Stack(){
 		this.length = this.array.length;
 	}
 	
-	this.remove = function(index){
-		if(index == undefined){
+	this.remove = function(ID){
+		
+		if(ID == undefined){
 			this.array.splice(0,this.array.lenght);
 			this.length = 0;
+			return;
 		}
-		else{
-			this.array.splice(index,1);
-			this.length = this.array.length;
+		
+		for(var i = 0; i<this.array.length; i++){
+			if(this.array[i]._stackID == ID){
+				this.array.splice(i,1);
+				break;
+			}
 		}
 	}
 }
 
 
-
+function Rectangle(x,y,width,height){
+	
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	
+	this.contains = function(px,py){
+		if(px>this.x && px < (this.x+this.width)
+		  && py>(this.y-this.height) && py<this.y){
+			return true;
+		}
+		return false;
+	}
+	
+}
 
 
 

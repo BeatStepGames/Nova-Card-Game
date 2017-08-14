@@ -48,6 +48,8 @@ var card_elements = { //width and height of all elements in card
 function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	this.x = x;
 	this.y = y;
+	this.centerX;
+	this.centerY;
 	this.name = name;
 	this.level = level;
 	this.comment = comment;
@@ -106,6 +108,10 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	}
 	
 	this.update = function(){ //update card in new position
+		
+		this.centerX = this.x + (card_elements.card_lenght_x/2);
+		this.centerY = this.y + (card_elements.card_lenght_y/2);
+		
 		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && this.moving == 0){
 			console.log("clicked!");
 			this.moving = 1;
@@ -128,10 +134,14 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
 			floatingHandCard = undefined;
 		}
+		
 	}
 }
 
 var field = {
+	
+	fieldCards: new Array(),
+	collisionMasks: new Array(),
 	
 	gap_from_border: 50,
 	n_of_pos: 4, //( pos = where you place a card )
@@ -140,6 +150,8 @@ var field = {
 	
 	x: canvas.width/2 - (card_elements.card_lenght_x+20)*2,
 	y: 0,
+	
+	fieldArea: new Rectangle(this.x,this.y,this.pos_width*4,this.pos_height*2),
 	
 	draw: function(){
 		ctx.beginPath();
@@ -151,6 +163,7 @@ var field = {
 		for(var j=0;j<=1;j++){
 			for(var i=0;i<field.n_of_pos;i++){
 				ctx.rect(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
+				this.collisionMasks[j+""+i] = new Rectangle(field.x + field.pos_width*i,field.y + field.pos_height*j,field.pos_width,field.pos_height);
 			}
 		}
 		ctx.fillStyle = 'black';
@@ -159,7 +172,22 @@ var field = {
 		ctx.strokeStyle = 'white';
 		ctx.stroke();
 		
+	},
+	
+	placeCard : function(x,y,card){
+		for(var j=0;j<=1;j++){
+			for(var i=0;i<field.n_of_pos;i++){
+				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
+					field.fieldCards[j+""+i] = card;
+					hand_cards.handStack.remove(card._stackID);
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
+	
 	
 };
 
@@ -228,6 +256,12 @@ function animate(){
 	ctx.fillText("Nova Card Game",global_x,global_y);
 	
 	field.draw();
+	
+	if(floatingHandCard != undefined && field.fieldArea.contains(floatingHandCard.centerX,floatingHandCard.centerY)){
+		if(field.placeCard(floatingHandCard.centerX,floatingHandCard.centerY,floatingHandCard)){
+			floatingHandCard = undefined;
+		}
+	}
 	
 	//Update position of hand cards
 	hand_cards.updateHandPosition();
