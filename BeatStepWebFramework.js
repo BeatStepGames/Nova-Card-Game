@@ -120,11 +120,20 @@ function Rectangle(x,y,width,height){
 	this.width = width;
 	this.height = height;
 	
+	this.update = function(x,y,width,height){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
+	
 	this.contains = function(px,py){
 		if(px>this.x && px < (this.x+this.width)
 		  && py>(this.y-this.height) && py<this.y){
+			console.log("true");
 			return true;
 		}
+		console.log("false");
 		return false;
 	}
 	
