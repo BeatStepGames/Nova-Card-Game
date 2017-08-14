@@ -100,14 +100,15 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		var width_m;
 		var height_m;
 		ctx.beginPath();
+		
 		ctx.textAlign = "center";
-		ctx.fillStyle = 'black';
+		ctx.fillStyle = "white";
 		ctx.fillRect(this.x,this.y,card_elements.card_lenght_x,card_elements.card_lenght_y);
 		
-		ctx.strokeStyle='silver';
+		ctx.strokeStyle="black";
 		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
 		ctx.font=(12*sizeFactor)+"px Arial";
-		ctx.fillStyle = "silver";
+		ctx.fillStyle = "black";
 		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
 		ctx.font=(18*sizeFactor)+"px Arial";
@@ -116,13 +117,17 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.rect(this.x+card_elements.card_lenght_x-card_elements.top_space_card,this.y,card_elements.top_space_card, card_elements.top_space_card); //level part (top right)
 		ctx.fillText(this.level,this.x+card_elements.card_lenght_x-card_elements.top_space_card/2,this.y+(height_m/2)); //level number (top right)
 		
+		ctx.fillStyle = "black";
+		ctx.fillRect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card);
+		ctx.fillStyle = "white";
 		
 		ctx.drawImage(img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
-		ctx.rect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card); //image part
+		
+		
 		
 		ctx.font=(11*sizeFactor)+"px Arial";
 		
-		ctx.fillStyle = "white";
+		ctx.fillStyle = "black";
 		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
 		splitNewLine(this.comment,this.x,this.y); //text comment
 		
@@ -132,6 +137,11 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
 		ctx.fillStyle = "green";
 		ctx.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.rect(this.x,this.y,card_elements.card_lenght_x, card_elements.card_lenght_y); //image part
+		ctx.strokeStyle = "white";
 		ctx.stroke();
 		
 	}
@@ -409,13 +419,16 @@ function animate(){
 
 function start(){
 	canvas.width = window.innerWidth; //resize canvas!
-	canvas.height = window.innerHeight;	
+	canvas.height = window.innerHeight;
 	
 	img=new Image();
 		
 	img.onload=function(){		
 		animate();		
 	}
+	
+	var tempCard = new Card(0,0,"DEBUG",100,"DEBUG","X","X",img);
+	tempCard.draw();
 
 	field = new Field();
 	hand_cards = new HandCards();
