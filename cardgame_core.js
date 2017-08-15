@@ -106,13 +106,13 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.beginPath();
 		
 		ctx.textAlign = "center";
-		ctx.fillStyle = "white";
+		ctx.fillStyle = "black";
 		ctx.fillRect(this.x,this.y,card_elements.card_lenght_x,card_elements.card_lenght_y);
 		
-		ctx.strokeStyle="black";
+		ctx.strokeStyle="silver";
 		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
 		ctx.font=(12*sizeFactor)+"px Arial";
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "silver";
 		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
 		
 		ctx.font=(18*sizeFactor)+"px Arial";
@@ -123,7 +123,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 		ctx.fillStyle = "black";
 		ctx.fillRect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card);
-		ctx.fillStyle = "white";
+		ctx.fillStyle = "black";
 		
 		ctx.drawImage(img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
 		
@@ -131,7 +131,7 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 		ctx.font=(11*sizeFactor)+"px Arial";
 		
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "white";
 		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
 		splitNewLine(this.comment,this.x,this.y); //text comment
 		
