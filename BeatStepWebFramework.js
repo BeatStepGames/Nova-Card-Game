@@ -8,6 +8,11 @@ var IDManager = {
 	}
 }
 
+//Detects if we are on a mobile device
+var mobilePlatform = false;
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)){
+	mobilePlatform = true;
+}
 
 
 
@@ -25,7 +30,7 @@ var mouse = {
 
 
 window.addEventListener('mousemove', //mouse position every istant listener
-	function(event){ 
+	function(event){
 		mouse.x = event.x;
 		mouse.y = event.y;
 		if(mouse.mouseMove != undefined){
@@ -33,6 +38,19 @@ window.addEventListener('mousemove', //mouse position every istant listener
 		}
 	}
 );
+
+
+window.addEventListener('touchmove', //touch position every istant listener
+	function(event){
+		event.preventDefault();
+		mouse.x = event.touches[0].clientX;
+		mouse.y = event.touches[0].clientY;
+		if(mouse.mouseMove != undefined){
+			mouse.mouseMove();
+		}
+	}
+);
+
 
 window.addEventListener('mousedown',
 	function(event){
@@ -44,6 +62,20 @@ window.addEventListener('mousedown',
 		}
 	}
 );
+
+
+window.addEventListener('touchstart',
+	function(event){
+		event.preventDefault();
+		mouse.clicked = true;
+		mouse.x = event.touches[0].clientX;
+		mouse.y = event.touches[0].clientY;
+		if(mouse.mouseDown != undefined){
+			mouse.mouseDown();
+		}
+	}
+);
+
 
 window.addEventListener('mouseup',
 	function(event){
@@ -59,6 +91,19 @@ window.addEventListener('mouseup',
 	}
 );
 
+
+window.addEventListener('touchend',
+	function(event){
+		event.preventDefault();
+		mouse.clicked = false;
+		if(mouse.mouseUp != undefined){
+			mouse.mouseUp();
+		}
+		if(mouse.click != undefined){
+			mouse.click();
+		}
+	}
+);
 
 
 
