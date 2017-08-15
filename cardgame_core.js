@@ -307,7 +307,7 @@ function HandCards() { //position of the cards in hand
 	//This function places the card in the right spot on the screen
 	this.updateHandPosition = function(){
 		
-		if(this.mousein == false){
+		if(this.mousein == false && mobilePlatform == false){
 			this.y = canvas.height - card_elements.top_space_card;
 		}
 		else {
@@ -339,8 +339,7 @@ function HandCards() { //position of the cards in hand
 					this.handStack.array[i].x = cx - movDelta;
 				}
 				
-				var fy = canvas.height - card_elements.top_space_card; //Final y 
-				if( hand_cards.mousein ) fy = canvas.height - card_elements.card_lenght_y - this.bottomPadding;
+				var fy = this.y;
 				var cy = this.handStack.array[i].y; //Current y
 				var movDelta = (cy-fy)/10;
 				if(Math.abs(movDelta) < 0.005){
