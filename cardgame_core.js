@@ -36,6 +36,7 @@ var arrayImg = new Array(); //array of images, need a loading function of all th
 var field;
 var hand_cards;
 var floatingHandCard = undefined;
+var server;
 
 function onResize(){
 	canvas.width = window.innerWidth; //resize canvas!
@@ -70,6 +71,37 @@ function onResize(){
 	hand_cards.onResize();
 	
 	
+	
+}
+
+//Handles all server comunications
+//serverURL has to be the plain server domain, no protocolo at the beggining
+function Server(serverURL){
+	this.webSocket = new WebSocket("ws://"+serverURL);
+	
+	this.webSocket.onmessage = function(event){
+		console.log("Game Server says: " + event.data);
+	}
+	
+	this.webSocket.onopen = function(event){
+		console.log("Connected to server");
+	}
+	
+	this.webSocket.onclose = function(){
+		
+	}
+	
+	this.webSocket.onerror = function(event){
+		
+	}
+	
+	this.sendMessage = function(message){
+		if(this.webSocket.readyState == 1){
+			this.webSocket.send(message);
+			return 1;
+		}
+		return 0;
+	}
 	
 }
 
@@ -262,6 +294,7 @@ function Field() {
 					card.y = this.collisionMasks[j+""+i].y + this.padding;
 					field.fieldCards[j+""+i] = card;
 					hand_cards.handStack.remove(card._stackID);
+					server.sendMessage("card palced");
 					return true;
 				}
 			}
@@ -307,7 +340,7 @@ function HandCards() { //position of the cards in hand
 	//This function places the card in the right spot on the screen
 	this.updateHandPosition = function(){
 		
-		if(this.mousein == false && mobilePlatform == false){
+		if(this.mousein == false){
 			this.y = canvas.height - card_elements.top_space_card;
 		}
 		else {
@@ -424,15 +457,14 @@ function start(){
 	canvas.width = window.innerWidth; //resize canvas!
 	canvas.height = window.innerHeight;
 	
+	server = new Server("127.0.0.1");
+	
 	img=new Image();
 		
 	img.onload=function(){		
 		animate();		
 	}
 	
-	var tempCard = new Card(0,0,"DEBUG",100,"DEBUG","X","X",img);
-	tempCard.draw();
-
 	field = new Field();
 	hand_cards = new HandCards();
 	//just 4 cards to try push method
