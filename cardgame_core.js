@@ -103,6 +103,13 @@ function Server(serverURL){
 		return 0;
 	}
 	
+	
+	
+	
+	this.requestCards = function(){
+		this.sendMessage("request_cards");
+	}
+	
 }
 
 
@@ -294,7 +301,7 @@ function Field() {
 					card.y = this.collisionMasks[j+""+i].y + this.padding;
 					field.fieldCards[j+""+i] = card;
 					hand_cards.handStack.remove(card._stackID);
-					server.sendMessage("card palced");
+					server.sendMessage("debug card palced");
 					return true;
 				}
 			}

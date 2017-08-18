@@ -86,6 +86,8 @@ server.listen(port, function() { console.log("Server started on port " + port); 
 //Install websocket with npm
 //npm install websocket
 
+var programs = new ServerPrograms();
+
 //WebSocket for comunication
 wsServer = new WebSocketServer({
     httpServer: server
@@ -93,14 +95,28 @@ wsServer = new WebSocketServer({
 
 
 wsServer.on('request', function(request) {
-	console.log("Player connected to websocket");
+	console.log("Player (" + request.remoteAddress + ") connected to websocket");
 	
     var connection = request.accept(null, request.origin);
  
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Message recieved: ' + message.utf8Data);
-			connection.sendUTF(message.utf8Data); //echo service
+			
+			var prog = "";
+			var params = "";
+			if(message.utf8Data.indexOf(" ") != -1){
+				prog = message.utf8Data.substr(0,message.utf8Data.indexOf(" "));
+				params = message.utf8Data.substr(message.utf8Data.indexOf(" ")+1);
+			}
+			else {
+				prog = message.utf8Data;
+			}
+			
+			if(programs[prog] != undefined){
+				programs[prog](connection,params);
+			}
+			
         }
     });
  
@@ -108,3 +124,20 @@ wsServer.on('request', function(request) {
         // Metodo eseguito alla chiusura della connessione
     });
 });
+
+function ServerPrograms() {
+	//Debug request
+	this.debug = function(connection, params){
+		connection.sendUTF("DEBUG request recieved from player "+ connection.remoteAddress + " params were: " + params);
+	}
+	
+	//Request of the the deck of the player
+	this.request_card = function(connection,params){
+		connection.sendUTF("STUB response from server to player "+ connection.remoteAddress);
+	}
+	
+	//Events like attack, draw etc, are handled in here
+	this.event = function (connection,params){
+		connection.sendUTF("STUB response from server to player "+ connection.remoteAddress);
+	}
+}
