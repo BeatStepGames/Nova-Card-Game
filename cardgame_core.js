@@ -8,18 +8,34 @@ function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 	var array = str.split(' ');
 	var line = "";
 	var newl=1;
+	var line_counter=0;
+	var relative_y=0;
+	
+	for(var i=0;i<array.length;i++){
+		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
+			line = line + array[i]+ " ";
+		}
+		else{
+			line = array[i] + " ";
+			line_counter++;
+		}
+	}
+	
+	relative_y=2.5-line_counter*0.5;
+	line = "";
+	
 	for(var i=0;i<array.length;i++){
 		if(ctx.measureText(line + array[i] + " ").width<card_elements.card_lenght_x){
 			line = line + array[i]+ " ";
 		}
 		else{
 			//result = result + line + "\r\n";
-			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl);
+			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
 			line = array[i] + " ";
 			newl++;
 		}
 	}
-	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl);
+	ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
 	return;
 }
 
@@ -425,6 +441,7 @@ function start(){
 	canvas.height = window.innerHeight;
 	
 	img=new Image();
+	img2=new Image();
 		
 	img.onload=function(){		
 		animate();		
@@ -438,9 +455,9 @@ function start(){
 	//just 4 cards to try push method
 
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt][Death: destroy a random card in the field]",99,99,img));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Bobby",80,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???][???: destroy a random card]","X","X",img));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol2",35,"[???][???: destroy a random card]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"It.",66,"[???][Magic: destroy all monsters on the table (but not this card)]","1","?",img2));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???][???: destroy a random card][bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!]","X","X",img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol2",35,"I like pasta","X","X",img));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???][???: destroy a random card]","X","X",img));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???][???: destroy a random card]","X","X",img));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???][???: destroy a random card]","X","X",img));
@@ -449,5 +466,6 @@ function start(){
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 
 	img.src='cards/Emperor of Fire Destiny.png';
+	img2.src='cards/It..png';
 
 }
