@@ -57,9 +57,3 @@ typings/
 # dotenv environment variables file
 .env
 
-# Server filesystem structure
-Server/views/*
-!Server/views/token.gitkeep
-
-Server/server resources/*
-!Server/server resources/token.gitkeep
