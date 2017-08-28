@@ -1,0 +1,37 @@
+<html>
+<head>
+	<title>Nova Card Game</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<style type="text/css">
+		html{
+			margin: 0px;
+			border: 0px;
+			padding: 0px;
+		}
+		body{
+			margin: 0px;
+			border: 0px;
+			padding: 0px;
+			background-image: url('sapphire-back.png');
+			background-size:contain;
+		}
+		canvas {
+			width: 100%;
+			height: 100%;	
+			margin: 0px;
+			border: 0px;
+			padding: 0px;
+			
+		}
+		
+	</style>
+</head>
+<body onload="onLoadHome()" onresize="onResize()">
+	<a href="/logout">LOGOUT from Nova Card Game</a>
+	<canvas id="canvas"></canvas>
+	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
+	<script type="text/javascript" src="home.js"></script>
+	<script type="text/javascript" src="cardgame_core.js"></script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-<DOCTYPE html>
 <html>
 <head>
 	<title>Nova Card Game</title>
@@ -11,21 +10,137 @@
 			padding: 0px;
 			background-image: url('sapphire-back.png');
 			background-size:contain;
+			align: center;
 		}
-		canvas {
+		
+		.title{
+			padding-top:10%;
 			width: 100%;
-			height: 100%;	
+			text-align: center;
+			color: silver;
+		}
+		
+		.container{
+			width: 100%;
+			horizontal-align: center;
+		}
+		
+		input {
+			float: center;
+			display: block;
+			border-radius: 2px;
+			margin-left: 2vh;
+			margin-right: 2vh;
+			box-shadow: 0 6px 16px 0 rgba(0,0,0,0.2), 0 2px 20px 0 rgba(0,0,0,0.19);
+		}
+		
+		.sized{
+			width: 33vw;
+			height: 4vh;
+			margin: 2vh;
+		}
+		
+		.centered {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			/* bring your own prefixes */
+			transform: translate(-50%, -50%);
+		}
+		
+		.frame{
+			width:100%;
+			height:100%;
+			padding: 0px;
 			margin: 0px;
 			border: 0px;
-			padding: 0px;
-			
 		}
 		
 	</style>
+	
+	
+	
+	
 </head>
-<body onload="loadingURLs()" onresize="onResize()">
-	<canvas id="canvas"></canvas>
-	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
-	<script type="text/javascript" src="cardgame_core.js"></script>
+<body onload="onLoad()">
+	
+	<div id="logindiv">
+		<h1 class="title">Nova Card Game</h1>
+		<form id="form" action="login" method="post" class="centered">
+			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required></input>
+			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required></input>
+			<input type="checkbox" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label></input>
+			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="login"></input>
+		</form>
+	</div>
+
+	<iframe id="frame" frameborder="0" class="frame" >Nova game frame</iframe>
+	
+	<script>
+		var saveUser;
+		var username;
+		var password;
+		var loginBtn;
+		var frame;
+		var loginDiv;
+		
+		function onLoad(){
+			username = document.getElementById("username");
+			password = document.getElementById("password");
+			saveUser = document.getElementById("saveuser");
+			loginBtn = document.getElementById("loginbtn");
+			
+			frame = document.getElementById("frame");
+			frame.style.display = "none";
+			loginDiv = document.getElementById("logindiv");
+			
+			
+			if(localStorage.getItem("username") != undefined){
+				login(localStorage.getItem("username"),localStorage.getItem("password"));
+			}
+			
+		}
+		
+		
+		function login(username,password){
+		
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				if(this.responseText == "SignUp"){
+					alert("Invalid username");
+					return;
+				}
+				if(this.responseText == "Access Denied"){
+					alert("Invalid password");
+					return;
+				}
+				else{
+					if(saveUser.checked){
+						localStorage.setItem("username",username);
+						localStorage.setItem("password",password);
+						sessionStorage.setItem("username",username);
+						sessionStorage.setItem("password",password);
+					}
+					else{
+						sessionStorage.setItem("username",username);
+						sessionStorage.setItem("password",password);
+					}
+					
+					loginDiv.style.display = "none";
+					frame.style.display = "block"
+					frame.srcdoc = this.responseText;
+				}
+			}
+		};
+		var request = "/match.html";
+		xhttp.open("GET", request, true);
+		xhttp.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+		xhttp.send();
+		
+		}
+		
+	</script>
+		
 </body>
 </html>
