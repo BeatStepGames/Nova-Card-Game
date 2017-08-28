@@ -294,6 +294,7 @@ function Field() {
 					card.y = this.collisionMasks[j+""+i].y + this.padding;
 					field.fieldCards[j+""+i] = card;
 					hand_cards.handStack.remove(card._stackID);
+					server.sendMessage("debug card_palced");
 					return true;
 				}
 			}
@@ -339,7 +340,7 @@ function HandCards() { //position of the cards in hand
 	//This function places the card in the right spot on the screen
 	this.updateHandPosition = function(){
 		
-		if(this.mousein == false && mobilePlatform == false){
+		if(this.mousein == false){
 			this.y = canvas.height - card_elements.top_space_card;
 		}
 		else {
@@ -452,7 +453,7 @@ function animate(){
 
 
 
-function start(){
+function startMatch(){
 	canvas.width = window.innerWidth; //resize canvas!
 	canvas.height = window.innerHeight;
 	
@@ -483,7 +484,7 @@ function loadingURLs(){
 	imageURLs.push("cards/Emperor of Fire Destiny.png");
 	imageURLs.push("cards/It..png");
 	imageURLs.push("cards/wat.png");
-	start();
+	startMatch();
 }
 
 // Load images
