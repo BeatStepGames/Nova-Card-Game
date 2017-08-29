@@ -1,0 +1,20 @@
+{
+  "name": "home-chat-server",
+  "version": "1.0.0",
+  "description": "A simple chat system with server installed on users pc",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pas Silvestri",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "client-sessions": "^0.8.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.4",
+    "node-gyp": "^3.6.2",
+    "pug": "^2.0.0-rc.3",
+    "ws": "^3.1.0"
+  }
+}
