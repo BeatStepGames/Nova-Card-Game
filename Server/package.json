@@ -1,7 +1,7 @@
 {
-  "name": "home-chat-server",
+  "name": "nova-server",
   "version": "1.0.0",
-  "description": "A simple chat system with server installed on users pc",
+  "description": "The server side of the Nova Card game",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,8 +9,10 @@
   "author": "Pas Silvestri",
   "license": "GPL-3.0",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
     "client-sessions": "^0.8.0",
+    "cookie": "^0.3.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "node-gyp": "^3.6.2",

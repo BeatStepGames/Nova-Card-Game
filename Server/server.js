@@ -4,13 +4,16 @@ var webSocket = require("ws");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-var session = require("client-sessions");
+
+var routes = require("./content-routes");
+var session = routes.session;
+var sessionName = 'session';
 
 var httpServer;
 var app = express();
 
 //Server vars
-var port = 80;
+var port = 54800;
 
 //Express setup
 //-------------
@@ -20,31 +23,19 @@ app.set("views","./views");
 //Data parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-//Setting user session -- Tutorial: https://stormpath.com/blog/everything-you-ever-wanted-to-know-about-node-dot-js-sessions
-app.use(session({
-	cookieName: 'session',
-	secret: '$3cUrT7!_M4tT3r',
-	duration: 30 * 60 * 1000,
-	activeDuration: 1 * 60 * 1000,
-	cookie: {
-		httpOnly: false,
-		
-	}
-}));
+//app.use(cookieParser());
+
 //Resources directory
 app.use(express.static("server resources"));
-//Routes handler
-var routes = require("./content-routes");
 
 
 app.use(function(req,res,next){
 	console.log(req.method + " request from: " +req.connection.remoteAddress + " request: " +req.originalUrl);
-	console.log("Request session");
-	console.log(req.session);
+	console.log("----------------");
 	next();
 });
 
+//Routes handler
 app.use("/",routes);
 
 
@@ -85,12 +76,13 @@ var wsServer = new webSocket.Server({
 
 //When a user connects to this server
 wsServer.on("connection",function(userWS, req){
-
-	wsServer.broadcast(req.connection.remoteAddress + " Just connected to Nova");
+	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
+	userWS[sessionName] = req[sessionName];
+	wsServer.broadcast(req.session.username + " Just connected to Nova");
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
-		console.log('Message recieved from ('+ req.connection.remoteAddress + '): ' + message);
+		console.log('Message recieved from ( '+ req.session.username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
 		var params = "";
@@ -114,7 +106,7 @@ wsServer.on("connection",function(userWS, req){
 	
 	//When the user disconnects from this server
 	userWS.on('close', function() {
-		console.log("Player (" + req.connection.remoteAddress + ") disconnected to websocket");
+		console.log(req.session.username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
 		
     });
 	
@@ -139,35 +131,27 @@ httpServer.listen(port,function(){
 
 
 //Checks if user's session ID is valid
-//info can be both am http request or a websocket info object{origin {String} Origin header, req, the client HTTP GET request, secure {Boolean} true if req.connection.authorized or req.connection.encrypted is set.}
+//info can be both an http request or a websocket info object{origin {String} = Origin header, req = the client HTTP GET request, secure {Boolean} = true if req.connection.authorized or req.connection.encrypted is set.}
 function isUserAuth(info){
-	/*
-	var cookies = {};
-	var headers = {};
-	if(info.headers != undefined){
-		headers = info.headers;
+	var sessionData = {};
+	var req;
+	//Info is an http req
+	if(info.method != undefined){
+		req = info;
 	}
-	else if(info.req.headers != undefined){
-		headers = info.req.headers;
-	}
-	//If there are no cookies, no sessionID available
-	if(headers.cookie == undefined){
-		return false;
-	}
-	//Parse the cookies to retrieve session info
-	headers = headers["cookie"].split(";");
-	for(var i=0; i<headers.length; i++){
-		headers[i] = headers[i].trim();
-		cookies[headers[i].substr(0,headers[i].indexOf("="))] = headers[i].substr(headers[i].indexOf("=")+1);
+	//Info is the websocket info object
+	else if(info.req.method != undefined){
+		req = info.req;
 	}
 	
-	if(cookies["sessionID"] != undefined){
-		console.log("WebSocket connection grarnted to " + cookies["sessionID"]);
+	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
+	sessionData = req[sessionName];
+	
+	//If there are is no session, or logged == false, not logged
+	if(sessionData != undefined && sessionData.logged == true){
 		return true;
 	}
-	*/
-	//TODO change this to false once implemented
-	return true;
+	return false;
 }
 
 
@@ -193,6 +177,11 @@ function ServerPrograms() {
 	}
 	*/
 	
+	//The chat visible to every player, params: [0] message sent
+	this.globalchat = function(userWS,params){
+		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
+	}
+	
 	//Request of the the deck of the player
 	this.request_card = function(userWS,params){
 		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
@@ -204,13 +193,6 @@ function ServerPrograms() {
 	}
 }
 
-function Player(){
-	
-	this.remoteAddress;
-	this.username;
-	this.playing = false;	
-	
-}
 
 
 

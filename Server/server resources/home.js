@@ -7,14 +7,12 @@ function Server(serverURL){
 	this.webSocket.onmessage = function(event){
 		console.log("Game Server says: " + event.data);
 		for(var i=0; i<server.messageCallbacks.length; i++){
-			callback(event.data);
+			server.messageCallbacks[i](event.data);
 		}
 	}
 	
 	this.webSocket.onopen = function(event){
 		console.log("Connected to server");
-		//Username and password must be in here, if not something weird happaned cause this page can be reach only if the player provided a correct username and password
-		//server.webSocket.send("login " + sessionStorage.getItem("username") + " " + sessionStorage.getItem("password"));
 	}
 	
 	this.webSocket.onclose = function(){
@@ -50,7 +48,8 @@ var server;
 function onLoadHome(){
 	loadingURLs();
 	server = new Server(document.location.host);
-	
+	debugGlobalChat();
+	window.serverHandle = server;
 }
 
 

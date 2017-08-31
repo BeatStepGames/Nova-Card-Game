@@ -1,9 +1,19 @@
 var path = require("path");
 var express = require('express');
+var UserManager = require("./user-manager");
+var session = require("./beat-session");
 var router = express.Router();
 
+var sessionName = 'session';
+
+//Setting user session -- Tutorial: https://stormpath.com/blog/everything-you-ever-wanted-to-know-about-node-dot-js-sessions
+router.use(session({
+	cookieName: sessionName
+}));
+
+
 router.get("/", function(req,res){
-	if(req.session.logged == true){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Redirecting to match");
 		res.redirect("match");
 	}
@@ -13,7 +23,7 @@ router.get("/", function(req,res){
 	}
 });
 router.post("/", function(req,res){
-	if(req.session.logged == true){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Redirecting to match");
 		res.redirect("match");
 	}
@@ -23,8 +33,9 @@ router.post("/", function(req,res){
 	}
 });
 
+
 router.get("/login",function(req,res){
-	if(req.session.logged == true){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Redirecting to match");
 		res.redirect("match");
 	}
@@ -35,9 +46,16 @@ router.get("/login",function(req,res){
 });
 router.post("/login",function(req,res){
 	console.log("POST login request");
-	if(req.body.username == "Admin" && req.body.password == "password"){
+	if(req[sessionName] == undefined && UserManager.authUser(req.body.username,req.body.password)){
 		console.log("Access granted");
-		req.session.logged = true;
+		var options = {
+			cookieName: [sessionName],
+			salt: req.body.username,
+			maxAge: (req.body.rememberMe == "on" ? (60*60*24*365*5) : (60*60*10) ) // 5 years if rememberMe is checked, 10 hours otherwise
+		};
+		req = session.createSession(req,res,options);
+		req = session.setSessionData(req,[sessionName],"logged",true);
+		req = session.setSessionData(req,[sessionName],"username",req.body.username);
 		res.redirect("match");
 	}
 	else{
@@ -47,17 +65,17 @@ router.post("/login",function(req,res){
 });
 
 router.get("/logout",function(req,res){
-	req.session.reset();
+	session.destroySession(req,res,sessionName);
 	res.redirect("/");
 });
 router.post("/logout",function(req,res){
-	req.session.reset();
+	session.destroySession(req,res,sessionName);
 	res.redirect("/");
 });
 
 
 router.get("/match",function(req,res){
-	if(req.session.logged == true){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Sending " + path.join(__dirname,"views","match.html"));
 	res.sendFile(path.join(__dirname,"views","match.html"));
 	}
@@ -66,7 +84,7 @@ router.get("/match",function(req,res){
 	}
 });
 router.post("/match",function(req,res){
-	if(req.session.logged == true){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Sending " + path.join(__dirname,"views","match.html"));
 	res.sendFile(path.join(__dirname,"views","match.html"));
 	}
@@ -75,4 +93,7 @@ router.post("/match",function(req,res){
 	}
 });
 
+
+
 module.exports = router;
+module.exports.session = session;
