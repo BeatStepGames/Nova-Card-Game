@@ -1,5 +1,7 @@
 var cookie = require("cookie");
 var bcrypt = require("bcryptjs");
+var fs = require("fs");
+var path = require("path");
 
 
 var sessionList = [];
@@ -30,6 +32,9 @@ var createSession = function(req,res,options){
 	res.setHeader("set-cookie", cookieValue); 
 	//Update the session param inside the request
 	req[options.cookieName] = sessionList[ID];
+	//Set the expiration timeout for the session (maxAge is in seconds, timeouts are in ms)
+	setTimeout(destroySession,options.maxAge*1000,req,undefined,options.cookieName);
+	//Saving
 	return req;
 }
 
@@ -42,9 +47,11 @@ var destroySession = function(req,res,cookieName){
 	}
 	
 	//Delete the session cookie from the client
-	var cookieValue = cookie.serialize(cookieName,"Logged Out",{maxAge: 10});
-	res.setHeader("set-cookie", cookieValue);
-	req[cookieName] = undefined;
+	if(res != undefined){
+		var cookieValue = cookie.serialize(cookieName,"Logged Out",{maxAge: 10});
+		res.setHeader("set-cookie", cookieValue);
+		req[cookieName] = undefined;
+	}
 	return req;
 }
 
@@ -82,6 +89,19 @@ function setSessionData(req,cookieName,param,value){
 	return req;
 }
 
+function touchSession(req,res,cookieName){
+	var cookieValue = cookie.serialize(cookieName,req[cookieName].id,{maxAge: 10});
+	res.setHeader("set-cookie", cookieValue);
+}
+
+function saveSessionsToFile(){
+	var sessions = JSON.stringify(sessionList);
+	fs.writeFileSync(path.join(__dirname,"BeatSessionBackup.pbs"),sessions);
+}
+
+function loadSessionsToFile(){
+	
+}
 
 module.exports = sessionFactory;
 module.exports.createSession = createSession;

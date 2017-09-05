@@ -56,8 +56,22 @@
 			border: 0px;
 		}
 		
+		#errordiv{
+			border: 3px solid red;
+			border-radius: 3px;
+			text-align: center;
+			background-color: rgba(255,0,0,0.4);
+			color: white;
+			display: none;
+			position: absolute;
+			top: 80%;
+			left: 50%;
+			transform: translate(-50%, -50%); 
+			width: 33vw;
+			height: 12vh;
+		}
 	</style>
-	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	
 	
 	
@@ -67,80 +81,80 @@
 	<div id="logindiv">
 		<h1 class="title">Nova Card Game</h1>
 		<form id="form" action="login" method="post" class="centered">
-			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required></input>
-			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required></input>
-			<input type="checkbox" name="rememberMe" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label></input>
-			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="login"></input>
+			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required>
+			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required>
+			<input type="checkbox" name="rememberMe" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label>
+			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="login">
 		</form>
 	</div>
 
-	<iframe id="frame" frameborder="0" class="frame" >Nova game frame</iframe>
+	<div id="errordiv">
+		<h4>Wrong username/password !</h4>
+	</div>
 	
 	<script>
+		
 		var saveUser;
 		var username;
 		var password;
 		var loginBtn;
 		var frame;
 		var loginDiv;
-		
+		var form;
+
 		function onLoad(){
 			username = document.getElementById("username");
 			password = document.getElementById("password");
 			saveUser = document.getElementById("saveuser");
 			loginBtn = document.getElementById("loginbtn");
-			
-			frame = document.getElementById("frame");
-			frame.style.display = "none";
-			loginDiv = document.getElementById("logindiv");
-			
-			
-			if(localStorage.getItem("username") != undefined){
-				login(localStorage.getItem("username"),localStorage.getItem("password"));
-			}
-			
+			form = document.getElementById("form");
+			form.addEventListener("submit", login);
 		}
-		
-		
-		function login(username,password){
-		
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				if(this.responseText == "SignUp"){
-					alert("Invalid username");
-					return;
-				}
-				if(this.responseText == "Access Denied"){
-					alert("Invalid password");
-					return;
-				}
-				else{
-					if(saveUser.checked){
-						localStorage.setItem("username",username);
-						localStorage.setItem("password",password);
-						sessionStorage.setItem("username",username);
-						sessionStorage.setItem("password",password);
+
+		function login(event){
+			event.preventDefault();
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					if(this.responseText == "Access granted"){
+						document.location = "/match";
 					}
 					else{
-						sessionStorage.setItem("username",username);
-						sessionStorage.setItem("password",password);
+						showErrorPopup();
 					}
-					
-					loginDiv.style.display = "none";
-					frame.style.display = "block"
-					frame.srcdoc = this.responseText;
 				}
-			}
-		};
-		var request = "/match.html";
-		xhttp.open("GET", request, true);
-		xhttp.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-		xhttp.send();
+			};
+			var request = "/login";
+			var params = username.name+"="+username.value+"&"+password.name+"="+password.value+"&"+saveUser.name+"="+(saveUser.checked ? "on" : "off");
+			
+			xhttp.open("POST", request, true);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.send(params);	
+		}
 		
+		function showErrorPopup(){
+			password.value = "";
+			$("#errordiv").css("display","block");
+			animate(1);
+		}
+		
+		function animate(count){
+			if(count == 12){
+				$("#errordiv").animate({"margin-left": "0px"},50);
+				return;
+			}
+			if((count%2) != 0){
+				$("#errordiv").animate({"margin-left": "-4px"},50,function(){animate(++count)});
+			}
+			else{
+				$("#errordiv").animate({"margin-left": "+4px"},50,function(){animate(++count)});
+			}
+			
 		}
 		
 	</script>
+
 		
 </body>
 </html>

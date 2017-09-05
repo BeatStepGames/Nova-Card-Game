@@ -29,13 +29,13 @@
 </head>
 <body onload="onLoadHome()" onresize="onResize()">
 	
-	<div id="DEBUGDIV" style="height: 5%">
+	<div id="DEBUGDIV" style="height: 5%; width: 100%">
 		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<div id="chatdiv" style="display: none">
-			<textarea id="globalchat" rows="20" cols="50" style="display: block"></textarea>
+			<textarea id="globalchat" rows="20" cols="50" style="display: block; width: 100%"></textarea>
 			<br/>
-			<input type="text" id="chatinput" cols="50" style="display: block"/>
+			<input type="text" id="chatinput" cols="50" style="display: block; width:100%"/>
 		</div>
 	</div>
 	
@@ -43,7 +43,7 @@
 	<script type="text/javascript" src="home.js"></script>
 	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
 	<script type="text/javascript" src="cardgame_core.js"></script>
-	<script type="text/javascript" src="debug.js"></script>
+	<script type="text/javascript" src="globalchat.js"></script>
 	
 </body>
 </html>

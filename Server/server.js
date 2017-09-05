@@ -18,22 +18,23 @@ var port = 54800;
 //Express setup
 //-------------
 //View engine
-app.set("view engine","pug");
-app.set("views","./views");
+//app.set("view engine","pug");
+//app.set("views","./views");
 //Data parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 //app.use(cookieParser());
 
-//Resources directory
-app.use(express.static("server resources"));
-
-
+//Request logger
 app.use(function(req,res,next){
 	console.log(req.method + " request from: " +req.connection.remoteAddress + " request: " +req.originalUrl);
 	console.log("----------------");
 	next();
 });
+
+//Resources directory
+app.use(express.static("server resources"));
+
 
 //Routes handler
 app.use("/",routes);

@@ -1,10 +1,23 @@
+var fs = require("fs");
+var path = require("path");
+var bcrypt = require("bcryptjs");
+
 function UserManager(){
 	
+	var secureDir = path.join(__dirname,"secure-data");
+	
 	this.authUser = function(username,password){
-		if( (username == "Admin" && password == "password") || (username == "Pas" && password == "Pas") || (username == "Marco" && password == "Marco") || (username == "Lorenzo" && password == "Lorenzo") ){
-			return true;
+		try{
+			var hash = fs.readFileSync(path.join(secureDir,username));
+			if(bcrypt.compareSync(password,hash.toString())){
+				return true;
+			}
+			else
+				return false;
 		}
-		return false;
+		catch(err){
+			return false;
+		}
 	}
 	
 	this.createUser = function(username){

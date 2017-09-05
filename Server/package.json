@@ -11,12 +11,10 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
-    "client-sessions": "^0.8.0",
     "cookie": "^0.3.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "node-gyp": "^3.6.2",
-    "pug": "^2.0.0-rc.3",
     "ws": "^3.1.0"
   }
 }

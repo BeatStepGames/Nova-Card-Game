@@ -6,7 +6,7 @@ var router = express.Router();
 
 var sessionName = 'session';
 
-//Setting user session -- Tutorial: https://stormpath.com/blog/everything-you-ever-wanted-to-know-about-node-dot-js-sessions
+//Setting user session
 router.use(session({
 	cookieName: sessionName
 }));
@@ -47,7 +47,7 @@ router.get("/login",function(req,res){
 router.post("/login",function(req,res){
 	console.log("POST login request");
 	if(req[sessionName] == undefined && UserManager.authUser(req.body.username,req.body.password)){
-		console.log("Access granted");
+		console.log("Access granted to "+req.body.username);
 		var options = {
 			cookieName: [sessionName],
 			salt: req.body.username,
@@ -56,11 +56,13 @@ router.post("/login",function(req,res){
 		req = session.createSession(req,res,options);
 		req = session.setSessionData(req,[sessionName],"logged",true);
 		req = session.setSessionData(req,[sessionName],"username",req.body.username);
-		res.redirect("match");
+		//res.redirect("match");
+		res.send("Access granted");
 	}
 	else{
-		console.log("Access denied, redirecting to index.html");
-		res.redirect("/");
+		console.log("Access denied to "+req.body.username);
+		//res.redirect("/");
+		res.send("Access denied");
 	}
 });
 
