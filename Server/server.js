@@ -174,7 +174,7 @@ function isUserAuth(info){
 function ServerPrograms() {
 	//Debug request
 	this.debug = function(userWS, params){
-		userWS.send("DEBUG request recieved from player "+ userWS.remoteAddress + ", params were: " + params);
+		userWS.send("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
 	/*

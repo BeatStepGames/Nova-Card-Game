@@ -14,37 +14,38 @@ router.use(session({
 
 router.get("/", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		console.log("Redirecting to match");
-		res.redirect("match");
+		var p = path.join(__dirname,"views","index.html");
+		console.log("Sending " + p);
+		res.sendFile(p);
 	}
 	else{
-		console.log("Sending " + path.join(__dirname,"views","index.html"));
-		res.sendFile(path.join(__dirname,"views","index.html"));
+		res.redirect("login");
 	}
 });
 router.post("/", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		console.log("Redirecting to match");
-		res.redirect("match");
+		var p = path.join(__dirname,"views","index.html");
+		console.log("Sending " + p);
+		res.sendFile(p);
 	}
 	else{
-		console.log("Sending " + path.join(__dirname,"views","index.html"));
-		res.sendFile(path.join(__dirname,"views","index.html"));
+		res.redirect("login");
 	}
 });
 
 
-router.get("/login",function(req,res){
+router.get("/login", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		console.log("Redirecting to match");
-		res.redirect("match");
-	}
-	else{
-		console.log("Redirecting to index");
+		console.log("Redirecting to /");
 		res.redirect("/");
 	}
+	else{
+		var p = path.join(__dirname,"views","login.html")
+		console.log("Sending " + p);
+		res.sendFile(p);
+	}
 });
-router.post("/login",function(req,res){
+router.post("/login", function(req,res){
 	console.log("POST login request");
 	if(req[sessionName] == undefined && UserManager.authUser(req.body.username,req.body.password)){
 		console.log("Access granted to "+req.body.username);
@@ -56,46 +57,58 @@ router.post("/login",function(req,res){
 		req = session.createSession(req,res,options);
 		req = session.setSessionData(req,[sessionName],"logged",true);
 		req = session.setSessionData(req,[sessionName],"username",req.body.username);
-		//res.redirect("match");
 		res.send("Access granted");
 	}
 	else{
 		console.log("Access denied to "+req.body.username);
-		//res.redirect("/");
 		res.send("Access denied");
 	}
 });
 
-router.get("/logout",function(req,res){
+
+router.get("/logout", function(req,res){
 	session.destroySession(req,res,sessionName);
-	res.redirect("/");
+	res.redirect("login");
 });
-router.post("/logout",function(req,res){
+router.post("/logout", function(req,res){
 	session.destroySession(req,res,sessionName);
-	res.redirect("/");
+	res.redirect("login");
 });
 
-
-router.get("/match",function(req,res){
+router.get("/signup", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		console.log("Sending " + path.join(__dirname,"views","match.html"));
-	res.sendFile(path.join(__dirname,"views","match.html"));
-	}
-	else{
+		console.log("Redirecting to /");
 		res.redirect("/");
 	}
+	else{
+		var p = path.join(__dirname,"views","signup.html")
+		console.log("Sending " + p);
+		res.sendFile(p);
+	}
 });
-router.post("/match",function(req,res){
-	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		console.log("Sending " + path.join(__dirname,"views","match.html"));
-	res.sendFile(path.join(__dirname,"views","match.html"));
+router.post("/signup", function(req,res){
+	console.log("POST signup request");
+	if(req[sessionName] == undefined){
+		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
+		if(signupResponse.result == 1){
+			console.log("Waiting account confirmation form " + req.body.username);
+			res.send(signupResponse.token);
+		}
+		else if(signupResponse.result == 2){
+			console.log("Username " + req.body.username + " unavailable for signup");
+			res.send("Username unavailable");
+		}
+		else if(signupResponse.result == 3){
+			console.log("Email " + req.body.email + " unavailable for signup");
+			res.send("Email invalid");
+		}
+		
 	}
 	else{
-		res.redirect("/");
+		console.log(req.body.username + " cannot signup");
+		res.send("Already logged in");
 	}
 });
-
-
 
 module.exports = router;
 module.exports.session = session;
