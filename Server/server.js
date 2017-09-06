@@ -126,6 +126,16 @@ wsServer.broadcast = function(data) {
 	});
 };
 
+//Retrieve user's websocket by username<
+wsServer.getWebSocketByUsername = function(username){
+	var clients = wsServer.clients;
+	for(var i=0; i<clients.length; i++){
+		if (clients[i][sessionName] != undefined && clients[i][sessionName].username == username){
+			return clients[i];
+		}
+	}
+};
+
 
 //Starting the server
 httpServer.listen(port,function(){
