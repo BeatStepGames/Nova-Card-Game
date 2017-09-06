@@ -49,7 +49,7 @@ function onLoadHome(){
 	loadingURLs();
 	server = new Server(document.location.host);
 	debugGlobalChat();
-	window.serverHandle = server;
+	window.server = server;
 }
 
 

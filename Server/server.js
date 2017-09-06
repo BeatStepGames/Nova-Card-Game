@@ -13,7 +13,7 @@ var httpServer;
 var app = express();
 
 //Server vars
-var port = 54800;
+var port = 80;
 
 //Express setup
 //-------------
@@ -97,7 +97,11 @@ wsServer.on("connection",function(userWS, req){
 		}
 
 		if(programs[prog] != undefined){
-			console.log(prog + " result " +programs[prog](userWS,params));
+			var result = programs[prog](userWS,params);
+			console.log(prog + " executed");
+			if(result != undefined){
+				console.log(prog + " result " +result);
+			}
 		}
 		else{
 			userWS.send("ERROR: Program not implemented");
@@ -181,6 +185,15 @@ function ServerPrograms() {
 	//The chat visible to every player, params: [0] message sent
 	this.globalchat = function(userWS,params){
 		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
+	}
+	
+	//Request for the online users list
+	this.userlist = function(userWS,params){
+		var list = [];
+		wsServer.clients.forEach(function each(client) {
+			list.push(client[sessionName].username);
+		});
+		userWS.send("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
 	}
 	
 	//Request of the the deck of the player

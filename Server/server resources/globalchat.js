@@ -1,10 +1,11 @@
 function debugGlobalChat(){
 	var canvas = document.getElementById("canvas");
 	var chatDiv = document.getElementById("chatdiv");
-	var charBtn = document.getElementById("showchat").addEventListener("click",function(){
+	var charBtn = document.getElementById("showchat");
+	charBtn.addEventListener("click",function(){
 		toggleChat();
 	});
-	var charBtn = document.getElementById("showchat").addEventListener("touchstart",function(){
+	charBtn.addEventListener("touchstart",function(){
 		toggleChat();
 	});
 	
@@ -36,4 +37,30 @@ function debugGlobalChat(){
 	};
 
 	window.server.register(globalChatUpdate);
+	
+	
+	
+	var onlineUsersBtn = document.getElementById("onlineusers");
+	onlineUsersBtn.addEventListener("click",function(){
+		toggleChat();
+		retrieveUsers();
+	});
+	onlineUsersBtn.addEventListener("touchstart",function(){
+		toggleChat();
+		retrieveUsers();
+	});
+	
+	var retrieveUsers = function(){
+		server.sendMessage("userlist");
+	}
+	
+	var userListUpdate = function(message){
+		if(message.indexOf("userlist") != -1){
+			chat.value = JSON.parse(message.replace(/%20/g," ").substr(message.indexOf(" ")+1)); //RICORDA GLI SPAZI NELLA STRINGA
+		}
+	}
+	
+	window.server.register(userListUpdate);
+	
+	
 }
