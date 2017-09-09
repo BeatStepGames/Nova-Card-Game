@@ -18,8 +18,11 @@ var port = 80;
 //Express setup
 //-------------
 //View engine
-//app.set("view engine","pug");
-//app.set("views","./views");
+/*
+app.set("view engine","pug");
+app.set("views","./views");
+*/
+
 //Data parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

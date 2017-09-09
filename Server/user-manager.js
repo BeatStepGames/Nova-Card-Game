@@ -14,20 +14,40 @@ function genUniqueID(salt){
 
 function loadUsers(path){
 	var users = [];
-	
+	try{
+		var jsonUsers = fs.readFileSync(path);
+		users = JSON.parse(jsonUsers);
+		console.log("Users loaded");
+	}
+	catch(err){
+		console.log("No users directory " + err.code);
+		console.log(err);
+	}
+	return users;
 }
+
+function saveUsers(users,path){
+	var jsonUsers = JSON.stringify(users);
+	fs.writeFile(path,jsonUsers,function(err){
+		if(err){
+			console.log("Error saving users " + err.code);
+		}
+	});
+}
+
+
 
 function UserManager(){
 	
-	var secureDir = path.join(__dirname,"secure-data");
+	this.secureDir = path.join(__dirname,"secure-data");
 	
-	var users = loadUsers(path.join(__dirname,"user-data"));
+	this.users = loadUsers(path.join(__dirname,"user-data","users.json")) || [];
 	
-	var confirmationTokens = [];
+	this.confirmationTokens = [];
 	
 	this.authUser = function(username,password){
 		try{
-			var hash = fs.readFileSync(path.join(secureDir,username));
+			var hash = fs.readFileSync(path.join(this.secureDir,username));
 			if(bcrypt.compareSync(password,hash.toString())){
 				return true;
 			}
@@ -42,36 +62,42 @@ function UserManager(){
 	//Result 1=can signup, need to confirm, 2=username unavailable, 3=email unavailable
 	this.signupUser = function(username,password,email){
 		
-		//Chaeck of the username
-		if(users[username] != undefined){
-			var res = {
-					result: 2,
-					token: undefined
-			};
-			return res;
-		}
-		//Check if the email
-		else{
-			
-			var err = users.every(function(u){
-				if(u.email == email){
-					return false;
-				}
-				return true;
-			});
-			if(err == false){
-				var res = {
-						result: 3,
-						token: undefined
-				};
-				return res;
+		var res2 = {
+				result: 2,
+				token: undefined
+		};
+		
+		var res3 = {
+				result: 3,
+				token: undefined
+		};
+		
+		
+		for(var i=0; i<this.users.length; i++){
+			//Check if the username is already present
+			if(this.users[i].username == username){
+				return res2;
+			}
+			//Check if the email is already present
+			else if(this.users[i].email == email){
+				return res3;
 			}
 		}
 		
+		
 		//Signup possible
-		var temptoken = genUniqueID("confirmsalty");
-		
-		
+		var temptoken = genUniqueID(username+"salty"+email);
+		this.confirmationTokens[temptoken] = {
+			username: username,
+			email: email,
+			password: bcrypt.hashSync(password)
+		};
+		this.confirmationTokens[temptoken].timeoutID = setTimeout(function(){
+			if(this.confirmationTokens[temptoken]){
+				console.log(this.confirmationTokens[temptoken].username + "'s signup confirmation token expired");
+				delete this.confirmationTokens[temptoken];
+			}
+		}.bind(this),(1000*60*30));
 		
 		var res = {
 			result: 1,
@@ -80,17 +106,33 @@ function UserManager(){
 		return res;
 	}
 	
-	this.createUser = function(username){
-		this.username = username || "Unnamed";
-		this.webSocket;
-		
-		this.available = false;
-		
-		this.money = 0;
-		this.deckID = 0;
-		this.enemy = undefined;
+	this.confirmUser = function(token){
+		if(token != undefined && this.confirmationTokens[token]){
+			clearTimeout(this.confirmationTokens[token].timeoutID);
+			this.users.push({
+				username: this.confirmationTokens[token].username,
+				email: this.confirmationTokens[token].email
+			});
+			fs.writeFile(path.join(this.secureDir,this.confirmationTokens[token].username),
+						 this.confirmationTokens[token].password,
+						 function(err){
+										if(err){
+											console.log(err);
+										}
+						}
+			);
+			delete this.confirmationTokens[token];
+			saveUsers(this.users,path.join(__dirname,"user-data","users.json"));
+			return 1;
+		}
+		return 0;
 	}
 	
+	this.createUser = function(username,email){
+		this.username = username || "Unnamed";
+		this.email = email || "NoEmail";
+	}
+		
 }
 
 

@@ -113,58 +113,67 @@
 	</noscript>
 	
 	<h1 class="title">Nova Card Game</h1>
-	<div id="logindiv" class="centered" style="display: none">
-		<form id="form" action="/login" method="post">
+	<div id="signupdiv" class="centered" style="display: none">
+		<form id="form" action="/signup" method="post">
 			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required>
 			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required>
-			<input type="checkbox" name="rememberMe" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label>
-			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="Log In">
+			<input type="text" name="email" id="email" class="sized" rows="1" cols="50" placeholder="Email" required>
+			<input type="submit" id="signupbtn" class="sized" rows="1" cols="25" value="Sign Up">
 		</form>
 		<div style="width:100%; text-align: center">
-			<a href="/signUp">Or Sign Up</a>
+			<a href="/logIn">Or Log In</a>
 		</div>
 		
 	</div>
 
 	<div id="errordiv" class="redbox">
-		<h4>Wrong username/password !</h4>
+		<h4 id="errorlabel">Signup Error</h4>
 	</div>
 	
 	<script>
 		
-		var saveUser;
 		var username;
 		var password;
-		var loginBtn;
+		var email;
+		var signupBtn;
 		var loginDiv;
 		var form;
+		var errorLabel;
 
 		function onLoad(){
 			username = document.getElementById("username");
 			password = document.getElementById("password");
-			saveUser = document.getElementById("saveuser");
-			loginBtn = document.getElementById("loginbtn");
+			email = document.getElementById("email");
+			loginBtn = document.getElementById("signupbtn");
 			form = document.getElementById("form");
-			form.addEventListener("submit", login);
-			document.getElementById("logindiv").style.display = "block";
+			errorLabel = document.getElementById("errorlabel");
+			form.addEventListener("submit", signup);
+			document.getElementById("signupdiv").style.display = "block";
 		}
 
-		function login(event){
+		function signup(event){
 			event.preventDefault();
 
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
-					if(this.responseText == "Access granted"){
-						document.location = "/";
+					if(this.responseText.startsWith("$")){
+						alert("Check your email for confirmation");
+						
+						var data = "<a href=\""+this.responseText.substr(1)+"\">Confirmation link</a>";
+						confWindow = window.open("data:text/html," + encodeURIComponent(data), "_blank", "width=400,height=400");
+						confWindow.focus();
+						
+						document.location = "/login";
 					}
 					else{
+						errorLabel.innerHTML = this.responseText;
 						showErrorPopup();
 					}
 				}
 			};
-			var request = "/login";
-			var params = username.name+"="+username.value+"&"+password.name+"="+password.value+"&"+saveUser.name+"="+(saveUser.checked ? "on" : "off");
+			var request = "/signup";
+			var params = username.name+"="+username.value+"&"+password.name+"="+password.value+"&"+email.name+"="+email.value;
 			
 			xhttp.open("POST", request, true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

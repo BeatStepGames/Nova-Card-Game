@@ -75,6 +75,7 @@ router.post("/logout", function(req,res){
 	res.redirect("login");
 });
 
+
 router.get("/signup", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
 		console.log("Redirecting to /");
@@ -92,7 +93,8 @@ router.post("/signup", function(req,res){
 		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
 		if(signupResponse.result == 1){
 			console.log("Waiting account confirmation form " + req.body.username);
-			res.send(signupResponse.token);
+			//TODO: change this to an email, and send a positive response for the page to show
+			res.send("$"+req.headers.host+"/confirm_user?token="+signupResponse.token);
 		}
 		else if(signupResponse.result == 2){
 			console.log("Username " + req.body.username + " unavailable for signup");
@@ -100,13 +102,51 @@ router.post("/signup", function(req,res){
 		}
 		else if(signupResponse.result == 3){
 			console.log("Email " + req.body.email + " unavailable for signup");
-			res.send("Email invalid");
+			res.send("Email already used");
 		}
 		
 	}
 	else{
 		console.log(req.body.username + " cannot signup");
 		res.send("Already logged in");
+	}
+});
+
+
+router.get("/confirm_user",function(req,res){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
+		console.log("Redirecting to /");
+		res.redirect("/");
+	}
+	else{
+		var resp = UserManager.confirmUser(req.query.token);
+		if(resp == 1){
+			console.log("Confirmation user done, redirecting to login");
+			res.redirect("/login");
+		}
+		else{
+			var p = path.join(__dirname,"views","confirmation-denied.html");
+			console.log("Confirmation denied, sending " + p);
+			res.sendFile(p);
+		}
+	}
+});
+router.post("/confirm_user",function(req,res){
+	if(req[sessionName] != undefined && req[sessionName].logged == true){
+		console.log("Redirecting to /");
+		res.redirect("/");
+	}
+	else{
+		var resp = UserManager.confirmUser(req.body.token);
+		if(resp == 1){
+			console.log("Confirmation user done, redirecting to login");
+			res.redirect("/login");
+		}
+		else{
+			var p = path.join(__dirname,"views","confirmation-denied.html");
+			console.log("Confirmation denied, sending " + p);
+			res.sendFile(p);
+		}
 	}
 });
 
