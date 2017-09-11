@@ -94,7 +94,7 @@ router.post("/signup", function(req,res){
 		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
 		if(signupResponse.result == 1){
 			console.log("Waiting account confirmation from " + req.body.username);
-			res.send("$"+req.headers.host+"/confirm_user?token="+signupResponse.token);
+			res.send("$Confirm account");
 			sendMail({	
 				from: '"Nova Cards Game" <no-replay@nova.io>',
 				to: req.body.email,
