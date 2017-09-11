@@ -64,12 +64,14 @@ function UserManager(){
 		
 		var res2 = {
 				result: 2,
-				token: undefined
+				token: undefined,
+				message: "Username unavailable"
 		};
 		
 		var res3 = {
 				result: 3,
-				token: undefined
+				token: undefined,
+				message: "Email already used"
 		};
 		
 		
@@ -101,7 +103,8 @@ function UserManager(){
 		
 		var res = {
 			result: 1,
-			token: temptoken
+			token: temptoken,
+			message: "Signup accepted"
 		}
 		return res;
 	}

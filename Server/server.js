@@ -30,6 +30,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 //Request logger
 app.use(function(req,res,next){
+	console.log("");
 	console.log(req.method + " request from: " +req.connection.remoteAddress + " request: " +req.originalUrl);
 	console.log("----------------");
 	next();

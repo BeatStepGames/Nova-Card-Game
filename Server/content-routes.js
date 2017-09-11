@@ -1,5 +1,6 @@
 var path = require("path");
 var express = require('express');
+var sendMail = require("sendmail")({silent: true});
 var UserManager = require("./user-manager");
 var session = require("./beat-session");
 var router = express.Router();
@@ -92,22 +93,27 @@ router.post("/signup", function(req,res){
 	if(req[sessionName] == undefined){
 		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
 		if(signupResponse.result == 1){
-			console.log("Waiting account confirmation form " + req.body.username);
-			//TODO: change this to an email, and send a positive response for the page to show
+			console.log("Waiting account confirmation from " + req.body.username);
 			res.send("$"+req.headers.host+"/confirm_user?token="+signupResponse.token);
+			sendMail({	
+				from: '"Nova Cards Game" <no-replay@nova.io>',
+				to: req.body.email,
+				subject: 'Confirm your Nova account',
+				html: `Hi ${req.body.username}, thank you for joining the growing Nova Cards Game community.\nTo confirm your account, click on the link <a href="${req.headers.host+"/confirm_user?token="+signupResponse.token}">${req.headers.host+"/confirm_user?token="+signupResponse.token}</a>`
+				}, function (err, reply) {
+					console.log(err && err.stack)
+					console.dir(reply)
+				}
+			);
+			
 		}
-		else if(signupResponse.result == 2){
-			console.log("Username " + req.body.username + " unavailable for signup");
-			res.send("Username unavailable");
+		else{
+			console.log("Signup error for" + req.body.username + "/" + req.body.email + " - " + signupResponse.message);
+			res.send(signupResponse.message);
 		}
-		else if(signupResponse.result == 3){
-			console.log("Email " + req.body.email + " unavailable for signup");
-			res.send("Email already used");
-		}
-		
 	}
 	else{
-		console.log(req.body.username + " cannot signup");
+		console.log(req.body.username + " cannot signup, already logged in");
 		res.send("Already logged in");
 	}
 });

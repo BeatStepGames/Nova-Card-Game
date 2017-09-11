@@ -16,6 +16,7 @@
     "express": "^4.15.4",
     "node-gyp": "^3.6.2",
     "nodemailer": "^4.1.0",
+    "sendmail": "^1.2.0",
     "ws": "^3.1.0"
   }
 }

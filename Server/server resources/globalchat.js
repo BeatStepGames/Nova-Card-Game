@@ -56,7 +56,7 @@ function debugGlobalChat(){
 	
 	var userListUpdate = function(message){
 		if(message.indexOf("userlist") != -1){
-			chat.value = JSON.parse(message.replace(/%20/g," ").substr(message.indexOf(" ")+1)); //RICORDA GLI SPAZI NELLA STRINGA
+			chat.value = JSON.parse(message.replace(/%20/g," ").substr(message.indexOf(" ")+1)) + "\n";
 		}
 	}
 	
