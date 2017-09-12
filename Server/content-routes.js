@@ -1,6 +1,6 @@
 var path = require("path");
 var express = require('express');
-var sendMail = require("sendmail")({silent: true});
+var sendMail = require("sendmail")({silent: false}); //https://github.com/guileen/node-sendmail
 var UserManager = require("./user-manager");
 var session = require("./beat-session");
 var router = express.Router();
@@ -93,16 +93,22 @@ router.post("/signup", function(req,res){
 	if(req[sessionName] == undefined){
 		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
 		if(signupResponse.result == 1){
-			console.log("Waiting account confirmation from " + req.body.username);
+			console.log("Waiting account confirmation for " + req.body.username);
 			res.send("$Confirm account");
 			sendMail({	
 				from: '"Nova Cards Game" <no-replay@nova.io>',
 				to: req.body.email,
 				subject: 'Confirm your Nova account',
-				html: `Hi ${req.body.username}, thank you for joining the growing Nova Cards Game community.\nTo confirm your account, click on the link <a href="${req.headers.host+"/confirm_user?token="+signupResponse.token}">${req.headers.host+"/confirm_user?token="+signupResponse.token}</a>`
+				html: `Hi ${req.body.username}, thank you for joining the <i>Nova Cards Game</i> community<br/>To confirm your account, click on the link below<br/><a href="${req.headers.host+"/confirm_user?token="+signupResponse.token}">${req.headers.host+"/confirm_user?token="+signupResponse.token}</a><br/>If your email client doesn't support links, copy and paste the link in the address bar`
 				}, function (err, reply) {
-					console.log(err && err.stack)
-					console.dir(reply)
+					if(err == null){
+						console.log("Confirmation email sent to " + req.body.email);
+						console.dir(reply);
+					}
+					else{
+						console.log("ERROR sending confirmation email");
+						console.log(err && err.stack);
+					}
 				}
 			);
 			

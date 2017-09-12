@@ -31,12 +31,15 @@ function debugGlobalChat(){
 	});
 
 	var globalChatUpdate = function(message){
+		chat.value += message.replace(/%20/g," ").substr(message.indexOf(" ")+1) + "\n";
+		/*
 		if(message.indexOf("globalchat") != -1){
 			chat.value += message.replace(/%20/g," ").substr(message.indexOf(" ")+1) + "\n";
 		}
+		*/
 	};
 
-	window.server.register(globalChatUpdate);
+	window.server.register("globalchat",globalChatUpdate);
 	
 	
 	
@@ -55,12 +58,15 @@ function debugGlobalChat(){
 	}
 	
 	var userListUpdate = function(message){
+		chat.value = JSON.parse(message.replace(/%20/g," ").substr(message.indexOf(" ")+1)) + "\n";
+		/*
 		if(message.indexOf("userlist") != -1){
 			chat.value = JSON.parse(message.replace(/%20/g," ").substr(message.indexOf(" ")+1)) + "\n";
 		}
+		*/
 	}
 	
-	window.server.register(userListUpdate);
+	window.server.register("userlist",userListUpdate);
 	
 	
 }

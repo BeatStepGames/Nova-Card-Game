@@ -105,7 +105,7 @@ function onResize(){
 	
 }
 
-
+/*
 //card
 var card_elements = { //width and height of all elements in card
 	card_lenght_x: 160*sizeFactor,
@@ -220,9 +220,9 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		
 	}
 }
+*/
 
-
-
+/*
 function Field() {
 	
 	this.fieldCards = new Array();
@@ -327,9 +327,10 @@ function Field() {
 	}
 	
 };
+*/
 
 
-
+/*
 function HandCards() { //position of the cards in hand
 	this.y = canvas.height - card_elements.top_space_card;
 	this.gap = 50*sizeFactor;
@@ -408,7 +409,7 @@ function HandCards() { //position of the cards in hand
 	}
 	
 };
-
+*/
 
 
 
@@ -464,14 +465,14 @@ function startMatch(){
 	hand_cards = new HandCards();
 	//just 4 cards to try push method
 	
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt] Death: destroy a random card in the field.",99,99,imgs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"It.",66,"[???] Magic: destroy all other monsters on the table.","1","?",imgs[1]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???] ???: destroy a random card; bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!","X","X",imgs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Wat",35,"I like pasta.","X","X",imgs[2]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???] ???: destroy a random card.","X","X",imgs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???] ???: destroy a random card.","X","X",imgs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???] ???: destroy a random card.","X","X",imgs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???] ???: destroy a random card.","X","X",imgs[0]));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt] Death: destroy a random card in the field.",99,99,imgs[0].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"It.",66,"[???] Magic: destroy all other monsters on the table.","1","?",imgs[1].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???] ???: destroy a random card; bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!","X","X",imgs[0].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Wat",35,"I like pasta.","X","X",imgs[2].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???] ???: destroy a random card.","X","X",imgs[0].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???] ???: destroy a random card.","X","X",imgs[0].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???] ???: destroy a random card.","X","X",imgs[0].img));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???] ???: destroy a random card.","X","X",imgs[0].img));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 	
@@ -512,7 +513,10 @@ function loadImages(imagefiles) {
         image.src = imagefiles[i];
 		image.onerror =  function(){ alert('Some images could not be loaded.'); }; //error handler, just to make sure everything is fine (but preloaded=false is the same thing)
         // Save to the image array
-        loadedimages[i] = image;
+        loadedimages[i] = {
+			img: image,
+			name: imagefiles[i].substr(imagefiles[i].indexOf("/")+1,imagefiles[i].length-4)
+		}
     }
  
     // Return an array of images

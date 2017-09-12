@@ -57,3 +57,7 @@ typings/
 # dotenv environment variables file
 .env
 
+#cached files
+Server/cache/*
+!Server/cache/token.gitkeep
+

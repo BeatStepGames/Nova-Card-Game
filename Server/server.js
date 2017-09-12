@@ -4,6 +4,7 @@ var webSocket = require("ws");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
+var minify = require("express-minify");
 
 var routes = require("./content-routes");
 var session = routes.session;
@@ -14,9 +15,11 @@ var app = express();
 
 //Server vars
 var port = 80;
+var DEBUG = true;
 
 //Express setup
 //-------------
+
 //View engine
 /*
 app.set("view engine","pug");
@@ -37,6 +40,9 @@ app.use(function(req,res,next){
 });
 
 //Resources directory
+if(DEBUG == false){
+	app.use(minify({cache: __dirname + '/cache'}));
+}
 app.use(express.static("server resources"));
 
 
@@ -44,25 +50,23 @@ app.use(express.static("server resources"));
 app.use("/",routes);
 
 
-//If express gets to this point, means he haven't found anything to handle the request
+//If express gets to this point, means it hasn't found anything to handle the request
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
 });
 
 // If our applicatione encounters an error, we'll display the error and stacktrace accordingly.
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.send(err.toString());
+	res.status(err.status || 500);
+	if(err.status == 404){
+		res.sendFile(path.join(__dirname,"views","error404.html"));
+	}
+	else{
+		res.send(err.toString());
+	}
 });
-
-/*
-General http server started below
-app.listen(port,function(){
-	console.log("Server started on port "+port);
-});
-*/
 
 //Creating the http server handled by express
 var httpServer = http.createServer(app);
