@@ -101,9 +101,8 @@ function onResize(){
 	field.onResize();
 	hand_cards.onResize();
 	
-	
-	
 }
+
 
 /*
 //card
@@ -328,7 +327,6 @@ function Field() {
 	
 };
 */
-
 
 /*
 function HandCards() { //position of the cards in hand
