@@ -70,8 +70,8 @@ var hand_cards;
 var floatingHandCard = undefined;
 
 function onResize(){
-	canvas.width = window.innerWidth; //resize canvas!
-	canvas.height = window.innerHeight;
+	canvas.width = window.innerWidth*devicePixelRatio; //resize canvas!
+	canvas.height = window.innerHeight*devicePixelRatio;
 	//size factor
 	sizeFactor = canvas.width/1536;
 	
@@ -86,20 +86,28 @@ function onResize(){
 	card_elements.atk_def_gap = 60*sizeFactor;
 	
 	//field elements:
-	field.gap_from_border = 50*sizeFactor;
-	field.padding = 10*sizeFactor;
-	field.pos_width = card_elements.card_lenght_x+(field.padding*2);
-	field.pos_height = card_elements.card_lenght_y+(field.padding*2);
-	
-	field.x = canvas.width/2 - (card_elements.card_lenght_x+(field.padding*2))*(field.n_of_pos/2);
-	field.y = 10*sizeFactor;
+	if(field){
+		field.gap_from_border = 50*sizeFactor;
+		field.padding = 10*sizeFactor;
+		field.pos_width = card_elements.card_lenght_x+(field.padding*2);
+		field.pos_height = card_elements.card_lenght_y+(field.padding*2);
+		
+		field.x = canvas.width/2 - (card_elements.card_lenght_x+(field.padding*2))*(field.n_of_pos/2);
+		field.y = 10*sizeFactor;
+		
+		field.onResize();
+	}
 	
 	//hand cards elements:
-	hand_cards.gap = 50*sizeFactor;
-	hand_cards.bottomPadding = 10*sizeFactor;
+	if(hand_cards){
+		hand_cards.gap = 50*sizeFactor;
+		hand_cards.bottomPadding = 10*sizeFactor;
+		
+		
+		hand_cards.onResize();
+	}
 	
-	field.onResize();
-	hand_cards.onResize();
+	
 	
 }
 
@@ -417,7 +425,7 @@ function animate(){
 	requestAnimationFrame(animate);
 	
 	
-	ctx.clearRect(0,0,innerWidth,innerHeight);
+	ctx.clearRect(0,0,canvas.width,canvas.height);
 	
 	//Nova card game text
 	global_x = canvas.width/2; 
@@ -453,8 +461,10 @@ function animate(){
 
 
 function startMatch(){
-	canvas.width = window.innerWidth; //resize canvas!
-	canvas.height = window.innerHeight;
+	//resize canvas!
+	onResize();
+	//canvas.width = window.innerWidth; 
+	//canvas.height = window.innerHeight;
 	
 	
 	imgs = loadImages(imageURLs); //Load images

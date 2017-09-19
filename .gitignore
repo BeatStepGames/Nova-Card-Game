@@ -61,3 +61,6 @@ typings/
 Server/cache/*
 !Server/cache/token.gitkeep
 
+#TLS key and cert
+Server/TLS-data/nova.*
+

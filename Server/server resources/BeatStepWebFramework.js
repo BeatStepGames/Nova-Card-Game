@@ -31,8 +31,8 @@ var mouse = {
 
 window.addEventListener('mousemove', //mouse position every istant listener
 	function(event){
-		mouse.x = event.x;
-		mouse.y = event.y;
+		mouse.x = event.pageX*devicePixelRatio;
+		mouse.y = event.pageY*devicePixelRatio;
 		if(mouse.mouseMove != undefined){
 			mouse.mouseMove();
 		}
@@ -43,20 +43,20 @@ window.addEventListener('mousemove', //mouse position every istant listener
 window.addEventListener('touchmove', //touch position every istant listener
 	function(event){
 		event.preventDefault();
-		mouse.x = event.touches[0].clientX;
-		mouse.y = event.touches[0].clientY;
+		mouse.x = event.touches[0].pageX*devicePixelRatio;
+		mouse.y = event.touches[0].pageY*devicePixelRatio;
 		if(mouse.mouseMove != undefined){
 			mouse.mouseMove();
 		}
-	}
+	},{passive:false}
 );
 
 
 window.addEventListener('mousedown',
 	function(event){
 		mouse.clicked = true;
-		mouse.click_x = event.x;
-		mouse.click_y = event.y;
+		mouse.click_x = event.pageX*devicePixelRatio;
+		mouse.click_y = event.pageY*devicePixelRatio;
 		if(mouse.mouseDown != undefined){
 			mouse.mouseDown();
 		}
@@ -68,20 +68,20 @@ window.addEventListener('touchstart',
 	function(event){
 		event.preventDefault();
 		mouse.clicked = true;
-		mouse.x = event.touches[0].clientX;
-		mouse.y = event.touches[0].clientY;
+		mouse.x = event.touches[0].pageX*devicePixelRatio;
+		mouse.y = event.touches[0].pageY*devicePixelRatio;
 		if(mouse.mouseDown != undefined){
 			mouse.mouseDown();
 		}
-	}
+	},{passive:false}
 );
 
 
 window.addEventListener('mouseup',
 	function(event){
 		mouse.clicked = false;
-		mouse.click_x = event.x;
-		mouse.click_y = event.y;
+		mouse.click_x = event.pageX*devicePixelRatio;
+		mouse.click_y = event.pageY*devicePixelRatio;
 		if(mouse.mouseUp != undefined){
 			mouse.mouseUp();
 		}
@@ -102,7 +102,7 @@ window.addEventListener('touchend',
 		if(mouse.click != undefined){
 			mouse.click();
 		}
-	}
+	},{passive:false}
 );
 
 

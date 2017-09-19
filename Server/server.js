@@ -1,7 +1,9 @@
 var http = require("http");
+var https = require("https");
 var express = require("express");
 var webSocket = require("ws");
 var path = require("path");
+var fs = require("fs");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var minify = require("express-minify");
@@ -14,7 +16,8 @@ var httpServer;
 var app = express();
 
 //Server vars
-var port = 80;
+var port = 54800;
+var securePort = 443;
 var DEBUG = true;
 
 //Express setup
@@ -68,8 +71,26 @@ app.use(function(err, req, res, next) {
 	}
 });
 
+
 //Creating the http server handled by express
 var httpServer = http.createServer(app);
+
+//Starting the server
+httpServer.listen(port,function(){
+	console.log("Server started on port "+port);
+});
+
+//Crrating https server
+var tlsOptions = {
+	key: fs.readFileSync(path.join(__dirname,"TLS-data","nova.key")),
+	cert: fs.readFileSync(path.join(__dirname,"TLS-data","nova.cert"))
+}
+var httpsServer = https.createServer(tlsOptions,app);
+httpsServer.listen(securePort,function(){
+	console.log("TLS server started on port "+securePort);
+});
+
+
 
 
 
@@ -145,10 +166,7 @@ wsServer.getWebSocketByUsername = function(username){
 };
 
 
-//Starting the server
-httpServer.listen(port,function(){
-	console.log("Server started on port "+port);
-});
+
 
 
 
