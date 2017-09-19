@@ -2,28 +2,30 @@
 //serverURL has to be the plain server domain, no protocolo at the beggining
 function Server(serverURL){
 	this.webSocket = new WebSocket("ws://"+serverURL);
-	this.messageCallbacks = [];
+	this.messageCallbacks = {};
 	
 	this.webSocket.onmessage = function(event){
 		console.log("Game Server says: " + event.data);
-		for(var i=0; i<server.messageCallbacks.length; i++){
-			callback(event.data);
+		var filter = event.data.substr(0,event.data.indexOf(" "));
+		var message = event.data.substr(event.data.indexOf(" ")+1);
+		if(this.messageCallbacks[filter]){
+			for(var i=0; i<this.messageCallbacks[filter].length; i++){
+				this.messageCallbacks[filter][i](event.data);
+			}
 		}
-	}
+	}.bind(this);
 	
 	this.webSocket.onopen = function(event){
 		console.log("Connected to server");
-		//Username and password must be in here, if not something weird happaned cause this page can be reach only if the player provided a correct username and password
-		//server.webSocket.send("login " + sessionStorage.getItem("username") + " " + sessionStorage.getItem("password"));
-	}
+	}.bind(this);
 	
 	this.webSocket.onclose = function(){
 		
-	}
+	}.bind(this);
 	
 	this.webSocket.onerror = function(event){
 		
-	}
+	}.bind(this);
 	
 	this.sendMessage = function(message){
 		if(this.webSocket.readyState == 1){
@@ -34,8 +36,11 @@ function Server(serverURL){
 		return 0;
 	}
 	
-	this.register = function(callback){
-		this.messageCallbacks.push(callback);
+	this.register = function(filter,callback){
+		if(this.messageCallbacks[filter] == undefined){
+			this.messageCallbacks[filter] = [];
+			this.messageCallbacks[filter].push(callback);
+		}
 	}
 	
 	
@@ -50,7 +55,8 @@ var server;
 function onLoadHome(){
 	loadingURLs();
 	server = new Server(document.location.host);
-	
+	debugGlobalChat();
+	window.server = server;
 }
 
 

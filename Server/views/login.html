@@ -1,0 +1,241 @@
+<html>
+<head>
+	<title>Nova Card Game</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<style type="text/css">
+		body{
+			margin: 0px;
+			border: 0px;
+			padding: 0px;
+			background-image: url('sapphire-back.png');
+			background-size:contain;
+			align: center;
+		}
+		
+		.title{
+			padding-top:10%;
+			width: 100%;
+			text-align: center;
+			color: silver;
+		}
+		
+		.container{
+			width: 100%;
+			horizontal-align: center;
+		}
+		
+		input {
+			float: center;
+			display: block;
+			border-radius: 2px;
+			margin-left: 2vh;
+			margin-right: 2vh;
+			box-shadow: 0 6px 16px 0 rgba(0,0,0,0.2), 0 2px 20px 0 rgba(0,0,0,0.19);
+		}
+		
+		a:link {
+			color: white;
+		}
+
+		/* visited link */
+		a:visited {
+			color: silver;
+		}
+
+		/* mouse over link */
+		a:hover {
+			color: white;
+			cursor: pointer;
+		}
+
+		/* selected link */
+		a:active {
+			color: white;
+		}
+		
+		
+		.sized{
+			width: 33vw;
+			height: 4vh;
+			margin: 2vh;
+		}
+		
+		.centered {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			/* bring your own prefixes */
+			transform: translate(-50%, -50%);
+		}
+		
+		.redbox{
+			border: 3px solid red;
+			border-radius: 3px;
+			text-align: center;
+			background-color: rgba(255,0,0,0.4);
+			color: white;
+			text-align: center;
+		}
+		
+		#errordiv{
+			display: none;
+			position: absolute;
+			top: 80%;
+			left: 50%;
+			transform: translate(-50%, -50%); 
+			width: 33vw;
+			height: 12vh;
+		}
+		
+		#noscriptdiv{
+			position: absolute;
+			top: 80%;
+			left: 50%;
+			transform: translate(-50%, -50%); 
+			width: 55vw;
+			height: 18vh;
+		}
+		
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	
+	
+	
+</head>
+<body onload="onLoad()">
+	
+	<noscript>
+		<div id="noscriptdiv" class="redbox">
+			<h2>This game needs javascript to work properly</h2>		
+		</div>
+	
+	</noscript>
+	
+	<button id="dosbtn" onclick="DoS(0)">Launch DoS Attack</button>
+	<button is="dosstopbtn" onclick="stopDoS()">Stop Attack</button>
+	
+	<script>
+		var dosStop = 0;
+		var dosBtn = document.getElementById("dosbtn");
+		function DoS(index){
+			if(index == 0){
+				dosStop = 0;
+			}
+			console.log("ATK-Set n. " + index);
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					console.log("Response: " + this.responseText);
+				}
+			};
+			var request = "/login";
+			var params = "username=hacker&password=123";
+			
+			for(var i=0; i<5000 && dosStop == 0; i++){
+				console.log("Request n. " + (i+1));
+				dosBtn.innerHTML = "Set " + index + " Request n. " + (i+1);
+				xhttp.open("POST", request, true);
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xhttp.send(params);
+			}
+			if(index < 10 && dosStop == 0){
+				setTimeout(DoS,20,++index);
+			}
+			else{
+				
+				dosBtn.innerHTML = "Attack finished, start new one";
+			}
+		}
+		
+		function stopDoS(){
+			dosStop = 1;
+			console.log("Attack stopped");
+		}
+	</script>
+	
+	<h1 class="title">Nova Card Game</h1>
+	<div id="logindiv" class="centered" style="display: none">
+		<form id="form" action="/login" method="post">
+			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required>
+			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required>
+			<input type="checkbox" name="rememberMe" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label>
+			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="Log In">
+		</form>
+		<div style="width:100%; text-align: center">
+			<a href="/signup">Or Sign Up</a>
+		</div>
+		
+	</div>
+
+	<div id="errordiv" class="redbox">
+		<h4>Wrong username/password !</h4>
+	</div>
+	
+	<script>
+		
+		var saveUser;
+		var username;
+		var password;
+		var loginBtn;
+		var loginDiv;
+		var form;
+
+		function onLoad(){
+			username = document.getElementById("username");
+			password = document.getElementById("password");
+			saveUser = document.getElementById("saveuser");
+			loginBtn = document.getElementById("loginbtn");
+			form = document.getElementById("form");
+			form.addEventListener("submit", login);
+			document.getElementById("logindiv").style.display = "block";
+		}
+
+		function login(event){
+			event.preventDefault();
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					if(this.responseText == "Access granted"){
+						document.location = "/";
+					}
+					else{
+						showErrorPopup();
+					}
+				}
+			};
+			var request = "/login";
+			var params = username.name+"="+username.value+"&"+password.name+"="+password.value+"&"+saveUser.name+"="+(saveUser.checked ? "on" : "off");
+			
+			xhttp.open("POST", request, true);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.send(params);	
+		}
+		
+		function showErrorPopup(){
+			password.value = "";
+			var JerrorDiv = $("#errordiv");
+			JerrorDiv.css("display","block");
+			animate(1,JerrorDiv);
+		}
+		
+		function animate(count,objToAnimate){
+			if(count == 12){
+				objToAnimate.animate({"margin-left": "0px"},50);
+				return;
+			}
+			if((count%2) != 0){
+				objToAnimate.animate({"margin-left": "-4px"},50,function(){animate(++count,objToAnimate)});
+			}
+			else{
+				objToAnimate.animate({"margin-left": "+4px"},50,function(){animate(++count,objToAnimate)});
+			}
+			
+		}
+		
+	</script>
+
+		
+</body>
+</html>

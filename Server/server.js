@@ -1,75 +1,96 @@
 var http = require("http");
+var https = require("https");
 var express = require("express");
 var webSocket = require("ws");
 var path = require("path");
+var fs = require("fs");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-var session = require("client-sessions");
+var minify = require("express-minify");
+
+var routes = require("./content-routes");
+var session = routes.session;
+var sessionName = 'session';
 
 var httpServer;
 var app = express();
 
 //Server vars
-var port = 80;
+var port = 54800;
+var securePort = 443;
+var DEBUG = true;
 
 //Express setup
 //-------------
+
 //View engine
+/*
 app.set("view engine","pug");
 app.set("views","./views");
+*/
+
 //Data parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-//Setting user session -- Tutorial: https://stormpath.com/blog/everything-you-ever-wanted-to-know-about-node-dot-js-sessions
-app.use(session({
-	cookieName: 'session',
-	secret: '$3cUrT7!_M4tT3r',
-	duration: 30 * 60 * 1000,
-	activeDuration: 1 * 60 * 1000,
-	cookie: {
-		httpOnly: false,
-		
-	}
-}));
-//Resources directory
-app.use(express.static("server resources"));
-//Routes handler
-var routes = require("./content-routes");
+//app.use(cookieParser());
 
-
+//Request logger
 app.use(function(req,res,next){
+	console.log("");
 	console.log(req.method + " request from: " +req.connection.remoteAddress + " request: " +req.originalUrl);
-	console.log("Request session");
-	console.log(req.session);
+	console.log("----------------");
 	next();
 });
 
+//Resources directory
+if(DEBUG == false){
+	app.use(minify({cache: __dirname + '/cache'}));
+}
+app.use(express.static("server resources"));
+
+
+//Routes handler
 app.use("/",routes);
 
 
-//If express gets to this point, means he haven't found anything to handle the request
+//If express gets to this point, means it hasn't found anything to handle the request
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
 });
 
 // If our applicatione encounters an error, we'll display the error and stacktrace accordingly.
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.send(err.toString());
+	res.status(err.status || 500);
+	if(err.status == 404){
+		res.sendFile(path.join(__dirname,"views","error404.html"));
+	}
+	else{
+		res.send(err.toString());
+	}
 });
 
-/*
-General http server started below
-app.listen(port,function(){
-	console.log("Server started on port "+port);
-});
-*/
 
 //Creating the http server handled by express
 var httpServer = http.createServer(app);
+
+//Starting the server
+httpServer.listen(port,function(){
+	console.log("Server started on port "+port);
+});
+
+//Crrating https server
+var tlsOptions = {
+	key: fs.readFileSync(path.join(__dirname,"TLS-data","nova.key")),
+	cert: fs.readFileSync(path.join(__dirname,"TLS-data","nova.cert"))
+}
+var httpsServer = https.createServer(tlsOptions,app);
+httpsServer.listen(securePort,function(){
+	console.log("TLS server started on port "+securePort);
+});
+
+
 
 
 
@@ -85,12 +106,13 @@ var wsServer = new webSocket.Server({
 
 //When a user connects to this server
 wsServer.on("connection",function(userWS, req){
-
-	wsServer.broadcast(req.connection.remoteAddress + " Just connected to Nova");
+	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
+	userWS[sessionName] = req[sessionName];
+	wsServer.broadcast(req.session.username + " Just connected to Nova");
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
-		console.log('Message recieved from ('+ req.connection.remoteAddress + '): ' + message);
+		console.log('Message recieved from ( '+ req.session.username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
 		var params = "";
@@ -104,7 +126,11 @@ wsServer.on("connection",function(userWS, req){
 		}
 
 		if(programs[prog] != undefined){
-			console.log(prog + " result " +programs[prog](userWS,params));
+			var result = programs[prog](userWS,params);
+			console.log(prog + " executed");
+			if(result != undefined){
+				console.log(prog + " result " +result);
+			}
 		}
 		else{
 			userWS.send("ERROR: Program not implemented");
@@ -114,7 +140,7 @@ wsServer.on("connection",function(userWS, req){
 	
 	//When the user disconnects from this server
 	userWS.on('close', function() {
-		console.log("Player (" + req.connection.remoteAddress + ") disconnected to websocket");
+		console.log(req.session.username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
 		
     });
 	
@@ -129,45 +155,44 @@ wsServer.broadcast = function(data) {
 	});
 };
 
+//Retrieve user's websocket by username<
+wsServer.getWebSocketByUsername = function(username){
+	var clients = wsServer.clients;
+	for(var i=0; i<clients.length; i++){
+		if (clients[i][sessionName] != undefined && clients[i][sessionName].username == username){
+			return clients[i];
+		}
+	}
+};
 
-//Starting the server
-httpServer.listen(port,function(){
-	console.log("Server started on port "+port);
-});
+
+
 
 
 
 
 //Checks if user's session ID is valid
-//info can be both am http request or a websocket info object{origin {String} Origin header, req, the client HTTP GET request, secure {Boolean} true if req.connection.authorized or req.connection.encrypted is set.}
+//info can be both an http request or a websocket info object{origin {String} = Origin header, req = the client HTTP GET request, secure {Boolean} = true if req.connection.authorized or req.connection.encrypted is set.}
 function isUserAuth(info){
-	/*
-	var cookies = {};
-	var headers = {};
-	if(info.headers != undefined){
-		headers = info.headers;
+	var sessionData = {};
+	var req;
+	//Info is an http req
+	if(info.method != undefined){
+		req = info;
 	}
-	else if(info.req.headers != undefined){
-		headers = info.req.headers;
-	}
-	//If there are no cookies, no sessionID available
-	if(headers.cookie == undefined){
-		return false;
-	}
-	//Parse the cookies to retrieve session info
-	headers = headers["cookie"].split(";");
-	for(var i=0; i<headers.length; i++){
-		headers[i] = headers[i].trim();
-		cookies[headers[i].substr(0,headers[i].indexOf("="))] = headers[i].substr(headers[i].indexOf("=")+1);
+	//Info is the websocket info object
+	else if(info.req.method != undefined){
+		req = info.req;
 	}
 	
-	if(cookies["sessionID"] != undefined){
-		console.log("WebSocket connection grarnted to " + cookies["sessionID"]);
+	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
+	sessionData = req[sessionName];
+	
+	//If there are is no session, or logged == false, not logged
+	if(sessionData != undefined && sessionData.logged == true){
 		return true;
 	}
-	*/
-	//TODO change this to false once implemented
-	return true;
+	return false;
 }
 
 
@@ -175,7 +200,7 @@ function isUserAuth(info){
 function ServerPrograms() {
 	//Debug request
 	this.debug = function(userWS, params){
-		userWS.send("DEBUG request recieved from player "+ userWS.remoteAddress + ", params were: " + params);
+		userWS.send("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
 	/*
@@ -193,6 +218,20 @@ function ServerPrograms() {
 	}
 	*/
 	
+	//The chat visible to every player, params: [0] message sent
+	this.globalchat = function(userWS,params){
+		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
+	}
+	
+	//Request for the online users list
+	this.userlist = function(userWS,params){
+		var list = [];
+		wsServer.clients.forEach(function each(client) {
+			list.push(client[sessionName].username);
+		});
+		userWS.send("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
+	}
+	
 	//Request of the the deck of the player
 	this.request_card = function(userWS,params){
 		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
@@ -204,13 +243,6 @@ function ServerPrograms() {
 	}
 }
 
-function Player(){
-	
-	this.remoteAddress;
-	this.username;
-	this.playing = false;	
-	
-}
 
 
 

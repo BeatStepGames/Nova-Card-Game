@@ -57,3 +57,10 @@ typings/
 # dotenv environment variables file
 .env
 
+#cached files
+Server/cache/*
+!Server/cache/token.gitkeep
+
+#TLS key and cert
+Server/TLS-data/nova.*
+
