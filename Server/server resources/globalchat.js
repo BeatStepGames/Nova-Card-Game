@@ -31,7 +31,7 @@ function debugGlobalChat(){
 	});
 
 	var globalChatUpdate = function(message){
-		chat.value += message.replace(/%20/g," ").substr(message.indexOf(" ")+1) + "\n";
+		chat.value += message.replace(/%20/g," ") + "\n";
 		/*
 		if(message.indexOf("globalchat") != -1){
 			chat.value += message.replace(/%20/g," ").substr(message.indexOf(" ")+1) + "\n";

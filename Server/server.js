@@ -157,7 +157,7 @@ wsServer.broadcast = function(data) {
 	});
 };
 
-//Retrieve user's websocket by username<
+//Retrieve user's websocket by username
 wsServer.getWebSocketByUsername = function(username){
 	var clients = wsServer.clients;
 	for(var i=0; i<clients.length; i++){
@@ -223,6 +223,12 @@ function ServerPrograms() {
 	//The chat visible to every player, params: [0] message sent
 	this.globalchat = function(userWS,params){
 		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
+	}
+
+	//A personal chat message, params: [0] user [1] message sent
+	this.personalChat = function(userWS,params){
+		var secondUser = wsServer.getWebSocketByUsername(params[0]);
+		secondUser.send("personalChat "+userWS.username + " " )
 	}
 	
 	//Request for the online users list
