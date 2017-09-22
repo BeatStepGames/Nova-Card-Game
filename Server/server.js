@@ -228,7 +228,7 @@ function ServerPrograms() {
 	//A personal chat message, params: [0] user [1] message sent
 	this.personalChat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
-		secondUser.send("personalChat "+userWS.username + " " )
+		secondUser.send("personalChat "+userWS.username + " " + params[1] );
 	}
 	
 	//Request for the online users list
@@ -240,8 +240,13 @@ function ServerPrograms() {
 		userWS.send("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
 	}
 	
-	//Request of the the deck of the player
-	this.request_card = function(userWS,params){
+	//Request of the the deck of the player, params: [0] card name
+	this.requestcard = function(userWS,params){
+		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
+	}
+
+	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
+	this.requestdeck = function(userWS,params){
 		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
 	}
 	

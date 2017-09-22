@@ -43,21 +43,24 @@ function Server(serverURL){
 		}
 	}
 	
+	this.requestDeck = function(deckIndex){
+		this.sendMessage("requestdeck " + deckIndex);
+	}
 	
-	this.requestCards = function(name){
-		this.sendMessage("request_cards "+name);
+	this.requestCard = function(name){
+		this.sendMessage("requestcard "+name);
 	}
 	
 }
 
 var server;
 
-function onLoadHome(){
+function onLoadHome(){	
+	server = new Server(document.location.host);
+	window.server = server;
 	//loadingURLs();
 	startMatch();
-	server = new Server(document.location.host);
 	debugGlobalChat();
-	window.server = server;
 }
 
 

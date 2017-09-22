@@ -149,6 +149,7 @@ function animate(){
 
 
 
+var deckIndex = 1;
 
 
 function startMatch(){
@@ -161,16 +162,16 @@ function startMatch(){
 	hand_cards = new HandCards();
 	
 	server.register("requestdeck",requestDeckHandler);
-	server.requestDeck(deckIndex);
+	server.requestDeck(deckIndex,6);
 	
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt] Death: destroy a random card in the field.",99,99,imageURLs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"It.",66,"[???] Magic: destroy all other monsters on the table.","1","?",imageURLs[1]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???] ???: destroy a random card; bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!","X","X",imageURLs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Wat",35,"I like pasta.","X","X",imageURLs[2]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???] ???: destroy a random card.","X","X",imageURLs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???] ???: destroy a random card.","X","X",imageURLs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???] ???: destroy a random card.","X","X",imageURLs[0]));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???] ???: destroy a random card.","X","X",imageURLs[0]));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Emperor of Fire Destiny",7,"[Taunt] Death: destroy a random card in the field.",99,99,"card_images/Emperor of Fire Destiny.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"It.",66,"[???] Magic: destroy all other monsters on the table.","1","?","card_images/It..png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol",35,"[???] ???: destroy a random card; bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!","X","X","card_images/Emperor of Fire Destiny.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Wat",35,"I like pasta.","X","X","card_images/wat.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol3",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol4",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol5",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol6",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
 	

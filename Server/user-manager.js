@@ -40,9 +40,9 @@ function saveUsers(users,path){
 function UserManager(){
 	
 	this.secureDir = path.join(__dirname,"secure-data");
-	this.usersDataDir = path.join(__dirname,"user-data","users.json");
+	this.signupDataDir = path.join(__dirname,"signup-data","users.json");
 	
-	this.users = loadUsers(this.usersDataDir) || [];
+	this.users = loadUsers(this.signupDataDir) || [];
 	
 	this.confirmationTokens = [];
 	
@@ -126,7 +126,7 @@ function UserManager(){
 						}
 			);
 			delete this.confirmationTokens[token];
-			saveUsers(this.users,this.usersDataDir);
+			saveUsers(this.users,this.signupDataDir);
 			return 1;
 		}
 		return 0;

@@ -59,8 +59,7 @@ function Card(x,y,name,level,comment,atk,life,imgPath){ //Create and draw the ca
 		if(this.img.loaded){
 			ctx.drawImage(this.img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
 		}
-		
-		
+
 		
 		ctx.font=(11*sizeFactor)+"px Arial";
 		
