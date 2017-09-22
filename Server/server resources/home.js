@@ -10,7 +10,7 @@ function Server(serverURL){
 		var message = event.data.substr(event.data.indexOf(" ")+1);
 		if(this.messageCallbacks[filter]){
 			for(var i=0; i<this.messageCallbacks[filter].length; i++){
-				this.messageCallbacks[filter][i](event.data);
+				this.messageCallbacks[filter][i](message);
 			}
 		}
 	}.bind(this);
@@ -53,7 +53,8 @@ function Server(serverURL){
 var server;
 
 function onLoadHome(){
-	loadingURLs();
+	//loadingURLs();
+	startMatch();
 	server = new Server(document.location.host);
 	debugGlobalChat();
 	window.server = server;
