@@ -80,7 +80,8 @@ httpServer.listen(port,function(){
 	console.log("Server started on port "+port);
 });
 
-//Crrating https server
+//Creating https server
+/*
 var tlsOptions = {
 	key: fs.readFileSync(path.join(__dirname,"TLS-data","nova.key")),
 	cert: fs.readFileSync(path.join(__dirname,"TLS-data","nova.cert"))
@@ -89,6 +90,7 @@ var httpsServer = https.createServer(tlsOptions,app);
 httpsServer.listen(securePort,function(){
 	console.log("TLS server started on port "+securePort);
 });
+*/
 
 
 
