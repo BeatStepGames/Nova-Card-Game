@@ -9,7 +9,7 @@ var card_elements = { //width and height of all elements in card
 	atk_def_gap: 60*sizeFactor
 };
 
-function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
+function Card(x,y,name,level,comment,atk,life,imgPath){ //Create and draw the card
 	this.x = x;
 	this.y = y;
 	this.centerX;
@@ -23,6 +23,13 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 	var temp_x;
 	var temp_y;
 	this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
+	this.img = new Image();
+	this.img.loaded = false;
+	this.img.onload = function(){
+		this.loaded = true;
+	}
+	this.img.onerror =  function(){ alert('Some images could not be loaded.'); };
+	this.img.src = imgPath;
 	
 	this.draw = function(){
 		var width_m;
@@ -49,7 +56,9 @@ function Card(x,y,name,level,comment,atk,life,img){ //Create and draw the card
 		ctx.fillRect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card);
 		ctx.fillStyle = "black";
 		
-		ctx.drawImage(img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
+		if(this.img.loaded){
+			ctx.drawImage(this.img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
+		}
 		
 		
 		

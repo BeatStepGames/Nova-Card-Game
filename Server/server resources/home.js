@@ -53,7 +53,8 @@ function Server(serverURL){
 var server;
 
 function onLoadHome(){
-	loadingURLs();
+	//loadingURLs();
+	startMatch();
 	server = new Server(document.location.host);
 	debugGlobalChat();
 	window.server = server;
