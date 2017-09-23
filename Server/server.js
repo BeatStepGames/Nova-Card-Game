@@ -81,12 +81,13 @@ httpServer.listen(port,function(){
 });
 
 //Creating https server
+var httpsServer = undefined;
 /*
 var tlsOptions = {
 	key: fs.readFileSync(path.join(__dirname,"TLS-data","nova.key")),
 	cert: fs.readFileSync(path.join(__dirname,"TLS-data","nova.cert"))
 }
-var httpsServer = https.createServer(tlsOptions,app);
+httpsServer = https.createServer(tlsOptions,app);
 httpsServer.listen(securePort,function(){
 	console.log("TLS server started on port "+securePort);
 });
@@ -101,7 +102,7 @@ httpsServer.listen(securePort,function(){
 var programs = new ServerPrograms();
 var playerList = [];
 var wsServer = new webSocket.Server({
-	server: httpServer,
+	server: httpsServer || httpServer,
 	clientTracking: true,
 	verifyClient: isUserAuth
 });
@@ -159,7 +160,7 @@ wsServer.broadcast = function(data) {
 
 //Retrieve user's websocket by username
 wsServer.getWebSocketByUsername = function(username){
-	var clients = wsServer.clients;
+	var clients = Array.from(wsServer.clients);
 	for(var i=0; i<clients.length; i++){
 		if (clients[i][sessionName] != undefined && clients[i][sessionName].username == username){
 			return clients[i];
@@ -226,9 +227,9 @@ function ServerPrograms() {
 	}
 
 	//A personal chat message, params: [0] user [1] message sent
-	this.personalChat = function(userWS,params){
+	this.personalchat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
-		secondUser.send("personalChat "+userWS.username + " " + params[1] );
+		secondUser.send("personalChat "+userWS[sessionName].username + " " + params[1] );
 	}
 	
 	//Request for the online users list
@@ -247,7 +248,12 @@ function ServerPrograms() {
 
 	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
 	this.requestdeck = function(userWS,params){
-		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
+		var debugDeck = [
+			"It.",
+			"Emperor of Fire Destiny",
+			"wat"
+		]
+		userWS.send("requestdeck " + JSON.stringify(debugDeck));
 	}
 	
 	//Events like attack, draw etc, are handled in here

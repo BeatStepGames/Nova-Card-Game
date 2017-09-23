@@ -43,8 +43,8 @@ function Server(serverURL){
 		}
 	}
 	
-	this.requestDeck = function(deckIndex){
-		this.sendMessage("requestdeck " + deckIndex);
+	this.requestDeck = function(deckIndex,nCards){
+		this.sendMessage("requestdeck " + deckIndex + " " + nCards);
 	}
 	
 	this.requestCard = function(name){
