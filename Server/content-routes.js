@@ -1,4 +1,5 @@
 var path = require("path");
+var fs = require("fs");
 var express = require('express');
 var sendMail = require("sendmail")({silent: false}); //https://github.com/guileen/node-sendmail
 var UserManager = require("./user-manager");
@@ -160,6 +161,27 @@ router.post("/confirm_user",function(req,res){
 			res.sendFile(p);
 		}
 	}
+});
+
+router.get("/create_card",function(req,res){
+	var p = path.join(__dirname,"views","create-card.html");
+	console.log("Confirmation denied, sending " + p);
+	res.sendFile(p);
+});
+router.post("/create_card",function(req,res){
+	var card = {
+		name: req.body.name,
+		level: req.body.level,
+		comment: req.body.comment,
+		atk: req.body.atk,
+		def: req.body.def,
+	};
+	var cardData = JSON.stringify(card);
+	var p = path.join(__dirname, "server resources","cards",card.name+".json");
+	fs.writeFileSync(p,cardData);
+	
+	console.log("Card created: "+card.name);
+	res.end("card created");
 });
 
 module.exports = router;

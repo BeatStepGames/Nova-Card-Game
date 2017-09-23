@@ -48,6 +48,7 @@ function Server(serverURL){
 	}
 	
 	this.requestCard = function(name){
+		name = name.replace(/\s/g,"%20");
 		this.sendMessage("requestcard "+name);
 	}
 	

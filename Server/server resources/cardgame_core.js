@@ -181,5 +181,18 @@ function startMatch(){
 
 function requestDeckHandler(params){
 	var deck = JSON.parse(params);
-	
+	server.register("requestcard",requestCardHandler);
+	for(var i=0; i<deck.length; i++){
+		server.requestCard(deck[i]);
+	}
+}
+
+function requestCardHandler(cardData){
+	if(cardData != "ERROR 404: Not Found"){
+		cardData = JSON.parse(cardData);
+		console.log(cardData);
+	}
+	else{
+		console.log("Card requested doesn't exist!");
+	}
 }

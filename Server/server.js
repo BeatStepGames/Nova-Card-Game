@@ -16,7 +16,7 @@ var httpServer;
 var app = express();
 
 //Server vars
-var port = 54800;
+var port = 80;
 var securePort = 443;
 var DEBUG = true;
 
@@ -243,7 +243,16 @@ function ServerPrograms() {
 	
 	//Request of the the deck of the player, params: [0] card name
 	this.requestcard = function(userWS,params){
-		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
+		params[0] = params[0].replace(/%20/g," ");
+		var p = path.join(__dirname, "server resources","cards",params[0]+".json");
+		var cardData = "ERROR 404: Not Found";
+		try{
+			cardData = fs.readFileSync(p);
+		}
+		catch(err){
+			console.log("Requested nonexisting card: " + params[0]);
+		}
+		userWS.send("requestcard " + cardData);
 	}
 
 	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
