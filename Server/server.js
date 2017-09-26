@@ -11,6 +11,7 @@ var minify = require("express-minify");
 var routes = require("./content-routes");
 var session = routes.session;
 var sessionName = 'session';
+var userManager = routes.userManager;
 
 var httpServer;
 var app = express();
@@ -109,13 +110,17 @@ var wsServer = new webSocket.Server({
 
 //When a user connects to this server
 wsServer.on("connection",function(userWS, req){
+	//Retrieving the session for this user and saving them inside his websocket
 	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
 	userWS[sessionName] = req[sessionName];
-	wsServer.broadcast(req.session.username + " Just connected to Nova");
+	//To load from file the data, even if not used
+	userManager.getUserData(req[sessionName].username);
+
+	wsServer.broadcast(req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
-		console.log('Message recieved from ( '+ req.session.username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
+		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
 		var params = "";
@@ -143,8 +148,8 @@ wsServer.on("connection",function(userWS, req){
 	
 	//When the user disconnects from this server
 	userWS.on('close', function() {
-		console.log(req.session.username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
-		
+		console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
+		userManager.forceRemoveUserData(req[sessionName].username);
     });
 	
 });
@@ -169,11 +174,6 @@ wsServer.getWebSocketByUsername = function(username){
 };
 
 
-
-
-
-
-
 //Checks if user's session ID is valid
 //info can be both an http request or a websocket info object{origin {String} = Origin header, req = the client HTTP GET request, secure {Boolean} = true if req.connection.authorized or req.connection.encrypted is set.}
 function isUserAuth(info){
@@ -191,7 +191,7 @@ function isUserAuth(info){
 	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
 	sessionData = req[sessionName];
 	
-	//If there are is no session, or logged == false, not logged
+	//If there is no session, or logged == false, not logged
 	if(sessionData != undefined && sessionData.logged == true){
 		return true;
 	}
@@ -205,21 +205,6 @@ function ServerPrograms() {
 	this.debug = function(userWS, params){
 		userWS.send("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
-	
-	/*
-	//As soon as the player load the game page, sends a login request to the server, to let it know he is online
-	//Params are username password
-	this.login = function(userWS,params){
-		if(isUserAuth(params[0],params[1]) ){
-			var p = new Player();
-			p.remoteAddress = userWS.remoteAddress;
-			p.username = params[0];
-			playerList.push(p);
-			return 1;
-		}
-		return 0;
-	}
-	*/
 	
 	//The chat visible to every player, params: [0] message sent
 	this.globalchat = function(userWS,params){
