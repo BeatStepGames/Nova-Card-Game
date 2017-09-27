@@ -141,8 +141,13 @@ function UserManager(){
 			clearTimeout(this.usersData[username].deleteTimeout);
 		}
 		else{
+			this.usersData[username] = {};
 			//Load the data from file
 			this.usersData[username].user = loadDataFromJsonFile(path.join(this.userDataDir,username+".json"));
+			//Create the data if it doesn't exists
+			if(this.usersData[username].user == undefined){
+				this.usersData[username].user = {};
+			}
 			//Setting the autosave timeout every hour
 			this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
 

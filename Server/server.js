@@ -116,7 +116,7 @@ wsServer.on("connection",function(userWS, req){
 	//To load from file the data, even if not used
 	userManager.getUserData(req[sessionName].username);
 
-	wsServer.broadcast(req[sessionName].username + " Just connected to Nova");
+	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
@@ -215,6 +215,12 @@ function ServerPrograms() {
 	this.personalchat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
 		secondUser.send("personalChat "+userWS[sessionName].username + " " + params[1] );
+	}
+
+	//A ping message to check that the other player is still receiving data, params: [0] user [1] request or response
+	this.pinguser = function(userWS,params){
+		var secondUser = wsServer.getWebSocketByUsername(params[0]);
+		secondUser.send("pinguser "+userWS[sessionName].username + " " + params[1] );
 	}
 	
 	//Request for the online users list

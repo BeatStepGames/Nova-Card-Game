@@ -8,6 +8,12 @@ function Server(serverURL){
 		console.log("Game Server says: " + event.data);
 		var filter = event.data.substr(0,event.data.indexOf(" "));
 		var message = event.data.substr(event.data.indexOf(" ")+1);
+
+		if(filter == "$notify$"){
+			var notif = new FloatingNotification(message);
+			notif.show();
+		}
+
 		if(this.messageCallbacks[filter]){
 			for(var i=0; i<this.messageCallbacks[filter].length; i++){
 				this.messageCallbacks[filter][i](message);
@@ -59,7 +65,6 @@ var server;
 function onLoadHome(){	
 	server = new Server(document.location.host);
 	window.server = server;
-	//loadingURLs();
 	startMatch();
 	debugGlobalChat();
 }

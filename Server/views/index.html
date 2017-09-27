@@ -55,6 +55,7 @@
 		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<button id="onlineusers" style="display: inline">Show online users</button>
+		<button id="testnotificationbtn" style="display: inline" onclick="testNotif()">Test notification</button>
 		<div id="chatdiv" style="display: none">
 			<textarea id="globalchat" rows="20" cols="50" style="display: block; width: 100%"></textarea>
 			<br/>
@@ -65,6 +66,7 @@
 	<canvas id="canvas"></canvas>	
 	<script type="text/javascript" src="home.js"></script>
 	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
+	<script type="text/javascript" src="FloatingNotification.js"></script>
 	
 	<script type="text/javascript" src="cardgame_core.js"></script>	
 	<script type="text/javascript" src="Card.js"></script>
@@ -72,6 +74,19 @@
 	<script type="text/javascript" src="Field.js"></script>
 	
 	<script type="text/javascript" src="globalchat.js"></script>
+
+	<script>
+		function testNotif(){
+			buttons = [];
+			buttons.push(new NotificationButton("Got It",function(e){alert("Callback function - "+e.target.innerHTML)} ));
+			buttons.push(new NotificationButton("Maybe Not",function(e){alert("Callback function - "+e.target.innerHTML)} ));
+			buttons.push(new NotificationButton("Third button!",function(e){alert("Callback function - "+e.target.innerHTML)} ));
+			buttons.push(new NotificationButton("Poop",function(e){alert("Callback function - "+e.target.innerHTML)} ));
+			var notif = new FloatingNotification(document.getElementById("chatinput").value,buttons);
+			notif.show();
+		}
+	
+	</script>
 	
 </body>
 </html>

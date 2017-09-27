@@ -28,7 +28,7 @@ function Card(x,y,name,level,comment,atk,life,imgPath){ //Create and draw the ca
 	this.img.onload = function(){
 		this.loaded = true;
 	}
-	this.img.onerror =  function(){ alert('Some images could not be loaded.'); };
+	this.img.onerror =  function(){ console.log(this.name + ' image could not be loaded.'); }.bind(this);
 	this.img.src = imgPath;
 	
 	this.draw = function(){
