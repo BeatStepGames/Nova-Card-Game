@@ -8,6 +8,12 @@ function Server(serverURL){
 		console.log("Game Server says: " + event.data);
 		var filter = event.data.substr(0,event.data.indexOf(" "));
 		var message = event.data.substr(event.data.indexOf(" ")+1);
+
+		if(filter == "$notify$"){
+			var notif = new FloatingNotification(message);
+			notif.show();
+		}
+
 		if(this.messageCallbacks[filter]){
 			for(var i=0; i<this.messageCallbacks[filter].length; i++){
 				this.messageCallbacks[filter][i](message);
@@ -43,21 +49,24 @@ function Server(serverURL){
 		}
 	}
 	
+	this.requestDeck = function(deckIndex,nCards){
+		this.sendMessage("requestdeck " + deckIndex + " " + nCards);
+	}
 	
-	this.requestCards = function(name){
-		this.sendMessage("request_cards "+name);
+	this.requestCard = function(name){
+		name = name.replace(/\s/g,"%20");
+		this.sendMessage("requestcard "+name);
 	}
 	
 }
 
 var server;
 
-function onLoadHome(){
-	//loadingURLs();
-	startMatch();
+function onLoadHome(){	
 	server = new Server(document.location.host);
-	debugGlobalChat();
 	window.server = server;
+	startMatch();
+	debugGlobalChat();
 }
 
 

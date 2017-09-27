@@ -1,0 +1,199 @@
+<html>
+    <head>
+        <title>Nova Card Game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <style type="text/css">
+            body{
+                margin: 0px;
+                border: 0px;
+                padding: 0px;
+                background-image: url('sapphire-back.png');
+                background-size:contain;
+                align: center;
+            }
+            
+            .title{
+                padding-top:10%;
+                width: 100%;
+                text-align: center;
+                color: silver;
+            }
+            
+            .container{
+                width: 100%;
+                horizontal-align: center;
+            }
+            
+            input {
+                float: center;
+                display: block;
+                border-radius: 2px;
+                margin-left: 2vh;
+                margin-right: 2vh;
+                box-shadow: 0 6px 16px 0 rgba(0,0,0,0.2), 0 2px 20px 0 rgba(0,0,0,0.19);
+                min-height: 30px;
+            }
+            
+            a:link {
+                color: white;
+            }
+    
+            /* visited link */
+            a:visited {
+                color: silver;
+            }
+    
+            /* mouse over link */
+            a:hover {
+                color: white;
+                cursor: pointer;
+            }
+    
+            /* selected link */
+            a:active {
+                color: white;
+            }
+            
+            
+            .sized{
+                width: 33vw;
+                height: 4vh;
+                margin: 2vh;
+            }
+            
+            .centered {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                /* bring your own prefixes */
+                transform: translate(-50%, -50%);
+            }
+            
+            .redbox{
+                border: 3px solid red;
+                border-radius: 3px;
+                text-align: center;
+                background-color: rgba(255,0,0,0.4);
+                color: white;
+            }
+            
+            #errordiv{
+                display: none;
+                position: absolute;
+                top: 80%;
+                left: 50%;
+                transform: translate(-50%, -50%); 
+                min-width: 33vw;
+                min-height: 12vh;
+            }
+            
+            #noscriptdiv{
+                position: absolute;
+                top: 80%;
+                left: 50%;
+                transform: translate(-50%, -50%); 
+                width: 55vw;
+                height: 18vh;
+            }
+            
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        
+        
+        
+    </head>
+    <body onload="onLoad()">
+        
+        <noscript>
+            <div id="noscriptdiv" class="redbox">
+                <h2>This game needs javascript to work properly</h2>		
+            </div>
+        
+        </noscript>
+        
+        <h1 class="title">Nova Card Game</h1>
+        <div id="carddiv" class="centered" style="display: none">
+            <form id="form" action="/create_card" method="post">
+                <input type="text" name="name" id="name" class="sized" rows="1" cols="50" placeholder="Card name" required>
+                <input type="text" name="level" id="level" class="sized" rows="1" cols="50" placeholder="Card level" required>
+                <input type="text" name="comment" id="comment" class="sized" rows="1" cols="50" placeholder="Card comment" required>
+                <input type="text" name="atk" id="atk" class="sized" rows="1" cols="50" placeholder="Card atk" required>
+                <input type="text" name="def" id="def" class="sized" rows="1" cols="50" placeholder="Card def" required>
+                <!-- <input type="file" name="img" id="img" style="color: white; display:inline-block; margin-right:0px;" required><label style="display: inline; color:white;">Card image</label> -->
+                <input type="submit" id="submitbtn" class="sized" rows="1" cols="25" value="Submit card">
+            </form>
+            <div style="width:100%; text-align: center">
+                <a href="/">Go back to the Game</a>
+            </div>
+            
+        </div>
+    
+        <div id="errordiv" class="redbox">
+            <h4 id="errorlabel">Signup Error</h4>
+        </div>
+        
+        <script>
+            
+            var username;
+            var password;
+            var email;
+            var signupBtn;
+            var loginDiv;
+            var form;
+            var errorLabel;
+    
+            function onLoad(){;
+                document.getElementById("carddiv").style.display = "block";
+            }
+    
+            function signup(event){
+                event.preventDefault();
+    
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        if(this.responseText.startsWith("$")){
+                            alert("Check your email for confirmation - you might need to check the SPAM");
+                            document.location = "/login";
+                        }
+                        else{
+                            errorLabel.innerHTML = this.responseText;
+                            showErrorPopup();
+                        }
+                    }
+                };
+                var request = "/signup";
+                var params = username.name+"="+username.value+"&"+password.name+"="+password.value+"&"+email.name+"="+email.value;
+                
+                xhttp.open("POST", request, true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send(params);	
+            }
+            
+            function showErrorPopup(){
+                password.value = "";
+                var JerrorDiv = $("#errordiv");
+                JerrorDiv.css("display","block");
+                animate(1,JerrorDiv);
+            }
+            
+            function animate(count,objToAnimate){
+                if(count == 12){
+                    objToAnimate.animate({"margin-left": "0px"},50);
+                    return;
+                }
+                if((count%2) != 0){
+                    objToAnimate.animate({"margin-left": "-4px"},50,function(){animate(++count,objToAnimate)});
+                }
+                else{
+                    objToAnimate.animate({"margin-left": "+4px"},50,function(){animate(++count,objToAnimate)});
+                }
+                
+            }
+            
+        </script>
+    
+            
+    </body>
+    </html>

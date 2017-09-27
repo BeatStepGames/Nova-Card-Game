@@ -12,23 +12,23 @@ function genUniqueID(salt){
 	return bcrypt.hashSync(toHash);
 }
 
-function loadUsers(path){
-	var users = [];
+function loadDataFromJsonFile(path){
+	var data;
 	try{
-		var jsonUsers = fs.readFileSync(path);
-		users = JSON.parse(jsonUsers);
+		var jsonData = fs.readFileSync(path);
+		data = JSON.parse(jsonData);
 		console.log("Users loaded");
 	}
 	catch(err){
 		console.log("No users directory " + err.code);
 		console.log(err);
 	}
-	return users;
+	return data;
 }
 
-function saveUsers(users,path){
-	var jsonUsers = JSON.stringify(users);
-	fs.writeFile(path,jsonUsers,function(err){
+function saveDataToJsonFile(data,path){
+	var jsonData = JSON.stringify(data);
+	fs.writeFile(path,jsonData,function(err){
 		if(err){
 			console.log("Error saving users " + err.code);
 		}
@@ -40,9 +40,11 @@ function saveUsers(users,path){
 function UserManager(){
 	
 	this.secureDir = path.join(__dirname,"secure-data");
-	this.usersDataDir = path.join(__dirname,"user-data","users.json");
+	this.signupDataPath = path.join(__dirname,"signup-data","users.json");
+	this.userDataDir = path.join(__dirname,"user-data");
 	
-	this.users = loadUsers(this.usersDataDir) || [];
+	this.registeredUsers = loadDataFromJsonFile(this.signupDataPath) || [];
+	this.usersData = {};
 	
 	this.confirmationTokens = [];
 	
@@ -76,13 +78,13 @@ function UserManager(){
 		};
 		
 		
-		for(var i=0; i<this.users.length; i++){
+		for(var i=0; i<this.registeredUsers.length; i++){
 			//Check if the username is already present
-			if(this.users[i].username == username){
+			if(this.registeredUsers[i].username == username){
 				return res2;
 			}
 			//Check if the email is already present
-			else if(this.users[i].email == email){
+			else if(this.registeredUsers[i].email == email){
 				return res3;
 			}
 		}
@@ -100,7 +102,7 @@ function UserManager(){
 				console.log(this.confirmationTokens[temptoken].username + "'s signup confirmation token expired");
 				delete this.confirmationTokens[temptoken];
 			}
-		}.bind(this),(1000*60*30));
+		}.bind(this),(1000*60*30)); //30 minutes for confirmation
 		
 		var res = {
 			result: 1,
@@ -113,7 +115,7 @@ function UserManager(){
 	this.confirmUser = function(token){
 		if(token != undefined && this.confirmationTokens[token]){
 			clearTimeout(this.confirmationTokens[token].timeoutID);
-			this.users.push({
+			this.registeredUsers.push({
 				username: this.confirmationTokens[token].username,
 				email: this.confirmationTokens[token].email
 			});
@@ -126,17 +128,84 @@ function UserManager(){
 						}
 			);
 			delete this.confirmationTokens[token];
-			saveUsers(this.users,this.usersDataDir);
+			saveDataToJsonFile(this.registeredUsers,this.signupDataPath);
 			return 1;
 		}
 		return 0;
 	}
 	
-	this.createUser = function(username,email){
-		this.username = username || "Unnamed";
-		this.email = email || "NoEmail";
+	//Return the data of the user if in memory, load it from file and then returns it otherwise
+	this.getUserData = function(username){
+		if(this.usersData[username] != undefined){
+			//Clear the old timeout
+			clearTimeout(this.usersData[username].deleteTimeout);
+		}
+		else{
+			this.usersData[username] = {};
+			//Load the data from file
+			this.usersData[username].user = loadDataFromJsonFile(path.join(this.userDataDir,username+".json"));
+			//Create the data if it doesn't exists
+			if(this.usersData[username].user == undefined){
+				this.usersData[username].user = {};
+			}
+			//Setting the autosave timeout every hour
+			this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
+
+		}
+
+		//Set the new timeout to delete the data if not used within 5 hours
+		this.usersData[username].deleteTimeout = setTimeout(function(){
+			this.forceRemoveUserData(username);
+			console.log(username + " data has been removed from memory, because not used for long time");
+		}.bind(this),(1000*60*60*5),username);
+
+		//Return this data
+		return this.usersData[username].user;
 	}
+
+	//Saves data passed for the username passed
+	this.saveUserData = function(username,paramName,paramValue,options){
+		if(this.usersData[username] == undefined){
+			this.getUserData();
+		}
+		if(this.usersData[username] != undefined){
+			if(options && options.delete == true){
+				delete this.usersData[username].user[paramName]
+			}
+			else{
+				this.usersData[username].user[paramName] = paramValue;
+				if(options.forceSave == true){
+					saveDataToJsonFile(this.usersData[username].user,path.join(this.userDataDir,username+".json"));
+					clearTimeout(this.usersData[username].autoSaveTimeout);
+					this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
+				}
+			}
+			return 1;
+		}
+		return 0;
+	}
+
+	//Recursive calling timeout to save data to file
+	var recursiveAutoSave = function(username){
+		if(this.usersData[username]){
+			saveDataToJsonFile(this.usersData[username].user,path.join(this.userDataDir,username+".json"));
+			this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
+		}
+	}
+
+	//Used to force removing user data from memory
+	this.forceRemoveUserData = function(username){
+		if(this.usersData[username]){
+			clearTimeout(this.usersData[username].autoSaveTimeout);
+			saveDataToJsonFile(this.usersData[username].user,path.join(this.userDataDir,username+".json"));
+			clearTimeout(this.usersData[username].deleteTimeout);
+			delete this.usersData[username];
+		}
 		
+	}
+
+
+
 }
 
 

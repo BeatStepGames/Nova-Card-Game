@@ -11,12 +11,13 @@ var minify = require("express-minify");
 var routes = require("./content-routes");
 var session = routes.session;
 var sessionName = 'session';
+var userManager = routes.userManager;
 
 var httpServer;
 var app = express();
 
 //Server vars
-var port = 54800;
+var port = 80;
 var securePort = 443;
 var DEBUG = true;
 
@@ -81,12 +82,13 @@ httpServer.listen(port,function(){
 });
 
 //Creating https server
+var httpsServer = undefined;
 /*
 var tlsOptions = {
 	key: fs.readFileSync(path.join(__dirname,"TLS-data","nova.key")),
 	cert: fs.readFileSync(path.join(__dirname,"TLS-data","nova.cert"))
 }
-var httpsServer = https.createServer(tlsOptions,app);
+httpsServer = https.createServer(tlsOptions,app);
 httpsServer.listen(securePort,function(){
 	console.log("TLS server started on port "+securePort);
 });
@@ -101,20 +103,24 @@ httpsServer.listen(securePort,function(){
 var programs = new ServerPrograms();
 var playerList = [];
 var wsServer = new webSocket.Server({
-	server: httpServer,
+	server: httpsServer || httpServer,
 	clientTracking: true,
 	verifyClient: isUserAuth
 });
 
 //When a user connects to this server
 wsServer.on("connection",function(userWS, req){
+	//Retrieving the session for this user and saving them inside his websocket
 	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
 	userWS[sessionName] = req[sessionName];
-	wsServer.broadcast(req.session.username + " Just connected to Nova");
+	//To load from file the data, even if not used
+	userManager.getUserData(req[sessionName].username);
+
+	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
-		console.log('Message recieved from ( '+ req.session.username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
+		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
 		var params = "";
@@ -142,8 +148,8 @@ wsServer.on("connection",function(userWS, req){
 	
 	//When the user disconnects from this server
 	userWS.on('close', function() {
-		console.log(req.session.username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
-		
+		console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
+		userManager.forceRemoveUserData(req[sessionName].username);
     });
 	
 });
@@ -159,18 +165,13 @@ wsServer.broadcast = function(data) {
 
 //Retrieve user's websocket by username
 wsServer.getWebSocketByUsername = function(username){
-	var clients = wsServer.clients;
+	var clients = Array.from(wsServer.clients);
 	for(var i=0; i<clients.length; i++){
 		if (clients[i][sessionName] != undefined && clients[i][sessionName].username == username){
 			return clients[i];
 		}
 	}
 };
-
-
-
-
-
 
 
 //Checks if user's session ID is valid
@@ -190,7 +191,7 @@ function isUserAuth(info){
 	req = session.retrieveSessionFromCookie(req,undefined,sessionName);
 	sessionData = req[sessionName];
 	
-	//If there are is no session, or logged == false, not logged
+	//If there is no session, or logged == false, not logged
 	if(sessionData != undefined && sessionData.logged == true){
 		return true;
 	}
@@ -205,30 +206,21 @@ function ServerPrograms() {
 		userWS.send("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
-	/*
-	//As soon as the player load the game page, sends a login request to the server, to let it know he is online
-	//Params are username password
-	this.login = function(userWS,params){
-		if(isUserAuth(params[0],params[1]) ){
-			var p = new Player();
-			p.remoteAddress = userWS.remoteAddress;
-			p.username = params[0];
-			playerList.push(p);
-			return 1;
-		}
-		return 0;
-	}
-	*/
-	
 	//The chat visible to every player, params: [0] message sent
 	this.globalchat = function(userWS,params){
 		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
 	}
 
 	//A personal chat message, params: [0] user [1] message sent
-	this.personalChat = function(userWS,params){
+	this.personalchat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
-		secondUser.send("personalChat "+userWS.username + " " )
+		secondUser.send("personalChat "+userWS[sessionName].username + " " + params[1] );
+	}
+
+	//A ping message to check that the other player is still receiving data, params: [0] user [1] request or response
+	this.pinguser = function(userWS,params){
+		var secondUser = wsServer.getWebSocketByUsername(params[0]);
+		secondUser.send("pinguser "+userWS[sessionName].username + " " + params[1] );
 	}
 	
 	//Request for the online users list
@@ -240,9 +232,28 @@ function ServerPrograms() {
 		userWS.send("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
 	}
 	
-	//Request of the the deck of the player
-	this.request_card = function(userWS,params){
-		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
+	//Request of the the deck of the player, params: [0] card name
+	this.requestcard = function(userWS,params){
+		params[0] = params[0].replace(/%20/g," ");
+		var p = path.join(__dirname, "server resources","cards",params[0]+".json");
+		var cardData = "ERROR 404: Not Found";
+		try{
+			cardData = fs.readFileSync(p);
+		}
+		catch(err){
+			console.log("Requested nonexisting card: " + params[0]);
+		}
+		userWS.send("requestcard " + cardData);
+	}
+
+	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
+	this.requestdeck = function(userWS,params){
+		var debugDeck = [
+			"It.",
+			"Emperor of Fire Destiny",
+			"wat"
+		]
+		userWS.send("requestdeck " + JSON.stringify(debugDeck));
 	}
 	
 	//Events like attack, draw etc, are handled in here

@@ -1,7 +1,8 @@
 var path = require("path");
+var fs = require("fs");
 var express = require('express');
 var sendMail = require("sendmail")({silent: false}); //https://github.com/guileen/node-sendmail
-var UserManager = require("./user-manager");
+var userManager = require("./user-manager");
 var session = require("./beat-session");
 var router = express.Router();
 
@@ -48,7 +49,7 @@ router.get("/login", function(req,res){
 });
 router.post("/login", function(req,res){
 	console.log("POST login request");
-	if(req[sessionName] == undefined && UserManager.authUser(req.body.username,req.body.password)){
+	if(req[sessionName] == undefined && userManager.authUser(req.body.username,req.body.password)){
 		console.log("Access granted to "+req.body.username);
 		var options = {
 			cookieName: [sessionName],
@@ -91,7 +92,7 @@ router.get("/signup", function(req,res){
 router.post("/signup", function(req,res){
 	console.log("POST signup request");
 	if(req[sessionName] == undefined){
-		var signupResponse = UserManager.signupUser(req.body.username,req.body.password,req.body.email);
+		var signupResponse = userManager.signupUser(req.body.username,req.body.password,req.body.email);
 		if(signupResponse.result == 1){
 			console.log("Waiting account confirmation for " + req.body.username);
 			res.send("$Confirm account");
@@ -131,7 +132,7 @@ router.get("/confirm_user",function(req,res){
 		res.redirect("/");
 	}
 	else{
-		var resp = UserManager.confirmUser(req.query.token);
+		var resp = userManager.confirmUser(req.query.token);
 		if(resp == 1){
 			console.log("Confirmation user done, redirecting to login");
 			res.redirect("/login");
@@ -149,7 +150,7 @@ router.post("/confirm_user",function(req,res){
 		res.redirect("/");
 	}
 	else{
-		var resp = UserManager.confirmUser(req.body.token);
+		var resp = userManager.confirmUser(req.body.token);
 		if(resp == 1){
 			console.log("Confirmation user done, redirecting to login");
 			res.redirect("/login");
@@ -162,5 +163,27 @@ router.post("/confirm_user",function(req,res){
 	}
 });
 
+router.get("/create_card",function(req,res){
+	var p = path.join(__dirname,"views","create-card.html");
+	console.log("Confirmation denied, sending " + p);
+	res.sendFile(p);
+});
+router.post("/create_card",function(req,res){
+	var card = {
+		name: req.body.name,
+		level: req.body.level,
+		comment: req.body.comment,
+		atk: req.body.atk,
+		def: req.body.def,
+	};
+	var cardData = JSON.stringify(card);
+	var p = path.join(__dirname, "server resources","cards",card.name+".json");
+	fs.writeFileSync(p,cardData);
+	
+	console.log("Card created: "+card.name);
+	res.end("card created");
+});
+
 module.exports = router;
 module.exports.session = session;
+module.exports.userManager = userManager;
