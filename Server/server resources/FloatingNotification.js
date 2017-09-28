@@ -44,10 +44,6 @@ function FloatingNotification(data,buttons,options){
     this.container.style.boxShadow = extStyle.boxShadow || "-2px 2px 2px 2px grey";
     this.container.style.borderRadius = extStyle.borderRadius || "2px 0px 0px 2px";
     this.container.style.position = extStyle.position || "relative";
-    /*
-    this.container.style.right = extStyle.right || "0px";
-    this.container.style.top = extStyle.top || "0px";
-    */
     this.container.style.display = "block";
     this.container.style.marginBottom = "0.5em";
     this.container.style.background = extStyle.background || "silver";
@@ -57,19 +53,24 @@ function FloatingNotification(data,buttons,options){
     this.container.style.opacity = "0";
     this.container.style.zIndex = "100"; //Forced to be a high value
     
-
-    if(this.img != undefined){
-        this.img.setAttribute("padding","1em");
-        this.img.setAttribute("width","1em");
-        this.img.setAttribute("height","1em");
+	if(this.img != undefined){
+        this.img.style.padding = "0.2em";
+        this.img.style.width = "1em";
+        this.img.style.height = "1em";
         this.img.style.display = "inline";
+		this.img.style.verticalAlign = "bottom";
+		this.img.style.position = "relative";
+		this.img.style.bottom = "-2px";
         this.container.appendChild(this.img);
     }
-
-    this.textElement = document.createElement("h4");
+	
+	
+	this.textElement = document.createElement("h4");
     this.textElement.innerText = this.text;
-    this.textElement.style.padding = "1em";
+    this.textElement.style.padding = "1em 1em 1em 0.3em";
     this.textElement.style.display = "inline";
+	this.textElement.style.wordWrap = "work-break";
+	this.textElement.style.overflowWrap = "work-break";
     this.container.appendChild(this.textElement);
 
     this.wrappingFunction = function(e,callback){
@@ -110,9 +111,9 @@ function FloatingNotification(data,buttons,options){
                 macroContainer.style.position = "fixed";
                 macroContainer.style.right = "0px";
                 macroContainer.style.top = "0px";
-                macroContainer.style.minWidth = "30%";
-                macroContainer.style.maxWidth = "30%";
-                macroContainer.style.width = "30%";
+                macroContainer.style.minWidth = "35%";
+                macroContainer.style.maxWidth = "35%";
+                macroContainer.style.width = "35%";
                 document.body.appendChild(macroContainer);
             }
             macroContainer.appendChild(this.container);
