@@ -26,7 +26,7 @@ function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 			line = array[i] + " ";
 			line_counter++;
 		}
-		if(array[i].includes("[") && array[i].includes("]")) {
+		if(array[i].indexOf("[") != -1 && array[i].indexOf("]") != -1) {
 			line = "";
 			line_counter++;
 		}
@@ -45,7 +45,7 @@ function splitNewLine(str,x,y){ //comment text of the card, don't touch that
 			line = array[i] + " ";
 			newl++;
 		}
-		if(array[i].includes("[") && array[i].includes("]")) {
+		if(array[i].indexOf("[") != -1  && array[i].indexOf("]") != -1) {
 			ctx.fillText(line,x+card_elements.card_lenght_x/2,y+card_elements.top_space_card+card_elements.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
 			line = "";
 			newl++;
