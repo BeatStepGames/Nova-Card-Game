@@ -1,5 +1,5 @@
 function HandCards() { //position of the cards in hand
-	this.y = canvas.height - card_elements.top_space_card;
+	this.y = canvas.height - baseDimensions.top_space_card;
 	this.gap = 50*sizeFactor;
 	this.bottomPadding = 10*sizeFactor;
 	this.handStack = new Stack();
@@ -9,14 +9,14 @@ function HandCards() { //position of the cards in hand
 	this.updateHandPosition = function(){
 		
 		if(this.mousein == false){
-			this.y = canvas.height - card_elements.top_space_card;
+			this.y = canvas.height - baseDimensions.top_space_card;
 		}
 		else {
-			this.y = canvas.height - card_elements.card_lenght_y - this.bottomPadding;
+			this.y = canvas.height - baseDimensions.card_height - this.bottomPadding;
 		}
 		
 		//check mouse in the hand cards area
-		if(mouse.y>=this.y ){ //this.handStack.length > 0 && mouse.x>=this.handStack.array[0].x && mouse.x <= this.handStack.array[this.handStack.array.length-1].x+card_elements.card_lenght_x 
+		if(mouse.y>=this.y ){ //this.handStack.length > 0 && mouse.x>=this.handStack.array[0].x && mouse.x <= this.handStack.array[this.handStack.array.length-1].x+baseDimensions.card_width 
 			this.mousein = true;
 		} 
 		else{
@@ -26,7 +26,7 @@ function HandCards() { //position of the cards in hand
 		//Animation of moving cards
 		var deltaDistance = (canvas.width-(4*this.gap) )/ this.handStack.length;
 
-		if ( deltaDistance > (card_elements.card_lenght_x+this.gap) ) deltaDistance = card_elements.card_lenght_x+(this.gap/2);
+		if ( deltaDistance > (baseDimensions.card_width+this.gap) ) deltaDistance = baseDimensions.card_width+(this.gap/2);
 		
 		for(var i=0; i<this.handStack.length; i++){
 			if(this.handStack.array[i].moving == 0){
@@ -60,19 +60,21 @@ function HandCards() { //position of the cards in hand
 		}
 	};
 	
-	this.drawHandCards = function(){
+	this.drawHandCards = function(ctx){
 		for(var i=this.handStack.length-1; i >= 0; i--){
 			if(this.handStack.array[i].moving == 0){
-				this.handStack.array[i].draw();
+				this.handStack.array[i].draw(ctx);
 			}
 		}
 		if(floatingHandCard != undefined){
-			floatingHandCard.draw();
+			floatingHandCard.draw(ctx);
 		}
 	};
 	
-	this.onResize = function(){
-		
+	this.onResize = function(sizeFactor){
+		for(var i=0; i<this.handStack.length; i++){
+			this.handStack.array[i].onResize(sizeFactor);
+		}
 	}
 	
 };

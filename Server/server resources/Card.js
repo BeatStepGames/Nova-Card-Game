@@ -1,104 +1,164 @@
 //card
-var card_elements = { //width and height of all elements in card
-	card_lenght_x: 160*sizeFactor,
-	card_lenght_y: 240*sizeFactor,
-	top_space_card: 30*sizeFactor,
-	image_space_card: 110*sizeFactor,
-	comment_card: 70*sizeFactor,
-	atk_def_rank: 30*sizeFactor,
-	atk_def_gap: 60*sizeFactor
-};
+class Card extends GameObject{
 
-function Card(x,y,name,level,comment,atk,life,imgPath){ //Create and draw the card
-	this.x = x;
-	this.y = y;
-	this.centerX;
-	this.centerY;
-	this.name = name; //Unique ID! (key)
-	this.level = level;
-	this.comment = comment;
-	this.atk = atk;
-	this.life = life;
-	this.moving =0; //Ex flag, this one is a better name
-	var temp_x;
-	var temp_y;
-	this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
-	this.img = new Image();
-	this.img.loaded = false;
-	this.img.onload = function(){
-		this.loaded = true;
+	constructor(x,y,height,name,level,comment,atk,life,imgPath){
+		super(x,y,(height*(2/3)),height);
+		
+		this.top_space_card = height*(1/8);
+		this.image_space_card = height*(11/24);
+		this.comment_card = height*(7/24);
+		this.atk_def_rank = height*(1/8);
+		this.atk_def_gap = height*(1/4);
+		this.nameFontSize = height*(1/20);
+		this.numberFontSize = height*(3/40);
+		this.commentFontSize = height*(11/240);
+		this.centerX;
+		this.centerY;
+		this.name = name; //Unique ID! (key)
+		this.level = level;
+		this.comment = comment;
+		this.atk = atk;
+		this.life = life;
+		this.moving =0; //Ex flag, this one is a better name
+		this.temp_x;
+		this.temp_y;
+		this._stackID = undefined; //Is needed as an ID inside the stack it belongs (hand, field, graveyard, deck, etc)
+		this.img = new Image();
+		this.img.loaded = false;
+		this.img.onload = function(){
+			this.loaded = true;
+		}
+		this.img.onerror =  function(){ console.log(this.name + ' image could not be loaded.'); }.bind(this);
+		this.img.src = imgPath;
+
 	}
-	this.img.onerror =  function(){ console.log(this.name + ' image could not be loaded.'); }.bind(this);
-	this.img.src = imgPath;
+
+	onResize(sizeFactor){
+		super.onResize(sizeFactor);
+		this.top_space_card = this.height*(1/8);
+		this.image_space_card = this.height*(11/24);
+		this.comment_card = this.height*(7/24);
+		this.atk_def_rank = this.height*(1/8);
+		this.atk_def_gap = this.height*(1/4);
+		this.nameFontSize = this.height*(1/20);
+		this.numberFontSize = this.height*(3/40);
+		this.commentFontSize = this.height*(11/240);
+	}
+
+	splitNewLine(str,x,y,ctx){ //comment text of the card, don't touch that
+	var array = str.split(' ');
+	var line = "";
+	var newl=1;
+	var line_counter=0;
+	var relative_y=0;
 	
-	this.draw = function(){
+	for(var i=0;i<array.length;i++){
+		if(ctx.measureText(line + array[i] + " ").width<this.width){
+			line = line + array[i]+ " ";
+		}
+		else{
+			line = array[i] + " ";
+			line_counter++;
+		}
+		if(array[i].indexOf("[") != -1 && array[i].indexOf("]") != -1) {
+			line = "";
+			line_counter++;
+		}
+	}
+	
+	relative_y=2.5-line_counter*0.5;
+	line = "";
+	
+	for(var i=0;i<array.length;i++){
+		if(ctx.measureText(line + array[i] + " ").width<this.width){
+			line = line + array[i]+ " ";
+		}
+		else{
+			//result = result + line + "\r\n";
+			ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
+			line = array[i] + " ";
+			newl++;
+		}
+		if(array[i].indexOf("[") != -1  && array[i].indexOf("]") != -1) {
+			ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
+			line = "";
+			newl++;
+		}
+	}
+	ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
+	return;
+	}
+	
+
+	draw(ctx){
+		super.draw(ctx);
 		var width_m;
 		var height_m;
 		ctx.beginPath();
 		
 		ctx.textAlign = "center";
 		ctx.fillStyle = "black";
-		ctx.fillRect(this.x,this.y,card_elements.card_lenght_x,card_elements.card_lenght_y);
+		ctx.fillRect(this.x,this.y,this.width,this.height);
 		
 		ctx.strokeStyle="silver";
-		ctx.rect(this.x,this.y,card_elements.card_lenght_x-card_elements.top_space_card, card_elements.top_space_card); //name part
-		ctx.font=(12*sizeFactor)+"px Arial";
+		ctx.rect(this.x,this.y,this.width-this.top_space_card, this.top_space_card); //name part
+		ctx.font=(this.nameFontSize)+"px Arial";
 		ctx.fillStyle = "silver";
-		ctx.fillText(this.name,this.x+(card_elements.card_lenght_x-card_elements.top_space_card)/2,this.y+card_elements.top_space_card/2+2); //name text
+		ctx.fillText(this.name,this.x+(this.width-this.top_space_card)/2,this.y+this.top_space_card/2+2); //name text
 		
-		ctx.font=(18*sizeFactor)+"px Arial";
+		ctx.font=(this.numberFontSize)+"px Arial";
 		width_m = ctx.measureText(100 - this.level).width;
 		height_m = ctx.measureText("gggg").width;
-		ctx.rect(this.x+card_elements.card_lenght_x-card_elements.top_space_card,this.y,card_elements.top_space_card, card_elements.top_space_card); //level part (top right)
-		ctx.fillText(this.level,this.x+card_elements.card_lenght_x-card_elements.top_space_card/2,this.y+(height_m/2)); //level number (top right)
+		ctx.rect(this.x+this.width-this.top_space_card,this.y,this.top_space_card, this.top_space_card); //level part (top right)
+		ctx.fillText(this.level,this.x+this.width-this.top_space_card/2,this.y+(height_m/2)); //level number (top right)
 		
 		ctx.fillStyle = "black";
-		ctx.fillRect(this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x, card_elements.image_space_card);
+		ctx.fillRect(this.x,this.y+this.top_space_card,this.width, this.image_space_card);
 		ctx.fillStyle = "black";
 		
 		if(this.img.loaded){
-			ctx.drawImage(this.img,this.x,this.y+card_elements.top_space_card,card_elements.card_lenght_x,card_elements.image_space_card); //image
+			ctx.drawImage(this.img,this.x,this.y+this.top_space_card,this.width,this.image_space_card); //image
 		}
 
 		
-		ctx.font=(11*sizeFactor)+"px Arial";
+		ctx.font=(this.commentFontSize)+"px Arial";
 		
 		ctx.fillStyle = "white";
-		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card,card_elements.card_lenght_x,card_elements.comment_card); //comment part
-		splitNewLine(this.comment,this.x,this.y); //text comment
+		ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card,this.width,this.comment_card); //comment part
+		this.splitNewLine(this.comment,this.x,this.y,ctx); //text comment
 		
-		ctx.font=(18*sizeFactor)+"px Arial";
+		ctx.font=(this.numberFontSize)+"px Arial";
 		ctx.fillStyle = "red";
-		ctx.rect(this.x,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card,card_elements.card_lenght_x,card_elements.atk_def_rank); //atk def ecc. part
-		ctx.fillText(this.atk,this.x+(card_elements.card_lenght_x/2)-card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card+this.comment_card,this.width,this.atk_def_rank); //atk def ecc. part
+		ctx.fillText(this.atk,this.x+(this.width/2)-this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+(width_m));
 		ctx.fillStyle = "green";
-		ctx.fillText(this.life,this.x+(card_elements.card_lenght_x/2)+card_elements.atk_def_gap,this.y+card_elements.top_space_card+card_elements.image_space_card+card_elements.comment_card+(width_m));
+		ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+(width_m));
 		ctx.stroke();
 		
 		ctx.beginPath();
-		ctx.rect(this.x,this.y,card_elements.card_lenght_x, card_elements.card_lenght_y); //image part
+		ctx.rect(this.x,this.y,this.width, this.height); //image part
 		ctx.strokeStyle = "white";
 		ctx.stroke();
-		
 	}
-	
-	this.handUpdate = function(){ //update card in new position when in hand
+
+	//update card in new position when in hand
+	handUpdate(){
 		
-		this.centerX = this.x + (card_elements.card_lenght_x/2);
-		this.centerY = this.y + (card_elements.card_lenght_y/2);
+		this.centerX = this.x + (this.width/2);
+		this.centerY = this.y + (this.height/2);
 		
-		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+card_elements.card_lenght_x && mouse.y>=this.y && mouse.y<=this.y+card_elements.card_lenght_y && this.moving == 0){
+		if(mouse.clicked && !grabbed_card && mouse.x>=this.x && mouse.x<=this.x+this.width && mouse.y>=this.y && mouse.y<=this.y+this.height && this.moving == 0){
 			
 			this.moving = 1;
-			temp_x = mouse.x-this.x;
-			temp_y = mouse.y-this.y;
+			this.temp_x = mouse.x-this.x;
+			this.temp_y = mouse.y-this.y;
 			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
 			floatingHandCard = this;
 			
 		}
 		if(this.moving == 1){
-			this.x = mouse.x-temp_x;
-			this.y = mouse.y-temp_y;
+			this.x = mouse.x-this.temp_x;
+			this.y = mouse.y-this.temp_y;
 		}
 		
 		//If mouse is not clicked anymore but card is in moving state, let it go back into the hand, or fixed on the field
@@ -114,9 +174,9 @@ function Card(x,y,name,level,comment,atk,life,imgPath){ //Create and draw the ca
 			grabbed_card = false; //Reset grabbed card, so that we can grab other crads
 			floatingHandCard = undefined;
 		}
-	};
-	
-	this.fieldUpdate = function(){
-		
+
 	}
+
+	fieldUpdate(){}
+
 }

@@ -252,7 +252,7 @@ var NotificationTextbox = function(text,callback,cssStyle,options){
     this.type = "NotificationTextbox";
     this.callback = callback;
     this.options = options || {notEmpty:false};
-    this.args = [].slice.call(arguments,3); //Array with any other parameters other than the 3 listed
+    this.args = [].slice.call(arguments,4); //Array with any other parameters other than the 3 listed
     this.btn = document.createElement("button");
     this.textbox = document.createElement("input");
     this.textbox.setAttribute("type","text");

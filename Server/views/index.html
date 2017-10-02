@@ -18,13 +18,18 @@
 			background-size:contain;
 		}
 		
-		canvas {
+		.matchCanvas {
 			width: 100%;
-			height: 95%;	
+			height: 100%;	
 			margin: 0px;
 			border: 0px;
 			padding: 0px;
-			
+		}
+
+		.container{
+			width:100%;
+			height: 95%;
+			display: none;
 		}
 		
 		a:link {
@@ -48,6 +53,7 @@
 		}
 		
 	</style>
+	<link rel="stylesheet" type="text/css" href="css/ProfilePageStyle.css">
 </head>
 <body onload="onLoadHome()" onresize="onResize()">
 	
@@ -62,11 +68,27 @@
 			<input type="text" id="chatinput" cols="50" style="display: block; width:100%"/>
 		</div>
 	</div>
+
+	<div id="profilePageContainer" class="container">
+		<h2>Hi User</h2>
+		<label>Select your deck </label><select id="deckSelect">
+			<option>1</option>
+			<option>2</option>
+		</select>
+		<div id="deckShowcaseDiv"></div>
+	</div>
 	
-	<canvas id="canvas"></canvas>	
+	<div id="gameCanvasContainer" class="container">
+		<canvas id="matchCanvas"></canvas>
+	</div>
+	
+	
+	<script type="text/javascript" src="PrimitiveObjects.js"></script>
 	<script type="text/javascript" src="home.js"></script>
 	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
 	<script type="text/javascript" src="FloatingNotification.js"></script>
+
+	<script type="text/javascript" src="profile_page.js"></script>
 	
 	<script type="text/javascript" src="cardgame_core.js"></script>	
 	<script type="text/javascript" src="Card.js"></script>

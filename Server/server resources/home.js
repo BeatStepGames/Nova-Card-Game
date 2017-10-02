@@ -61,11 +61,16 @@ function Server(serverURL){
 }
 
 var server;
+var sizeFactor;
 
 function onLoadHome(){	
 	server = new Server(document.location.host);
-	window.server = server;
-	startMatch();
+	window.server = server; //Useless. Just to be sure
+	//size factor to keep dimensions consistent
+	sizeFactor = window.innerWidth*devicePixelRatio/1536;
+	window.sizeFactor = sizeFactor; //Useless. Just to be sure
+	startProfilePage();
+	//startMatch();
 	debugGlobalChat();
 }
 

@@ -7,10 +7,10 @@ function Field() {
 	this.n_of_pos = 4; //( pos = where you place a card )
 	this.lines = 2;
 	this.padding = 10*sizeFactor;
-	this.pos_width = card_elements.card_lenght_x+(this.padding*2);
-	this.pos_height = card_elements.card_lenght_y+(this.padding*2);
+	this.pos_width = baseDimensions.card_width+(this.padding*2);
+	this.pos_height = baseDimensions.card_height+(this.padding*2);
 	
-	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+	this.x = canvas.width/2 - (baseDimensions.card_width+(this.padding*2))*(this.n_of_pos/2);
 	this.y = 10*sizeFactor;
 	
 	this.fieldArea = new Rectangle(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
@@ -21,7 +21,7 @@ function Field() {
 		}
 	}
 	
-	this.draw = function(){
+	this.draw = function(ctx){
 		
 		ctx.beginPath();
 		ctx.textAlign = "center";
@@ -50,11 +50,11 @@ function Field() {
 		}
 	};
 	
-	this.drawFieldCards = function(){
+	this.drawFieldCards = function(ctx){
 		for(var j=0;j<=1;j++){
 			for(var i=0;i<field.n_of_pos;i++){
 				if(this.fieldCards[j+""+i] != undefined){
-					this.fieldCards[j+""+i].draw();
+					this.fieldCards[j+""+i].draw(ctx);
 				}
 			}
 		}
@@ -78,8 +78,8 @@ function Field() {
 		return false;
 	};
 	
-	this.onResize = function(){
-		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
+	this.onResize = function(sizeFactor){
+		this.x = canvas.width/2 - (baseDimensions.card_width+(this.padding*2))*(this.n_of_pos/2);
 		this.y = 10;
 		
 		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
@@ -95,6 +95,7 @@ function Field() {
 				if(field.fieldCards[j+""+i] != undefined){
 					this.fieldCards[j+""+i].x = this.collisionMasks[j+""+i].x + this.padding;
 					this.fieldCards[j+""+i].y = this.collisionMasks[j+""+i].y + this.padding;
+					this.fieldCards[j+""+i].onResize(sizeFactor);
 				}
 			}
 		}
