@@ -18,7 +18,7 @@
 			background-size:contain;
 		}
 		
-		.matchCanvas {
+		#matchCanvas {
 			width: 100%;
 			height: 100%;	
 			margin: 0px;
@@ -29,6 +29,9 @@
 		.container{
 			width:100%;
 			height: 95%;
+			padding: 0px;
+			margin: 0px;
+			border: 0px;
 			display: none;
 		}
 		
@@ -62,6 +65,16 @@
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<button id="onlineusers" style="display: inline">Show online users</button>
 		<button id="testnotificationbtn" style="display: inline" onclick="testNotif()">Test notification</button>
+		<button id="goToMatch" onclick = "goToMatch()">Go To Match</button>
+		<script>
+			function goToMatch(){
+				var pc = document.getElementById("profilePageContainer");
+				pc.style.display = (pc.style.display == "block") ? "none" : "block";
+				var gc = document.getElementById("gameCanvasContainer");
+				gc.style.display = (gc.style.display == "block") ? "none" : "block";
+				startMatch();
+			}
+		</script>
 		<div id="chatdiv" style="display: none">
 			<textarea id="globalchat" rows="20" cols="50" style="display: block; width: 100%"></textarea>
 			<br/>
