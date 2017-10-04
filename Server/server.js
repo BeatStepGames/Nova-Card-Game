@@ -246,14 +246,17 @@ function ServerPrograms() {
 		userWS.send("requestcard " + cardData);
 	}
 
-	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
+	//Request for an x ammount of cards from the user's deck, params: [0] deck index starting from 1 [1] n. of cards
 	this.requestdeck = function(userWS,params){
-		var debugDeck = [
-			"It.",
-			"Emperor of Fire Destiny",
-			"wat"
-		]
-		userWS.send("requestdeck " + JSON.stringify(debugDeck));
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var deck = [];
+		if(userData.decks[params[0]-1] != undefined){
+			deck = userData.decks[params[0]-1];
+		}
+		else if(userData.decks[0] != undefined){
+			deck = userData.decks[0];
+		}
+		userWS.send("requestdeck " + JSON.stringify(deck));
 	}
 	
 	//Events like attack, draw etc, are handled in here

@@ -136,16 +136,18 @@ function startMatch(){
 	server.register("requestdeck",requestDeckHandler);
 	server.requestDeck(deckIndex,6);
 	
+	/*
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Emperor of Fire Destiny",7,"[Taunt] Death: destroy a random card in the field.",99,99,"card_images/Emperor of Fire Destiny.png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"It.",66,"[???] Magic: destroy all other monsters on the table.","1","?","card_images/It..png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Lol",35,"[???] ???: destroy a random card; bla bla bla, fill the card with something, I like pasta and this monster is strong enough to kick your ass!","X","X","card_images/Emperor of Fire Destiny.png"));
-	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Wat",35,"I like pasta.","X","X","card_images/wat.png"));
+	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Wat",35,"I like pasta.","X","X","card_images/Wat.png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Lol3",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Lol4",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Lol5",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
 	hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,baseDimensions.original_card_height,"Lol6",35,"[???] ???: destroy a random card.","X","X","card_images/Emperor of Fire Destiny.png"));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol7",35,"[???][???: destroy a random card]","X","X",img));
 	//hand_cards.handStack.push(new Card(canvas.width,hand_cards.y,"Lol8",35,"[???][???: destroy a random card]","X","X",img));
+	*/
 	
 	onResize();
 	animate();
@@ -163,6 +165,7 @@ function requestDeckHandler(params){
 function requestCardHandler(cardData){
 	if(cardData != "ERROR 404: Not Found"){
 		cardData = JSON.parse(cardData);
+		hand_cards.handStack.push(new Card(canvas.width, hand_cards.y, baseDimensions.original_card_height, cardData.name, cardData.level, cardData.comment, cardData.atk, cardData.def, "card_images/"+cardData.name+".png"));
 		console.log(cardData);
 	}
 	else{
