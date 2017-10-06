@@ -70,12 +70,12 @@ class Card extends GameObject{
 		}
 		
 		//relative_y=lenght_y/7;
-		relative_y=(lenght_y/(maxRows*2))*((maxRows+1)-line_counter);
+		relative_y=(lenght_y/(maxRows*2))*((maxRows+3/5)-line_counter); // 3/5 is a standard value, just to detach from the y border
 		
 		line_counter=1; //reinitialize line_counter
 		for(var i=0;i<line.length;i++){
 			if(!is_centered) lenght_x = ctx.measureText(line[i]).width;
-			ctx.fillText(line[i],x + lenght_x/2,y+relative_y+i*(lenght_y/(maxRows+1)));
+			ctx.fillText(line[i],x + lenght_x/2,y+relative_y+i*(lenght_y/(maxRows)));
 			//line_counter++;
 		}
 		return;
