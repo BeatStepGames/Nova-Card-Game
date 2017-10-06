@@ -16,8 +16,7 @@ function loadDataFromJsonFile(path){
 	var data;
 	try{
 		var jsonData = fs.readFileSync(path);
-		data = JSON.parse(jsonData);
-		console.log("Users loaded");
+		data = JSON.parse(jsonData.toString());
 	}
 	catch(err){
 		console.log("Error " + err.code + " reading file: " + path);
@@ -195,6 +194,7 @@ function UserManager(){
 		try{
 			var deck = fs.readFileSync(path.join(__dirname,"server resources","data","default-deck.json"));
 			user.decks[0] = JSON.parse(deck.toString());
+			user.decks[1] = JSON.parse(deck.toString());
 		}
 		catch(err){
 			console.log(err);

@@ -58,21 +58,32 @@
 	</style>
 	<link rel="stylesheet" type="text/css" href="css/ProfilePageStyle.css">
 </head>
-<body onload="onLoadHome()" onresize="onResize()">
+<body onload="onLoadHome()" onresize="onResizeHome()">
 	
 	<div id="DEBUGDIV" style="height: 5%; width: 100%">
 		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<button id="onlineusers" style="display: inline">Show online users</button>
 		<button id="testnotificationbtn" style="display: inline" onclick="testNotif()">Test notification</button>
-		<button id="goToMatch" onclick = "goToMatch()">Go To Match</button>
+		<button id="goToMatch" onclick = "goToMatch(arguments[0])">Go To Match</button>
 		<script>
-			function goToMatch(){
-				var pc = document.getElementById("profilePageContainer");
-				pc.style.display = (pc.style.display == "block") ? "none" : "block";
+			function goToMatch(e){
+				var pc = document.getElementById("profilePageContainer");				
 				var gc = document.getElementById("gameCanvasContainer");
-				gc.style.display = (gc.style.display == "block") ? "none" : "block";
-				startMatch();
+				console.log("WHEN BTN CLICK; PRALLALA ");
+				console.log(e);
+				if(pc.style.display == "block"){
+					pc.style.display = "none";
+					gc.style.display = "block";
+					startMatch();
+					e.target.innerText = "Go To Profile";
+				}
+				else{
+					pc.style.display = "block";
+					gc.style.display = "none";
+					stopMatch();
+					e.target.innerText = "Go To Match";
+				}
 			}
 		</script>
 		<div id="chatdiv" style="display: none">
@@ -85,8 +96,6 @@
 	<div id="profilePageContainer" class="container">
 		<h2>Hi User</h2>
 		<label>Select your deck </label><select id="deckSelect">
-			<option>1</option>
-			<option>2</option>
 		</select>
 		<div id="deckShowcaseDiv"></div>
 	</div>
