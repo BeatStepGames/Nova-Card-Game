@@ -42,53 +42,44 @@ class Card extends GameObject{
 		this.atk_def_gap = this.height*(1/4);
 		this.nameFontSize = this.height*(1/20);
 		this.numberFontSize = this.height*(3/40);
-		this.commentFontSize = this.height*(11/240);
-	}
-
-	splitNewLine(str,x,y,ctx){ //comment text of the card, don't touch that
-	var array = str.split(' ');
-	var line = "";
-	var newl=1;
-	var line_counter=0;
-	var relative_y=0;
-	
-	for(var i=0;i<array.length;i++){
-		if(ctx.measureText(line + array[i] + " ").width<this.width){
-			line = line + array[i]+ " ";
-		}
-		else{
-			line = array[i] + " ";
-			line_counter++;
-		}
-		if(array[i].indexOf("[") != -1 && array[i].indexOf("]") != -1) {
-			line = "";
-			line_counter++;
-		}
+		this.commentFontSize = this.height*(12/240);
 	}
 	
-	relative_y=2.5-line_counter*0.5;
-	line = "";
-	
-	for(var i=0;i<array.length;i++){
-		if(ctx.measureText(line + array[i] + " ").width<this.width){
-			line = line + array[i]+ " ";
+	splitNewLine(str,x,y,lenght_x,lenght_y,maxRows,ctx,is_centered){ //comment text of the card, don't touch that; is_centered is a boolean
+		var array = str.split(' ');
+		var line = [];
+		var line_counter=0;
+		var relative_y=0;
+		line[line_counter] = "";
+		ctx.font=(lenght_y/maxRows)+"px Arial";
+		
+		for(var i=0;i<array.length;i++){
+			
+			if(ctx.measureText(line[line_counter] + array[i] + " ").width<lenght_x){
+				line[line_counter] = line[line_counter] + array[i]+ " ";
+			}
+			else{
+				line_counter++;
+				line[line_counter] = array[i] + " ";
+				
+			}
+			if(array[i].indexOf("[") != -1 && array[i].indexOf("]") != -1) {
+				line_counter++;
+				line[line_counter] = "";
+			}
 		}
-		else{
-			//result = result + line + "\r\n";
-			ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
-			line = array[i] + " ";
-			newl++;
+		
+		//relative_y=lenght_y/7;
+		relative_y=(lenght_y/(maxRows*2))*((maxRows+1)-line_counter);
+		
+		line_counter=1; //reinitialize line_counter
+		for(var i=0;i<line.length;i++){
+			if(!is_centered) lenght_x = ctx.measureText(line[i]).width;
+			ctx.fillText(line[i],x + lenght_x/2,y+relative_y+i*(lenght_y/(maxRows+1)));
+			//line_counter++;
 		}
-		if(array[i].indexOf("[") != -1  && array[i].indexOf("]") != -1) {
-			ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
-			line = "";
-			newl++;
-		}
+		return;
 	}
-	ctx.fillText(line,x+this.width/2,y+this.top_space_card+this.image_space_card+(11*sizeFactor)*newl + (11*sizeFactor)*relative_y);
-	return;
-	}
-	
 
 	draw(ctx){
 		super.draw(ctx);
@@ -102,15 +93,15 @@ class Card extends GameObject{
 		
 		ctx.strokeStyle="silver";
 		ctx.rect(this.x,this.y,this.width-this.top_space_card, this.top_space_card); //name part
-		ctx.font=(this.nameFontSize)+"px Arial";
+		ctx.font=this.nameFontSize+"px Arial";
 		ctx.fillStyle = "silver";
-		ctx.fillText(this.name,this.x+(this.width-this.top_space_card)/2,this.y+this.top_space_card/2+2); //name text
+		ctx.fillText(this.name,this.x+(this.width-this.top_space_card)/2,this.y+this.top_space_card/2+this.top_space_card/6); //name text
 		
 		ctx.font=(this.numberFontSize)+"px Arial";
-		width_m = ctx.measureText(100 - this.level).width;
-		height_m = ctx.measureText("gggg").width;
+		//width_m = ctx.measureText(100 - this.level).width;
+		//height_m = ctx.measureText("gggg").width;
 		ctx.rect(this.x+this.width-this.top_space_card,this.y,this.top_space_card, this.top_space_card); //level part (top right)
-		ctx.fillText(this.level,this.x+this.width-this.top_space_card/2,this.y+(height_m/2)); //level number (top right)
+		ctx.fillText(this.level,this.x+this.width-this.top_space_card/2,this.y+this.top_space_card/2+this.top_space_card/6); //level number (top right)
 		
 		ctx.fillStyle = "black";
 		ctx.fillRect(this.x,this.y+this.top_space_card,this.width, this.image_space_card);
@@ -121,18 +112,18 @@ class Card extends GameObject{
 		}
 
 		
-		ctx.font=(this.commentFontSize)+"px Arial";
+		//ctx.font=(this.commentFontSize)+"px Arial";
 		
 		ctx.fillStyle = "white";
 		ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card,this.width,this.comment_card); //comment part
-		this.splitNewLine(this.comment,this.x,this.y,ctx); //text comment
+		this.splitNewLine(this.comment,this.x,this.y+this.top_space_card+this.image_space_card,this.width,this.comment_card,6,ctx,false); //text comment
 		
 		ctx.font=(this.numberFontSize)+"px Arial";
 		ctx.fillStyle = "red";
 		ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card+this.comment_card,this.width,this.atk_def_rank); //atk def ecc. part
-		ctx.fillText(this.atk,this.x+(this.width/2)-this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+(width_m));
+		ctx.fillText(this.atk,this.x+(this.width/2)-this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
 		ctx.fillStyle = "green";
-		ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+(width_m));
+		ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
 		ctx.stroke();
 		
 		ctx.beginPath();
