@@ -4,6 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 	<style type="text/css">
+
 		html{
 			margin: 0px;
 			border: 0px;
@@ -16,6 +17,17 @@
 			padding: 0px;
 			background-image: url('sapphire-back.png');
 			background-size:contain;
+		}
+
+		.title{
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: -10;
+			padding-top: 10%;
+			text-align: center;
+			color: silver;
 		}
 		
 		#matchCanvas {
@@ -54,11 +66,42 @@
 		a:active {
 			color: white;
 		}
+
+		.redbox{
+			border: 3px solid red;
+			border-radius: 3px;
+			text-align: center;
+			background-color: rgba(255,0,0,0.4);
+			color: white;
+			vertical-align: middle;
+			display: none;
+			position: absolute;
+			top: 80%;
+			left: 50%;
+			transform: translate(-50%, -50%); 
+			width: 33vw;
+			height: 12vh;
+		}
 		
+		@media screen and (orientation: portrait) {
+			#totalContainer{
+				display: none;
+			}
+			#portraitError{
+				display: block;
+			}
+
+			.title{
+				padding: 0px;
+				top: 50%;
+			}
+		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="css/ProfilePageStyle.css">
 </head>
 <body onload="onLoadHome()" onresize="onResizeHome()">
+
+	<h1 class="title">Nova Card Game</h1>
 	
 	<div id="DEBUGDIV" style="height: 5%; width: 100%">
 		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
@@ -93,15 +136,20 @@
 		</div>
 	</div>
 
-	<div id="profilePageContainer" class="container">
-		<h2>Hi User</h2>
-		<label>Select your deck </label><select id="deckSelect">
-		</select>
-		<div id="deckShowcaseDiv"></div>
+	<div id=totalContainer>
+		<div id="profilePageContainer" class="container">
+			<h2>Hi User</h2>
+			<label>Select your deck </label><select id="deckSelect">
+			</select>
+			<div id="deckShowcaseDiv"></div>
+		</div>
+		
+		<div id="gameCanvasContainer" class="container">
+			<canvas id="matchCanvas"></canvas>
+		</div>
 	</div>
-	
-	<div id="gameCanvasContainer" class="container">
-		<canvas id="matchCanvas"></canvas>
+	<div id="portraitError" class="redbox">
+		<h4>Rotate your device to landscape</h4>
 	</div>
 	
 	

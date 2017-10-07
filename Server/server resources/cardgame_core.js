@@ -86,14 +86,14 @@ function animate() {
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		//Nova card game text
-		global_x = canvas.width / 2;
-		global_y = canvas.height / 2;
-		ctx.textAlign = "center";
-		ctx.font = (30 * sizeFactor) + "px Consolas";
-		ctx.fillStyle = "silver";
-		//ctx.fillStyle = 'white';
-		ctx.fillText("Nova Card Game", global_x, global_y);
+		// //Nova card game text
+		// global_x = canvas.width / 2;
+		// global_y = canvas.height / 2;
+		// ctx.textAlign = "center";
+		// ctx.font = (30 * sizeFactor) + "px Consolas";
+		// ctx.fillStyle = "silver";
+		// //ctx.fillStyle = 'white';
+		// ctx.fillText("Nova Card Game", global_x, global_y);
 
 		//Update position of hand cards
 		hand_cards.updateHandPosition();
