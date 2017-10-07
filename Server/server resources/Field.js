@@ -6,10 +6,18 @@ class Field extends GameObject {
 		this.fieldCards = new Array();
 		this.collisionMasks = new Array();
 		
-		this.areaFieldX = height*(2/3)+(padding*2); //width of an AreaField (where you place the card)
-		this.areaFieldY = height+(padding*2); //height of an AreaField
-		this.borderX = this.x-(columns/2)*this.areaFieldX; //border x of the field, not the center x
-		this.borderY = this.y-(rows/2)*this.areaFieldY; //border y of the field, not the center y
+		this.x = x;
+		this.y = y;
+		this.rows = rows;
+		this.columns = columns;
+		this.height = height;
+		this.padding = padding;
+		
+		this.areaFieldX = this.height*(2/3)+(this.padding*2); //width of an AreaField (where you place the card)
+		this.areaFieldY = this.height+(this.padding*2); //height of an AreaField
+		this.borderX = this.x-(this.columns/2)*this.areaFieldX; //border x of the field, not the center x
+		this.borderY = this.y-(this.rows/2)*this.areaFieldY; //border y of the field, not the center y
+		
 		
 		this.fieldArea = new Rectangle(this.borderX, this.borderY, this.areaFieldX*this.columns, this.areaFieldY*this.rows);
 		
