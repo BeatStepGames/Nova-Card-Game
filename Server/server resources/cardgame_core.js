@@ -130,7 +130,7 @@ function startMatch(){
 	//resize canvas!
 	onResize();
 
-	field = new Field();
+	field = new Field(canvas.width/2, canvas.height*(1/3), baseDimensions.original_card_height*2, 2, 4, 10);
 	hand_cards = new HandCards();
 	
 	server.register("requestdeck",requestDeckHandler);
