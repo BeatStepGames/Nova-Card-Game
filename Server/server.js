@@ -120,6 +120,7 @@ wsServer.on("connection",function(userWS, req){
 	
 	//When the user send a message
 	userWS.on('message', function(message) {
+		message = message.trim();
 		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
@@ -246,14 +247,38 @@ function ServerPrograms() {
 		userWS.send("requestcard " + cardData);
 	}
 
-	//Request for an x ammount of cards from the user's deck, params: [0] deck index [1] n. of cards
+	//Request for an x ammount of cards from the user's deck, params: [0] deck index starting from 1 [1] n. of cards
 	this.requestdeck = function(userWS,params){
-		var debugDeck = [
-			"It.",
-			"Emperor of Fire Destiny",
-			"wat"
-		]
-		userWS.send("requestdeck " + JSON.stringify(debugDeck));
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var deck = [];
+		if(userData.decks[params[0]-1] != undefined){
+			deck = userData.decks[params[0]-1];
+		}
+		else if(userData.decks[0] != undefined){
+			deck = userData.decks[0];
+		}
+		if(params[1]){
+			deck.splice(params[1],deck.length-params[1]);
+		}
+		userWS.send("requestdeck " + JSON.stringify(deck));
+	}
+
+	this.requestrank = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var rank = userData.rank || 0;
+		userWS.send("requestrank " + rank);
+	}
+
+	this.requestmatchesplayed = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var matches = userData.matchsPlayed || 0;
+		userWS.send("requestmatchesplayed " + matchs);
+	}
+
+	this.requestdecksamount = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var ndecks = userData.decks.length || 0;
+		userWS.send("requestdecksamount " + ndecks);
 	}
 	
 	//Events like attack, draw etc, are handled in here
