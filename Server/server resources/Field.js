@@ -1,7 +1,7 @@
 class Field extends GameObject {
-	//x&y are CENTRAL
-	constructor(x, y, cardWidth, cardHeight, rows, columns){ // padding = distance from border of the fieldcard & the card; height of the card!
-		super(x, y, columns*(cardWidth + (cardWidth*(1/5)) ), rows*(cardHeight + (cardWidth*(1/5)) ) );
+	//x is CENTRAL
+	constructor(x, y, cardWidth, cardHeight, rows, columns){
+		super(x, y, columns*(cardWidth + (cardWidth*(1/15)*2) ), rows*(cardHeight + (cardWidth*(1/15)*2) ) );
 		
 		this.fieldCards = new Array();
 		this.collisionMasks = new Array();
@@ -19,8 +19,8 @@ class Field extends GameObject {
 		this.areaFieldX = this.cardWidth+(this.padding*2); //width of an AreaField (where you place the card)
 		this.areaFieldY = this.cardHeight+(this.padding*2); //height of an AreaField
 		this.borderX = this.x-(this.width/2); //border x of the field, not the center x
-		this.borderY = this.y-(this.height/2); //border y of the field, not the center y
-		
+		//this.borderY = this.y-(this.height/2); //border y of the field, not the center y
+		this.borderY = this.y;
 		
 		this.fieldArea = new Rectangle(this.borderX, this.borderY, this.width, this.height);
 		
@@ -94,7 +94,8 @@ class Field extends GameObject {
 		this.areaFieldX = this.cardWidth+(this.padding*2);
 		this.areaFieldY = this.cardHeight+(this.padding*2);
 		this.borderX = this.x-(this.width/2);
-		this.borderY = this.y-(this.height/2);
+		//this.borderY = this.y-(this.height/2);
+		this.borderY = this.y;
 		
 		this.fieldArea.update(this.borderX ,this.borderY ,this.areaFieldX*this.columns,this.areaFieldY*this.rows);
 		
