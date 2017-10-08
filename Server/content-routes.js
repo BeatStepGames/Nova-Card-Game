@@ -16,9 +16,10 @@ router.use(session({
 
 router.get("/", function(req,res){
 	if(req[sessionName] != undefined && req[sessionName].logged == true){
-		var p = path.join(__dirname,"views","index.html");
-		console.log("Sending " + p);
-		res.sendFile(p);
+		// var p = path.join(__dirname,"views","index.html");
+		// console.log("Sending " + p);
+		// res.sendFile(p);
+		res.render("index", {username: req[sessionName].username});
 	}
 	else{
 		res.redirect("login");

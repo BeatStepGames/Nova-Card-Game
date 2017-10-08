@@ -8,6 +8,8 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var minify = require("express-minify");
 
+
+var pasHtmlEngine = require("./PasHtmlEngine");
 var routes = require("./content-routes");
 var session = routes.session;
 var sessionName = 'session';
@@ -25,10 +27,10 @@ var DEBUG = true;
 //-------------
 
 //View engine
-/*
-app.set("view engine","pug");
+app.engine("html",pasHtmlEngine);
+app.set("view engine","html");
 app.set("views","./views");
-*/
+
 
 //Data parsers
 app.use(bodyParser.json());
