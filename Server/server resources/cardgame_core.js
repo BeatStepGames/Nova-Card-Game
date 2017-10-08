@@ -12,6 +12,7 @@ var imgs = [];
 
 var baseDimensions = { //width and height of all elements in card
 	original_card_height: 240,
+	original_card_width: 160,
 	card_width: 160*sizeFactor,
 	card_height: 240*sizeFactor,
 	top_space_card: 30*sizeFactor,
@@ -54,6 +55,7 @@ function onResize(){
 	
 	//field elements:
 	if(field){
+		/*
 		field.gap_from_border = 50*sizeFactor;
 		field.padding = 10*sizeFactor;
 		field.pos_width = baseDimensions.card_width+(field.padding*2);
@@ -61,7 +63,11 @@ function onResize(){
 		
 		field.x = canvas.width/2 - (baseDimensions.card_width+(field.padding*2))*(field.n_of_pos/2);
 		field.y = 10*sizeFactor;
-		
+		*/
+
+		field.x = canvas.width/2;
+		field.y = canvas.height*(1/3);
+
 		field.onResize(sizeFactor);
 	}
 	
@@ -124,9 +130,9 @@ var deckIndex = 1;
 
 function startMatch(){
 	//resize canvas!
-	onResize();
+	//onResize();
 
-	field = new Field(canvas.width/2, canvas.height*(1/3), baseDimensions.original_card_height*2, 2, 4, 10);
+	field = new Field(canvas.width/2, canvas.height*(1/3), baseDimensions.original_card_width, baseDimensions.original_card_height, 2, 4);
 	hand_cards = new HandCards();
 	
 	matchServerRequestsID.deckHandlerID = server.register("requestdeck",requestDeckHandler);
