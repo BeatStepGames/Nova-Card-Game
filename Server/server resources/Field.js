@@ -1,25 +1,28 @@
 class Field extends GameObject {
-	//x&y are CENTRAL
-	constructor(x,y,height,rows,columns,padding){ // padding = distance from border of the fieldcard & the card; height of the card!
-		super(x,y,columns*(height*(2/3)+(padding*2)),rows*height+(padding*2));
+	//x is CENTRAL
+	constructor(x, y, cardWidth, cardHeight, rows, columns){
+		super(x, y, columns*(cardWidth + (cardWidth*(1/15)*2) ), rows*(cardHeight + (cardWidth*(1/15)*2) ) );
 		
 		this.fieldCards = new Array();
 		this.collisionMasks = new Array();
 		
-		this.x = x;
-		this.y = y;
 		this.rows = rows;
 		this.columns = columns;
-		this.height = height;
-		this.padding = padding;
+		this.paddingRatio = 1/15;
 		
-		this.areaFieldX = this.height*(2/3)+(this.padding*2); //width of an AreaField (where you place the card)
-		this.areaFieldY = this.height+(this.padding*2); //height of an AreaField
-		this.borderX = this.x-(this.columns/2)*this.areaFieldX; //border x of the field, not the center x
-		this.borderY = this.y-(this.rows/2)*this.areaFieldY; //border y of the field, not the center y
+		this.originalCardWidth = cardWidth;
+		this.originalCardHeight = cardHeight;
+		this.cardWidth = cardWidth;
+		this.cardHeight = cardHeight;
+		this.padding = cardWidth*this.paddingRatio;
 		
+		this.areaFieldX = this.cardWidth+(this.padding*2); //width of an AreaField (where you place the card)
+		this.areaFieldY = this.cardHeight+(this.padding*2); //height of an AreaField
+		this.borderX = this.x-(this.width/2); //border x of the field, not the center x
+		//this.borderY = this.y-(this.height/2); //border y of the field, not the center y
+		this.borderY = this.y;
 		
-		this.fieldArea = new Rectangle(this.borderX, this.borderY, this.areaFieldX*this.columns, this.areaFieldY*this.rows);
+		this.fieldArea = new Rectangle(this.borderX, this.borderY, this.width, this.height);
 		
 		for(var j=0;j<this.rows;j++){
 			for(var i=0;i<this.columns;i++){
@@ -85,8 +88,14 @@ class Field extends GameObject {
 	onResize(sizeFactor){
 		super.onResize(sizeFactor);
 		
-		this.borderX = this.x-(this.columns/2)*this.areaFieldX;
-		this.borderY = this.y-(this.rows/2)*this.areaFieldY;
+		this.cardHeight = this.originalCardHeight*sizeFactor;
+		this.cardWidth = this.originalCardWidth*sizeFactor;
+		this.padding = this.cardWidth*this.paddingRatio;
+		this.areaFieldX = this.cardWidth+(this.padding*2);
+		this.areaFieldY = this.cardHeight+(this.padding*2);
+		this.borderX = this.x-(this.width/2);
+		//this.borderY = this.y-(this.height/2);
+		this.borderY = this.y;
 		
 		this.fieldArea.update(this.borderX ,this.borderY ,this.areaFieldX*this.columns,this.areaFieldY*this.rows);
 		
