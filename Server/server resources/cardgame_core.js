@@ -191,7 +191,6 @@ function requestCardHandler(cardData){
 				sizeFactor
 			)
 		);
-		console.log(cardData);
 	}
 	else{
 		console.log("Card requested doesn't exist!");

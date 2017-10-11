@@ -2,32 +2,13 @@
 <head>
 	<title>Nova Card Game</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
 	<style type="text/css">
 
 		html{
 			margin: 0px;
 			border: 0px;
 			padding: 0px;
-		}
-		
-		body{
-			margin: 0px;
-			border: 0px;
-			padding: 0px;
-			background-image: url('sapphire-back.png');
-			background-size:contain;
-		}
-
-		.title{
-			position: absolute;
-			top: 0;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			z-index: -10;
-			padding-top: 10%;
-			text-align: center;
-			color: silver;
 		}
 		
 		#matchCanvas {
@@ -45,26 +26,6 @@
 			margin: 0px;
 			border: 0px;
 			display: none;
-		}
-		
-		a:link {
-			color: white;
-		}
-
-		/* visited link */
-		a:visited {
-			color: silver;
-		}
-
-		/* mouse over link */
-		a:hover {
-			color: white;
-			cursor: pointer;
-		}
-
-		/* selected link */
-		a:active {
-			color: white;
 		}
 
 		.redbox{
@@ -98,6 +59,7 @@
 		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="css/GeneralStyle.css">
 </head>
 <body onload="onLoadHome()" onresize="onResizeHome()">
 
@@ -113,8 +75,6 @@
 			function goToMatch(e){
 				var pc = document.getElementById("profilePageContainer");				
 				var gc = document.getElementById("gameCanvasContainer");
-				console.log("WHEN BTN CLICK; PRALLALA ");
-				console.log(e);
 				if(pc.style.display == "block"){
 					pc.style.display = "none";
 					gc.style.display = "block";

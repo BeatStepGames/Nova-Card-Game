@@ -41,6 +41,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(function(req,res,next){
 	console.log("");
 	console.log(req.method + " request from: " +req.connection.remoteAddress + " request: " +req.originalUrl);
+	// console.log(req.headers);
+	res.setHeader("X-Powered-By","Nova Card Game");
 	console.log("----------------");
 	next();
 });
@@ -49,7 +51,31 @@ app.use(function(req,res,next){
 if(DEBUG == false){
 	app.use(minify({cache: __dirname + '/cache'}));
 }
-app.use(express.static("server resources"));
+var staticOptions = {
+	maxage: "1d",
+	maxAge: "1d",
+	etag: true,
+	lastModified: true,
+	cacheControl: true,
+	fallthrough: true,
+	setHeaders: function(res, path){
+		res.setHeader("X-Powered-By","Nova Card Game");
+	}
+};
+app.use("/card_images",express.static("server resources/card_images/",staticOptions));
+app.use("/img",express.static("server resources/img/",staticOptions));
+
+app.use(express.static("server resources",{
+	maxage: "0",
+	maxAge: "0",
+	etag: true,
+	lastModified: true,
+	cacheControl: true,
+	fallthrough: true,
+	setHeaders: function(res, path){
+		res.setHeader("X-Powered-By","Nova Card Game");
+	}
+}));
 
 
 //Routes handler
@@ -101,7 +127,24 @@ httpsServer.listen(securePort,function(){
 
 
 //WEBSOCKET SECTION
-
+/**
+ * Comunication is made in client requests and server responses
+ * Client request = {
+ * 		data: string,
+ * 		header:{
+ * 			name: value
+ * 		}
+ * }
+ * 
+ * Server response = {
+ * 		data: string,
+ * 		req: string(the data of the request that triggered this response, if present)
+ * 		header:{
+ * 			name: value
+ * 		}
+ * }
+ * 
+ */
 var programs = new ServerPrograms();
 var playerList = [];
 var wsServer = new webSocket.Server({
@@ -121,7 +164,22 @@ wsServer.on("connection",function(userWS, req){
 	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
-	userWS.on('message', function(message) {
+	userWS.on('message', function(jsonReq) {
+		let reqWS;
+		try{
+		reqWS = JSON.parse(jsonReq);
+		}
+		catch(err){
+			console.log(err)
+			reqWS = {
+				data: ""
+			}
+		}
+		message = reqWS.data || "";
+		userWS.res = new WSResponse(message);
+		userWS.res.setHeader("X-Powered-By","Nova Card Game");
+		userWS.sendRes = sendRes;
+
 		message = message.trim();
 		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
@@ -144,7 +202,7 @@ wsServer.on("connection",function(userWS, req){
 			}
 		}
 		else{
-			userWS.send("ERROR: Program not implemented");
+			userWS.sendRes("ERROR: Program not implemented");
 		}
 
     });
@@ -161,7 +219,11 @@ wsServer.on("connection",function(userWS, req){
 wsServer.broadcast = function(data) {
 	wsServer.clients.forEach(function each(client) {
 		if (client.readyState === webSocket.OPEN) {
-			client.send(data);
+			client.res = new WSResponse();
+			client.res.setHeader("Broadcast","true");
+			client.res.setHeader("X-Powered-By","Nova Card Game");
+			client.sendRes = sendRes;
+			client.sendRes(data);
 		}
 	});
 };
@@ -176,6 +238,57 @@ wsServer.getWebSocketByUsername = function(username){
 	}
 };
 
+
+
+// Create a websocket response
+function WSResponse(req,data,headers){
+
+	this.setData = function(data){
+		this.data = data || "";
+	}
+
+	this.setHeader = function(header,value){
+		if(this.headers == undefined){
+			this.headers = {};
+		}
+		if(header != undefined){
+			this.headers[header] = value;
+		}
+	}
+
+	this.setReq = function(req){
+		if(req != undefined){
+			if(typeof req == "string"){
+				this.req = req ;
+			}
+			else{
+				this.req = req.data;
+			}
+		}
+		else{
+			req = "";
+		}
+	}
+
+	
+	this.setReq(req);
+	this.setData(data);
+	for(let key in headers){
+		this.setHeader(key, headers[key]);
+	}
+
+}
+
+// Method to send a response to the client websocket
+function sendRes(data){
+	if(this.res == undefined){
+		this.res = new WSResponse();
+	}
+	this.res.setData(data);
+	var jsonRes = JSON.stringify(this.res);
+	this.send(jsonRes);
+	this.res = null;
+}
 
 //Checks if user's session ID is valid
 //info can be both an http request or a websocket info object{origin {String} = Origin header, req = the client HTTP GET request, secure {Boolean} = true if req.connection.authorized or req.connection.encrypted is set.}
@@ -206,7 +319,7 @@ function isUserAuth(info){
 function ServerPrograms() {
 	//Debug request
 	this.debug = function(userWS, params){
-		userWS.send("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
+		userWS.sendRes("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
 	//The chat visible to every player, params: [0] message sent
@@ -217,13 +330,13 @@ function ServerPrograms() {
 	//A personal chat message, params: [0] user [1] message sent
 	this.personalchat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
-		secondUser.send("personalChat "+userWS[sessionName].username + " " + params[1] );
+		secondUser.sendRes("personalChat "+userWS[sessionName].username + " " + params[1] );
 	}
 
 	//A ping message to check that the other player is still receiving data, params: [0] user [1] request or response
 	this.pinguser = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
-		secondUser.send("pinguser "+userWS[sessionName].username + " " + params[1] );
+		secondUser.sendRes("pinguser "+userWS[sessionName].username + " " + params[1] );
 	}
 	
 	//Request for the online users list
@@ -232,7 +345,7 @@ function ServerPrograms() {
 		wsServer.clients.forEach(function each(client) {
 			list.push(client[sessionName].username);
 		});
-		userWS.send("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
+		userWS.sendRes("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
 	}
 	
 	//Request of the the deck of the player, params: [0] card name
@@ -242,11 +355,13 @@ function ServerPrograms() {
 		var cardData = "ERROR 404: Not Found";
 		try{
 			cardData = fs.readFileSync(p);
+			cardData = cardData.toString();
 		}
 		catch(err){
 			console.log("Requested nonexisting card: " + params[0]);
 		}
-		userWS.send("requestcard " + cardData);
+		userWS.res.setHeader("maxage","86400");
+		userWS.sendRes("requestcard " + cardData);
 	}
 
 	//Request for an x ammount of cards from the user's deck, params: [0] deck index starting from 1 [1] n. of cards
@@ -262,30 +377,30 @@ function ServerPrograms() {
 		if(params[1]){
 			deck.splice(params[1],deck.length-params[1]);
 		}
-		userWS.send("requestdeck " + JSON.stringify(deck));
+		userWS.sendRes("requestdeck " + JSON.stringify(deck));
 	}
 
 	this.requestrank = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var rank = userData.rank || 0;
-		userWS.send("requestrank " + rank);
+		userWS.sendRes("requestrank " + rank);
 	}
 
 	this.requestmatchesplayed = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var matches = userData.matchsPlayed || 0;
-		userWS.send("requestmatchesplayed " + matchs);
+		userWS.sendRes("requestmatchesplayed " + matchs);
 	}
 
 	this.requestdecksamount = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var ndecks = userData.decks.length || 0;
-		userWS.send("requestdecksamount " + ndecks);
+		userWS.sendRes("requestdecksamount " + ndecks);
 	}
 	
 	//Events like attack, draw etc, are handled in here
 	this.event = function (userWS,params){
-		userWS.send("STUB response from server to player "+ userWS.remoteAddress);
+		userWS.sendRes("STUB response from server to player "+ userWS.remoteAddress);
 	}
 }
 

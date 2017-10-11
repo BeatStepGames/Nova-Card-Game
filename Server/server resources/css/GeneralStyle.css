@@ -1,0 +1,42 @@
+body{
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    background-image: url('/img/sapphire-back.png');
+    background-size:contain;
+}
+
+.title{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -10;
+    padding-top: 10%;
+    text-align: center;
+    color: silver;
+}
+
+a:link {
+    color: white;
+}
+
+/* visited link */
+a:visited {
+    color: silver;
+}
+
+/* mouse over link */
+a:hover {
+    color: white;
+    cursor: pointer;
+}
+
+/* selected link */
+a:active {
+    color: white;
+}
+
+
+
+

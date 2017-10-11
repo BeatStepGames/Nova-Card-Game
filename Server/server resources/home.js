@@ -17,11 +17,17 @@ function Server(serverURL){
 		this.active = true;
 		this.ID = IDManager.getUniqueID();
 	}
-	
-	this.webSocket.onmessage = function(event){
-		console.log("Game Server says: " + event.data);
-		var filter = event.data.substr(0,event.data.indexOf(" "));
-		var message = event.data.substr(event.data.indexOf(" ")+1);
+
+	this.onMessage = function(event){
+		var res = JSON.parse(event.data);
+		// If the response has a maxage header, save response to cache
+		if(res.headers.maxage){
+			cache.setItem(res.req, res.data, res.headers.maxage);
+		}
+
+		console.log("Game Server says: " + res.data);
+		var filter = res.data.substr(0,res.data.indexOf(" "));
+		var message = res.data.substr(res.data.indexOf(" ")+1);
 
 		if(filter == "$notify$"){
 			var notif = new FloatingNotification(message);
@@ -37,6 +43,8 @@ function Server(serverURL){
 		}
 	}.bind(this);
 	
+	this.webSocket.onmessage = this.onMessage;
+	
 	this.webSocket.onopen = function(event){
 		console.log("Connected to server");
 		this.open = true;
@@ -46,17 +54,38 @@ function Server(serverURL){
 	}.bind(this);
 	
 	this.webSocket.onclose = function(){
-		
+		this.open = false;
 	}.bind(this);
 	
 	this.webSocket.onerror = function(event){
-		
+		this.open = false;
 	}.bind(this);
 	
 	this.sendMessage = function(message){
+		// Check if there is a cached resource for this request
+		var cacheRes = cache.getItem(message);
+		if(cacheRes){
+			// There is, meaning the resource is still valid, so create a fake server response obj
+			var res = {
+				data: cacheRes,
+				req: message,
+				headers: {}
+			}
+			// Simulate a websocket event
+			var event = {
+				data: JSON.stringify(res)
+			};
+			this.onMessage(event);
+			return 1;
+		}
 		if(this.webSocket.readyState == 1){
 			console.log("Sending message to WS: "+message);
-			this.webSocket.send(message);
+			var req = {
+				data: message,
+				headers: {}
+			}
+			var jsonReq = JSON.stringify(req);
+			this.webSocket.send(jsonReq);
 			return 1;
 		}
 		return 0;
@@ -130,6 +159,80 @@ function Server(serverURL){
 	
 }
 
+class StorageObject{
+
+	constructor(name){
+		this.name = name;
+		this.obj = {}
+	}
+
+	setItem(key,value){
+		this.obj[key] = value;
+		this.saveToMemory();
+	}
+
+	getItem(key){
+		this.retrieveFromMemory();
+		return this.obj[key];
+	}
+
+	removeItem(key){
+		if(this.obj[key]){
+			delete this.obj[key];
+			this.saveToMemory();
+		}
+	}
+
+	saveToMemory(){
+		var jsonCache = JSON.stringify(this.obj);
+		localStorage.setItem(this.name,jsonCache);
+	}
+
+	retrieveFromMemory(){
+		var jsonCache = localStorage.getItem(this.name);
+		// If it already exists in the localStorage, parse it and set it as obj
+		if(jsonCache){
+			this.obj = JSON.parse(jsonCache);
+		}
+		// Else create this data in the localStorage
+		else{
+			this.saveToMemory();
+		}
+	}
+}
+
+class Cache extends StorageObject{
+	constructor(){
+		super("cache");
+	}
+
+	// maxage is in seconds
+	setItem(key,value,maxage){
+		let val = {
+			data: value,
+			expire: new Date().getTime()/1000 + Number(maxage)
+		}
+		super.setItem(key,val);
+	}
+
+	getItem(key){
+		let data = super.getItem(key);
+		if(data){
+			if(data.expire > new Date().getTime()/1000){
+				return data.data;
+			}
+			else{
+				data = undefined;
+				super.removeItem(key);
+			}
+		}
+		return data;
+	}
+
+}
+
+var cache = new Cache();
+var prefs = new StorageObject("preferences");
 var server;
 var sizeFactor;
 
