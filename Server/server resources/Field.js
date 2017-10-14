@@ -29,6 +29,7 @@ class Field extends GameObject {
 				this.collisionMasks[j+""+i] = new Rectangle(this.borderX + this.areaFieldX*i,this.borderY + this.areaFieldY*j,this.areaFieldX,this.areaFieldY);
 			}
 		}
+		
 	}
 	
 	draw(ctx){
@@ -75,8 +76,12 @@ class Field extends GameObject {
 					card.x = this.collisionMasks[j+""+i].x + this.padding;
 					card.y = this.collisionMasks[j+""+i].y + this.padding;
 					field.fieldCards[j+""+i] = card;
+					
+					field.fieldCards[j+""+i].zoom(2,300,field.fieldCards[j+""+i].isStatic()); //DEBUG ANIMATION TEST HERE!!! <----
+					
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
+					
 					return true;
 				}
 			}

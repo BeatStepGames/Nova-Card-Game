@@ -148,7 +148,6 @@ class Card extends GameObject{
 
 	//update card in new position when in hand
 	handUpdate(){
-		
 		this.centerX = this.x + (this.width/2);
 		this.centerY = this.y + (this.height/2);
 		
@@ -160,10 +159,12 @@ class Card extends GameObject{
 			grabbed_card = true; //We grabbed a card, no other cards can be grabbed now
 			floatingHandCard = this;
 			
+			
 		}
 		if(this.moving == 1){
 			this.x = mouse.x-this.temp_x;
 			this.y = mouse.y-this.temp_y;
+			
 		}
 		
 		//If mouse is not clicked anymore but card is in moving state, let it go back into the hand, or fixed on the field
