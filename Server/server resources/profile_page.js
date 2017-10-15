@@ -10,11 +10,30 @@ function startProfilePage(){
 
 class CardCanvas {
     constructor(card){
-        this.card = card;
+        this.card = card;        
+        this.div = document.createElement("div");
+        this.div.setAttribute("class","draggable");
+
         this.canvas = document.createElement("canvas");
         this.canvas.setAttribute("class","profileCardCanvas");
+
+        this.div.appendChild(this.canvas);
+
         this.ctx = this.canvas.getContext("2d");
         this.printFullCard = this.printFullCard.bind(this);
+    }
+
+    onDragStart(e){
+        
+        
+        console.log(e);
+        console.log(this.img);
+        console.log(this.canvas);
+    }
+
+    onDragEnd(e){
+        // this.canvas.style.display = "block";
+        // this.img.remove();
     }
 
     printFullCard(){
@@ -24,12 +43,12 @@ class CardCanvas {
         this.card.x = 0;
         this.card.y = 0;
         this.canvas.width = (this.canvas.getBoundingClientRect().width*devicePixelRatio);
-        this.canvas.style.height = this.canvas.getBoundingClientRect().width*(3/2);
-        this.canvas.height = this.canvas.getBoundingClientRect().height*devicePixelRatio;
-        //this.card.height = this.canvas.height;
+        this.canvas.height = this.canvas.width*(3/2);
+
         this.card.onResize(this.canvas.height/this.card.originalHeight);
         this.card.draw(this.ctx);
         
+        this.canvas.style.height = this.canvas.getBoundingClientRect().width*(3/2);
         //this.canvas.parentElement.parentElement.style.width = this.canvas.getBoundingClientRect().width;
         this.canvas.parentElement.parentElement.style.height = this.canvas.getBoundingClientRect().height;
     }
@@ -41,10 +60,21 @@ class CardCanvas {
     getCanvas(){
         return this.canvas;
     }
+
+    getCanvasDim(){
+        let d = this.canvas.getBoundingClientRect();
+        return d;
+    }
+
+    getCanvasDiv(){
+        return this.div;
+    }
 }
+
 
 class ProfilePage {
     constructor(){
+        this.nCardPerRow = 6;
         this.container = document.getElementById("profilePageContainer");
         this.container.style.display = "block";
 
@@ -66,7 +96,7 @@ class ProfilePage {
         this.deckCallback = this.deckCallback.bind(this);
         this.cardCallback = this.cardCallback.bind(this);
         this.loadDeck = this.loadDeck.bind(this);
-        this.nCardPerRow = 8;
+        
     }
 
     populateDeckSelect(n){
@@ -116,20 +146,31 @@ class ProfilePage {
         */
 
         let row = document.createElement("tr");
+        this.table.appendChild(row);
+        this.deckContainer.appendChild(this.table);
+
         for(let i=0; i<this.cardCanvasList.length; i++){
             let td = document.createElement("td");
-            let div = document.createElement("div");
             if(this.cardCanvasList[i] == undefined){
                 break;
             }
-            div.appendChild(this.cardCanvasList[i].getCanvas());
+            let canvas = this.cardCanvasList[i].getCanvas();
+            canvas.setAttribute("id","deckCardCanvas"+i);
+            let div =  this.cardCanvasList[i].getCanvasDiv();
+            div.setAttribute("id","deckCardDiv"+i);
             td.appendChild(div);
             row.appendChild(td);
-        }
-        this.table.appendChild(row);
 
-        this.deckContainer.appendChild(this.table);
-        this.drawCards()
+            $("#deckCardDiv"+i).draggable({
+                zIndex: 100,
+                revert: "invalid",
+                start: this.cardCanvasList[i].onDragStart
+            });
+        }
+
+        
+
+        this.drawCards();
     }
 
     drawCards(){

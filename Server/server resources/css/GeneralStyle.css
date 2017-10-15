@@ -37,6 +37,18 @@ a:active {
     color: white;
 }
 
+::-webkit-scrollbar{
+  width: 8px;  /* for vertical scrollbars */
+  height: 8px; /* for horizontal scrollbars */
+}
 
+::-webkit-scrollbar-track{
+  background: rgba(192, 192, 192, 0.2);
+}
+
+::-webkit-scrollbar-thumb{
+    background: rgba(192, 192, 192, 0.8);
+    border-radius: 2px;
+}
 
 

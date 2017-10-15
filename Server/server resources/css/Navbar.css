@@ -1,0 +1,63 @@
+#navbar{
+    height: 6%;
+    width: 96%;
+    align-self: center;
+    background: silver;
+    border-radius: 4px;
+    position: relative;
+    left: 2%;
+}
+#navbar ul{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style-type: none;
+    height: 100%;
+    overflow: hidden;
+    align-content: center;
+}
+
+#navbar li{
+    float: left;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#navbar li.right{
+    float: right;
+}
+
+#navbar li a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-family: "Tahoma","Geneva", "sans-serif";
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    height: 100%;
+    text-decoration: none;
+    margin: 0px;
+    user-select: none;
+    transition-duration: 200ms;
+}
+
+#navbar li a.navbartitle{
+    font-family: "Times New Roman", Times, serif;
+    font-size: 20px;
+    font-weight: bold;
+    padding-right: 20px;
+    cursor: default;
+}
+
+#navbar li a:hover:not(.active):not(.navbartitle) {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+#navbar li a.active{
+    color: gold;
+    background: rgba(255, 215, 0, 0.1);
+}

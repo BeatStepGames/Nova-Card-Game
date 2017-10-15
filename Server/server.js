@@ -360,7 +360,7 @@ function ServerPrograms() {
 		catch(err){
 			console.log("Requested nonexisting card: " + params[0]);
 		}
-		userWS.res.setHeader("maxage","86400");
+		userWS.res.setHeader("maxage",(60*12).toString());
 		userWS.sendRes("requestcard " + cardData);
 	}
 
@@ -375,7 +375,7 @@ function ServerPrograms() {
 			deck = userData.decks[0];
 		}
 		if(params[1]){
-			deck.splice(params[1],deck.length-params[1]);
+			deck = deck.slice(0,params[1]);
 		}
 		userWS.sendRes("requestdeck " + JSON.stringify(deck));
 	}

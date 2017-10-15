@@ -18,3 +18,21 @@ function testNotif() {
     var notif = new FloatingNotification(notifData, buttons);
     notif.show();
 }
+
+
+function goToMatch(e){
+    var pc = document.getElementById("profilePageContainer");				
+    var gc = document.getElementById("gameCanvasContainer");
+    if(pc.style.display == "block"){
+        pc.style.display = "none";
+        gc.style.display = "block";
+        startMatch();
+        e.target.innerText = "Go To Profile";
+    }
+    else{
+        pc.style.display = "block";
+        gc.style.display = "none";
+        stopMatch();
+        e.target.innerText = "Go To Match";
+    }
+}

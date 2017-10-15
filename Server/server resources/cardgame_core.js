@@ -180,7 +180,7 @@ function requestCardHandler(cardData){
 		hand_cards.handStack.push(
 			new Card(
 				canvas.width,
-				hand_cards.y-baseDimensions.card_height,
+				(canvas.height/2)-(baseDimensions.card_height/2),
 				baseDimensions.original_card_height,
 				cardData.name,
 				cardData.level,

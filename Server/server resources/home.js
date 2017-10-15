@@ -243,7 +243,6 @@ function onLoadHome(){
 	sizeFactor = window.innerWidth*devicePixelRatio/1536;
 	window.sizeFactor = sizeFactor; //Useless. Just to be sure
 	startProfilePage();
-	//startMatch();
 	debugGlobalChat();
 }
 

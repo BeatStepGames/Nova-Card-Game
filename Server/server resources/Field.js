@@ -77,6 +77,7 @@ class Field extends GameObject {
 					field.fieldCards[j+""+i] = card;
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
+					card.zoomIn(card.width*2,card.height*2,60);
 					return true;
 				}
 			}

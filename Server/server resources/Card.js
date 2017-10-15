@@ -88,7 +88,7 @@ class Card extends GameObject{
 
 	draw(ctx){
 		super.draw(ctx);
-    if(this.imageData == undefined){
+    if(this.imageData == undefined || this.isStatic() == false){
 		  ctx.beginPath();
 		
 		  ctx.textAlign = "center";
