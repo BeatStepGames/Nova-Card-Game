@@ -104,6 +104,46 @@ class GameObject {
         let ex = new Executor(this);
         this.animationList.push(ex);
     }
+	
+	rotation(angle, isAntiClockWise, steps, context, callback){ //isAntiClockWise = true -> rotate in opposite direction ; false -> e.g. the direction of the clock
+        let deltaAngle = (angle/steps)*Math.PI/180;
+
+        var Executor = function(obj){
+            this.deltaAngle = deltaAngle;
+			this.startAngle = deltaAngle;
+            this.totalSteps = steps;
+            this.currentStep = 0;
+            this.active = true;
+            this.obj = obj;
+            this.callback = callback;
+			this.context = context;
+
+            this.execute = function(){
+                if(this.currentStep < this.totalSteps){
+                    this.currentStep++;
+                    
+					ctx.save();
+					this.context.rotate(this.startAngle*Math.PI/180);
+					
+					this.obj.draw(this.context);
+					
+                    this.obj.onResize(this.obj.width/this.obj.originalWidth);
+					
+					this.startAngle += this.deltaAngle;
+					ctx.restore();
+                }
+                else{
+                    this.active = false;
+                    if(this.callback){
+                        this.callback();
+                    }
+                }
+            }.bind(this);
+        }
+
+        let ex = new Executor(this);
+        this.animationList.push(ex);
+    }
 
     isStatic(){
         if(this.animationList.length == 0){

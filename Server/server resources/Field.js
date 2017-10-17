@@ -75,7 +75,8 @@ class Field extends GameObject {
 					
 					field.fieldCards[j+""+i] = card;
 					
-					field.fieldCards[j+""+i].zoom(field.fieldCards[j+""+i].width*2,field.fieldCards[j+""+i].height*2,100); //DEBUG ANIMATION TEST HERE!!! <----
+					//field.fieldCards[j+""+i].zoom(field.fieldCards[j+""+i].width*2,field.fieldCards[j+""+i].height*2,100); //DEBUG ANIMATION TEST HERE!!! <----
+					field.fieldCards[j+""+i].rotation(120,false,110,ctx); //DEBUG ANIMATION TEST HERE!!! <----
 					
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
