@@ -164,6 +164,7 @@ class ProfilePage {
             $("#deckCardDiv"+i).draggable({
                 zIndex: 100,
                 revert: "invalid",
+                revertDuration: 500,
                 start: this.cardCanvasList[i].onDragStart
             });
         }
