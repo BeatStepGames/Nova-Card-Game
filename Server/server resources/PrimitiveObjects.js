@@ -8,9 +8,47 @@ class GameObject {
         this.originalWidth = width;
         this.originalHeight = height;
 		
+
 		this.animationList = [];
     }
+	
+	getCenterX(){
+        return this.centerX;
+    }
 
+    getCenterY(){
+        return this.centerY;
+    }
+    
+    setCenterX(centerX){
+        this.centerX = centerX;
+        this.x = centerX - (this.width/2)
+    }
+
+    setCenterY(centerY){
+        this.centerY = centerY;
+        this.y = centerY - (this.height/2)
+    }
+
+    getX(){
+        return this.x;
+    }
+
+    getY(){
+        return this.y;
+    }
+
+    setX(x){
+        this.x = x;
+        this.centerX = x + (this.width/2);
+    }
+
+    setY(y){
+        this.y = y;
+        this.centerY = y + (this.height/2);
+    }
+	
+	
     draw(context){
 		for(let i in this.animationList){
             if(this.animationList[i].active){
@@ -30,11 +68,11 @@ class GameObject {
         this.height = this.originalHeight* sizeFactor;
     }
 	
-	zoom(ratio,steps,increment,callback){
-		let deltaWidth = (this.originalWidth*ratio-this.originalWidth)/steps;
-        let deltaHeight = (this.originalHeight*ratio-this.originalHeight)/steps;
-		
-		var Executor = function(obj){
+	zoom(finalWidth, finalHeight, steps, callback){
+        let deltaWidth = (finalWidth-this.width)/steps;
+        let deltaHeight = (finalHeight-this.height)/steps;
+
+        var Executor = function(obj){
             this.deltaWidth = deltaWidth;
             this.deltaHeight = deltaHeight;
             this.totalSteps = steps;
@@ -46,16 +84,13 @@ class GameObject {
             this.execute = function(){
                 if(this.currentStep < this.totalSteps){
                     this.currentStep++;
-                    this.obj.originalWidth += this.deltaWidth;
-                    this.obj.originalHeight += this.deltaHeight;
-					this.obj.width += this.deltaWidth;
+                    this.obj.width += this.deltaWidth;
                     this.obj.height += this.deltaHeight;
 					
 					this.obj.x -= this.deltaWidth/2;
 					this.obj.y -= this.deltaHeight/2;
 					
                     this.obj.onResize(this.obj.width/this.obj.originalWidth);
-					
                 }
                 else{
                     this.active = false;

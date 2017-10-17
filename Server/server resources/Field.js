@@ -73,11 +73,11 @@ class Field extends GameObject {
 		//for(var j=0;j<=1;j++){
 			for(var i=0;i<this.columns;i++){
 				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
-					card.x = this.collisionMasks[j+""+i].x + this.padding;
-					card.y = this.collisionMasks[j+""+i].y + this.padding;
+					card.setCenterX(this.collisionMasks[j+""+i].x+this.collisionMasks[j+""+i].width/2);
+					card.setCenterY(this.collisionMasks[j+""+i].y+this.collisionMasks[j+""+i].height/2);
 					field.fieldCards[j+""+i] = card;
 					
-					field.fieldCards[j+""+i].zoom(2,300,field.fieldCards[j+""+i].isStatic()); //DEBUG ANIMATION TEST HERE!!! <----
+					//field.fieldCards[j+""+i].zoom(field.fieldCards[j+""+i].width*2,field.fieldCards[j+""+i].height*2,100); //DEBUG ANIMATION TEST HERE!!! <----
 					
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
@@ -113,9 +113,10 @@ class Field extends GameObject {
 		for(var j=0;j<this.rows;j++){
 			for(var i=0;i<this.columns;i++){
 				if(field.fieldCards[j+""+i] != undefined){
-					this.fieldCards[j+""+i].x = this.collisionMasks[j+""+i].x + this.padding;
-					this.fieldCards[j+""+i].y = this.collisionMasks[j+""+i].y + this.padding;
+					this.fieldCards[j+""+i].setCenterX(this.collisionMasks[j+""+i].x+this.collisionMasks[j+""+i].width/2);
+					this.fieldCards[j+""+i].setCenterY(this.collisionMasks[j+""+i].y+this.collisionMasks[j+""+i].height/2);
 					this.fieldCards[j+""+i].onResize(sizeFactor);
+					 
 				}
 			}
 		}
