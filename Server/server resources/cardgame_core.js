@@ -132,7 +132,7 @@ function startMatch(){
 	//resize canvas!
 	//onResize();
 
-	field = new Field(canvas.width/2, canvas.height*(1/20), baseDimensions.original_card_width, baseDimensions.original_card_height, 2, 4);
+	field = new Field(canvas.width/2, canvas.height*(1/20), baseDimensions.original_card_width+20, baseDimensions.original_card_height+20, 2, 4);
 	hand_cards = new HandCards();
 	
 	matchServerRequestsID.deckHandlerID = server.register("requestdeck",requestDeckHandler);
