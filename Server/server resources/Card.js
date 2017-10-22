@@ -5,7 +5,7 @@ class Card extends GameObject{
 		super(x,y,(height*(2/3)),height);
 		
 		/*
-		this.top_space_card = height*(1/8);
+		this.attribute_dimension = height*(1/8);
 		this.image_space_card = height*(11/24);
 		this.comment_card = height*(7/24);
 		this.atk_def_rank = height*(1/8);
@@ -39,12 +39,12 @@ class Card extends GameObject{
 
 	onResize(sizeFactor){
 		super.onResize(sizeFactor);
-		this.top_space_card = this.height*(1/8);
+		this.attribute_dimension = this.height*(1/8); //dimension of attributes
 		this.image_space_card = this.height*(11/24);
-		this.comment_card = this.height*(7/24);
-		this.atk_def_rank = this.height*(1/8);
-		this.atk_def_gap = this.height*(1/4);
-		this.nameFontSize = this.height*(1/20);
+		this.comment_card = this.height*(10/24);
+		//this.atk_def_rank = this.height*(1/8); //not used anymore
+		//this.atk_def_gap = this.height*(1/4);
+		this.nameFontSize = this.height*(1/18);
 		this.numberFontSize = this.height*(3/40);
 		this.commentFontSize = this.height*(12/240);
 		this.imageData = undefined;
@@ -56,7 +56,7 @@ class Card extends GameObject{
 		var line_counter=0;
 		var relative_y=0;
 		line[line_counter] = "";
-		ctx.font=(lenght_y/maxRows)+"px Arial";
+		ctx.font=(lenght_y/8)+"px Arial";
 		
 		for(var i=0;i<array.length;i++){
 			
@@ -75,7 +75,7 @@ class Card extends GameObject{
 		}
 		
 		//relative_y=lenght_y/7;
-		relative_y=(lenght_y/(maxRows*2))*((maxRows+3/5)-line_counter); // 3/5 is a standard value, just to detach from the y border
+		relative_y=((lenght_y)/(maxRows*2))*((maxRows+3/5)-line_counter); // 3/5 is a standard value, just to detach from the y border
 		
 		line_counter=1; //reinitialize line_counter
 		for(var i=0;i<line.length;i++){
@@ -89,50 +89,51 @@ class Card extends GameObject{
 	draw(ctx){
 		super.draw(ctx);
     if(this.imageData == undefined){
-		  ctx.beginPath();
+		ctx.beginPath();
 		
-		  ctx.textAlign = "center";
-		  ctx.fillStyle = "black";
-		  ctx.fillRect(this.x,this.y,this.width,this.height);
+		ctx.textAlign = "center";
+		//ctx.fillStyle = "black";
+		ctx.fillStyle = "rgba(255, 255, 255, 0)";
+		//ctx.fillRect(this.x,this.y,this.width,this.height);
 		
-		  ctx.strokeStyle="silver";
-		  ctx.rect(this.x,this.y,this.width-this.top_space_card, this.top_space_card); //name part
-		  ctx.font=this.nameFontSize+"px Arial";
-		  ctx.fillStyle = "silver";
-		  ctx.fillText(this.name,this.x+(this.width-this.top_space_card)/2,this.y+this.top_space_card/2+this.top_space_card/6); //name text
+		ctx.strokeStyle="silver";
+		ctx.rect(this.x,this.y,this.width, this.attribute_dimension); //name part
+		ctx.font=this.nameFontSize+"px Arial";
+		ctx.fillStyle = "silver";
+		ctx.fillText(this.name,this.x+(this.width)/2,this.y+this.attribute_dimension/2+this.attribute_dimension/6); //name text
 		
-		  ctx.font=(this.numberFontSize)+"px Arial";
-		  //width_m = ctx.measureText(100 - this.level).width;
-		  //height_m = ctx.measureText("gggg").width;
-		  ctx.rect(this.x+this.width-this.top_space_card,this.y,this.top_space_card, this.top_space_card); //level part (top right)
-		  ctx.fillText(this.level,this.x+this.width-this.top_space_card/2,this.y+this.top_space_card/2+this.top_space_card/6); //level number (top right)
+		ctx.font=(this.numberFontSize)+"px Arial";
 		
-		  ctx.fillStyle = "black";
-		  ctx.fillRect(this.x,this.y+this.top_space_card,this.width, this.image_space_card);
-		  ctx.fillStyle = "black";
+		//ctx.rect(this.x+this.width-this.attribute_dimension,this.y,this.attribute_dimension, this.attribute_dimension); //level part (top right)
+		//ctx.fillText(this.level,this.x+this.width-this.attribute_dimension/2,this.y+this.attribute_dimension/2+this.attribute_dimension/6); //level number (top right)
 		
-		  if(this.img.loaded){
-			  ctx.drawImage(this.img,this.x,this.y+this.top_space_card,this.width,this.image_space_card); //image
-		  }
+		//ctx.fillStyle = "black";
+		ctx.fillStyle = "rgba(255, 255, 255, 0)";
+		//ctx.fillRect(this.x,this.y+this.attribute_dimension,this.width, this.image_space_card);
+		ctx.fillStyle = "black";
+		
+		if(this.img.loaded){
+		  ctx.drawImage(this.img,this.x,this.y+this.attribute_dimension,this.width,this.image_space_card); //image
+		}
 			
-			//ctx.font=(this.commentFontSize)+"px Arial";
+		//ctx.font=(this.commentFontSize)+"px Arial";
 		
-		  ctx.fillStyle = "white";
-		  ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card,this.width,this.comment_card); //comment part
-		  this.splitNewLine(this.comment,this.x,this.y+this.top_space_card+this.image_space_card,this.width,this.comment_card,6,ctx,false); //text comment
+		ctx.fillStyle = "white";
+		ctx.rect(this.x,this.y+this.attribute_dimension+this.image_space_card,this.width,this.comment_card); //comment part
+		this.splitNewLine(this.comment,this.x,this.y+this.attribute_dimension+this.image_space_card,this.width,this.comment_card,6,ctx,true); //text comment
 		
-		  ctx.font=(this.numberFontSize)+"px Arial";
-		  ctx.fillStyle = "red";
-		  ctx.rect(this.x,this.y+this.top_space_card+this.image_space_card+this.comment_card,this.width,this.atk_def_rank); //atk def ecc. part
-		  ctx.fillText(this.atk,this.x+(this.width/2)-this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
-		  ctx.fillStyle = "green";
-		  ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.top_space_card+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
-		  ctx.stroke();
+		//ctx.font=(this.numberFontSize)+"px Arial";
+		//ctx.fillStyle = "red";
+		//ctx.rect(this.x,this.y+this.attribute_dimension+this.image_space_card+this.comment_card,this.width,this.atk_def_rank); //atk def ecc. part
+		//ctx.fillText(this.atk,this.x+(this.width/2)-this.atk_def_gap,this.y+this.attribute_dimension+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
+		//ctx.fillStyle = "green";
+		//ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.attribute_dimension+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
+		ctx.stroke();
 		
-		  ctx.beginPath();
-		  ctx.rect(this.x,this.y,this.width, this.height); //image part
-		  ctx.strokeStyle = "white";
-		  ctx.stroke();
+		ctx.beginPath();
+		ctx.rect(this.x,this.y,this.width, this.height); //image part
+		ctx.strokeStyle = "white";
+		ctx.stroke();
 
 			if(	this.x > 0 && (this.x+this.width) < ctx.canvas.width &&
 				this.y > 0 && (this.y + this.height) < ctx.canvas.height

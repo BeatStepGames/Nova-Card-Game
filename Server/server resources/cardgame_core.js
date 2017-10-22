@@ -15,11 +15,9 @@ var baseDimensions = { //width and height of all elements in card
 	original_card_width: 160,
 	card_width: 160*sizeFactor,
 	card_height: 240*sizeFactor,
-	top_space_card: 30*sizeFactor,
-	image_space_card: 110*sizeFactor,
-	comment_card: 70*sizeFactor,
-	atk_def_rank: 30*sizeFactor,
-	atk_def_gap: 60*sizeFactor
+	//attribute_dimension: 30*sizeFactor,
+	//image_space_card: 110*sizeFactor,
+	//comment_card: 70*sizeFactor,
 };
 
 var ctx = canvas.getContext("2d");
