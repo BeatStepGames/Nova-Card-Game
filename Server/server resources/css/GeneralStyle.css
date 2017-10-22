@@ -38,6 +38,28 @@ a:active {
     color: white;
 }
 
+button{
+    border-radius: 2px;
+    border: 0;
+    padding: 2px 8px;
+    text-align: center;
+    color: black;
+    background-color: silver;
+    cursor: pointer;
+    box-shadow: 0 0.2em #7E7E7E;
+    transition-duration: 100ms;    
+}
+
+button:hover{
+    background-color: #ADADAD;
+}
+
+button:active{
+    background-color: rgb(100, 100, 100);
+    box-shadow: 0 0 #7E7E7E;
+    transform: translateY(1px);
+}
+
 /* 
 ::-webkit-scrollbar{
   width: 4px; 

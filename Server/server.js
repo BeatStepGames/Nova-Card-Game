@@ -23,6 +23,16 @@ var port = 80;
 var securePort = 443;
 var DEBUG = true;
 
+// House keeping functions
+Array.prototype.indexOfAll = function(val){
+	let indexes = [];
+	let i = -1;
+    while ((i = this.indexOf(val, i+1)) != -1){
+        indexes.push(i);
+    }
+    return indexes;
+}
+
 //Express setup
 //-------------
 
@@ -398,6 +408,69 @@ function ServerPrograms() {
 		userWS.sendRes("requestdecksamount " + ndecks);
 	}
 	
+	// Adds the card to deck if the user has it and if there are still less than 3 in the deck
+	// params[0] = which card to add, param[1] = which deck to add to starting from 1, or "new" to create a new deck
+	this.addcardtodeck = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		if(params[1].toLowerCase() == "new"){
+			if(userData.cardsOwned.indexOf(params[0]) != -1){
+				let deck = userData.decks[userData.decks.length] = [];
+				deck.push(params[0]);
+				userWS.sendRes("addcardtodeck YES " + params[0] + " " + userData.decks.length);
+			}
+			else{
+				userWS.sendRes("addcardtodeck NO " + params[0] + " " + userData.decks.length);
+			}
+		}
+		else if(params[1] <= userData.decks.length && params[1] > 0){
+			params[1] -= 1;
+			let nCardsOwned = userData.cardsOwned.indexOfAll(params[0]).length;
+			let nCardsDeck = userData.decks[params[1]].indexOfAll(params[0]).length;
+			if(nCardsDeck < 3 && nCardsOwned > nCardsDeck){
+				userData.decks[params[1]].push(params[0]);
+				userWS.sendRes("addcardtodeck YES " + params[0] + " " + params[1]);
+			}
+			else{
+				userWS.sendRes("addcardtodeck NO " + params[0] + " " + params[1]);
+			}
+		}
+		else{
+			userWS.sendRes("addcardtodeck NO " + params[0] + " " + params[1]);
+		}
+	}
+
+	// Removes a card from the spcified deck
+	// params[0] = which card to remove, param[1] = which deck to remove from to starting from 1
+	this.removecardfromdeck = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		if(params[1] <= userData.decks.length && params[1] > 0){
+			params[1] -= 1;
+			let index = userData.decks[params[1]].indexOf(params[0]);
+			if(index != -1){
+				userData.decks[params[1]].splice(index, 1);
+				userWS.sendRes("removecardfromdeck YES " + params[0] + " " + params[1]);
+				return;
+			}
+		}
+		userWS.sendRes("removecardfromdeck NO " + params[0] + " " + params[1]);
+	}
+
+	// Delete the entire deck form the user's decks list
+	this.deletedeck = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		params[0] -= 1;
+		if(userData.decks.length <= 1){
+			userWS.sendRes("deletedeck NO last-deck");
+		}
+		else if(userData.decks[params[0]] != undefined){
+			userData.decks.splice(params[0],1);
+			userWS.sendRes("deletedeck YES " + (params[0]+1) );
+		}
+		else{			
+			userWS.sendRes("deletedeck NO " + (params[0]+1) );
+		}
+	}
+
 	//Events like attack, draw etc, are handled in here
 	this.event = function (userWS,params){
 		userWS.sendRes("STUB response from server to player "+ userWS.remoteAddress);

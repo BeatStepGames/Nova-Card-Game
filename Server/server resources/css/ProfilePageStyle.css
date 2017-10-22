@@ -3,8 +3,14 @@ div#profilePageContainer{
     overflow: auto;
 }
 
-.deckShowcaseTable{
+#deckShowcaseDiv{
     width: 50%;
+    padding: 0;
+    margin: 0;
+}
+
+.deckShowcaseTable{
+    width: 100%;
 }
 
 tr{

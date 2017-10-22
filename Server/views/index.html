@@ -68,6 +68,7 @@
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 </head>
+
 <body onload="onLoadHome()" onresize="onResizeHome()">
 
 	<!-- <h1 class="title">Nova Card Game</h1> -->
@@ -100,9 +101,13 @@
 		</div>
 		<div id="profilePageContainer" class="container">
 			<h2>Hi #{username}</h2>
-			<label>Select your deck </label><select id="deckSelect">
-			</select>
-			<div id="deckShowcaseDiv"></div>
+			
+			<div id="deckShowcaseDiv">
+				<label>Select your deck </label>
+				<select id="deckSelect">
+				</select>
+				<button id="deleteDeckBtn" value="Delete Deck" style="float: right; margin-right: 2%;">Delete Deck</button>
+			</div>
 		</div>
 		
 		<div id="gameCanvasContainer" class="container">

@@ -144,7 +144,7 @@ function Server(serverURL){
 		return 0;
 	}
 	
-	this.requestDeck = function(deckIndex = 1,nCards = ""){
+	this.requestDeck = function(deckIndex, nCards){
 		this.sendMessage("requestdeck " + (deckIndex || "1") + " " + (nCards || ""));
 	}
 	
@@ -155,6 +155,24 @@ function Server(serverURL){
 
 	this.requestDecksAmount = function(){
 		this.sendMessage("requestdecksamount");
+	}
+
+	// Adds a card to the desired deck, or, if deckIndex == "new", creates new deck and adds card to it
+	this.addCardToDeck = function(cardName, deckIndex){
+		this.sendMessage("addcardtodeck " + cardName + " " + deckIndex);
+	}
+
+	// Removes a card from the specified deck
+	this.removeCardFromDeck = function(cardName, deckIndex){
+		this.sendMessage("removecardfromdeck " + cardName + " " + deckIndex);
+	}
+
+	// Completelly delete a deck, prompt a message to be sure of the action
+	this.deleteDeck = function(deckIndex){
+		let sure = confirm("Are you sure you want to delete deck n. " + deckIndex + "?");
+		if(sure){
+			this.sendMessage("deletedeck " + deckIndex);
+		}
 	}
 	
 }

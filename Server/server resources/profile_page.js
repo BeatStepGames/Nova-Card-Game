@@ -113,7 +113,10 @@ class ProfilePage {
 
     loadDeck(index){
         if(server.open){
-            this.deckContainer.innerHTML = "";
+            let tabs = this.deckContainer.querySelectorAll(".deckShowcaseTable");
+            tabs.forEach(function(element) {
+                element.remove();
+            }, this);
             this.cardCanvasList = [];
             this.deckHandlerID = server.register("requestdeck",this.deckCallback);
             this.cardHandlerID = server.register("requestcard",this.cardCallback);
@@ -127,24 +130,6 @@ class ProfilePage {
     createRoseter(){
         this.table = document.createElement("table");
         this.table.setAttribute("class","deckShowcaseTable");
-
-        /*
-        for(let i=0; i<Math.ceil(this.cardCanvasList.length/this.nCardPerRow); i++){
-            let row = document.createElement("tr");
-            for(let c=i*this.nCardPerRow; c < (i*this.nCardPerRow)+this.nCardPerRow; c++){
-                let td = document.createElement("td");
-                let div = document.createElement("div");
-                if(this.cardCanvasList[c] == undefined){
-                    break;
-                }
-                div.appendChild(this.cardCanvasList[c].getCanvas());
-                td.appendChild(div);
-                row.appendChild(td);
-            }
-            this.table.appendChild(row);
-        }
-        */
-
         let row = document.createElement("tr");
         this.table.appendChild(row);
         this.deckContainer.appendChild(this.table);
@@ -164,7 +149,7 @@ class ProfilePage {
             $("#deckCardDiv"+i).draggable({
                 zIndex: 100,
                 revert: "invalid",
-                revertDuration: 500,
+                revertDuration: 350,
                 start: this.cardCanvasList[i].onDragStart
             });
         }
