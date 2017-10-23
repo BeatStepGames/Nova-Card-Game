@@ -42,14 +42,15 @@ function onResize(){
 	canvas.height = window.innerHeight*devicePixelRatio;
 	//size factor
 	sizeFactor = canvas.width/1536; 
-
+	
+	//do we need this??
 	baseDimensions.card_height =  baseDimensions.original_card_height*sizeFactor;
 	baseDimensions.card_width =  baseDimensions.card_height*(2/3);
-	baseDimensions.top_space_card = baseDimensions.card_height*(1/8);
-	baseDimensions.image_space_card = baseDimensions.card_height*(11/24);
-	baseDimensions.comment_card = baseDimensions.card_height*(7/24);
-	baseDimensions.atk_def_rank = baseDimensions.card_height*(1/8);
-	baseDimensions.atk_def_gap = baseDimensions.card_height*(1/4);
+	baseDimensions.top_space_card = baseDimensions.card_height*(1/8); //why??
+	//baseDimensions.image_space_card = baseDimensions.card_height*(11/24);
+	//baseDimensions.comment_card = baseDimensions.card_height*(7/24);
+	//baseDimensions.atk_def_rank = baseDimensions.card_height*(1/8);
+	//baseDimensions.atk_def_gap = baseDimensions.card_height*(1/4);
 	
 	//field elements:
 	if(field){

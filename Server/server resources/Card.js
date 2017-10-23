@@ -39,7 +39,8 @@ class Card extends GameObject{
 
 	onResize(sizeFactor){
 		super.onResize(sizeFactor);
-		this.attribute_dimension = this.height*(1/8); //dimension of attributes
+		this.attribute_dimension = this.height*(1/6); //dimension of attributes
+		this.nameheight_space = this.height*(1/8);
 		this.image_space_card = this.height*(11/24);
 		this.comment_card = this.height*(10/24);
 		//this.atk_def_rank = this.height*(1/8); //not used anymore
@@ -89,23 +90,33 @@ class Card extends GameObject{
 	draw(ctx){
 		super.draw(ctx);
     if(this.imageData == undefined){
-		ctx.beginPath();
 		
+		//BACKGROUND CARD PART
+		ctx.beginPath();
+		//pattern image draw
+		ctx.rect(this.x,this.y,this.width, this.nameheight_space);
+		ctx.rect(this.x,this.y+this.nameheight_space+this.image_space_card,this.width, this.comment_card);
+		ctx.fillStyle = ctx.createPattern(loadedimages[3], "repeat");
+		ctx.fill();
+		ctx.stroke();
+		
+		//SQUARES&IMGCARD PART
+		ctx.beginPath();
 		ctx.textAlign = "center";
 		//ctx.fillStyle = "black";
 		ctx.fillStyle = "rgba(255, 255, 255, 0)";
 		//ctx.fillRect(this.x,this.y,this.width,this.height);
 		
 		ctx.strokeStyle="silver";
-		ctx.rect(this.x,this.y,this.width, this.attribute_dimension); //name part
+		ctx.rect(this.x,this.y,this.width, this.nameheight_space); //name part
 		ctx.font=this.nameFontSize+"px Arial";
 		ctx.fillStyle = "silver";
-		ctx.fillText(this.name,this.x+(this.width)/2,this.y+this.attribute_dimension/2+this.attribute_dimension/6); //name text
+		ctx.fillText(this.name,this.x+(this.width)/2,this.y+this.nameheight_space/2+this.nameheight_space/6); //name text
 		
-		ctx.font=(this.numberFontSize)+"px Arial";
+		//ctx.font=(this.numberFontSize)+"px Arial";
 		
-		//ctx.rect(this.x+this.width-this.attribute_dimension,this.y,this.attribute_dimension, this.attribute_dimension); //level part (top right)
-		//ctx.fillText(this.level,this.x+this.width-this.attribute_dimension/2,this.y+this.attribute_dimension/2+this.attribute_dimension/6); //level number (top right)
+		//ctx.rect(this.x+this.width-this.attribute_dimension,this.y,this.attribute_dimension, this.attribute_dimension); //level part
+		//ctx.fillText(this.level,this.x+this.width-this.attribute_dimension/2,this.y+this.attribute_dimension/2+this.attribute_dimension/6); //level number
 		
 		//ctx.fillStyle = "black";
 		ctx.fillStyle = "rgba(255, 255, 255, 0)";
@@ -113,14 +124,16 @@ class Card extends GameObject{
 		ctx.fillStyle = "black";
 		
 		if(this.img.loaded){
-		  ctx.drawImage(this.img,this.x,this.y+this.attribute_dimension,this.width,this.image_space_card); //image
+			ctx.fillStyle = "black";
+			ctx.fillRect(this.x,this.y+this.nameheight_space,this.width, this.image_space_card);
+			ctx.drawImage(this.img,this.x,this.y+this.nameheight_space,this.width,this.image_space_card); //image
 		}
 			
 		//ctx.font=(this.commentFontSize)+"px Arial";
 		
 		ctx.fillStyle = "white";
-		ctx.rect(this.x,this.y+this.attribute_dimension+this.image_space_card,this.width,this.comment_card); //comment part
-		this.splitNewLine(this.comment,this.x,this.y+this.attribute_dimension+this.image_space_card,this.width,this.comment_card,6,ctx,true); //text comment
+		ctx.rect(this.x,this.y+this.nameheight_space+this.image_space_card,this.width,this.comment_card); //comment part
+		this.splitNewLine(this.comment,this.x,this.y+this.nameheight_space+this.image_space_card+this.attribute_dimension/2,this.width,this.comment_card-this.attribute_dimension/2,6,ctx,true); //text comment
 		
 		//ctx.font=(this.numberFontSize)+"px Arial";
 		//ctx.fillStyle = "red";
@@ -130,11 +143,32 @@ class Card extends GameObject{
 		//ctx.fillText(this.life,this.x+(this.width/2)+this.atk_def_gap,this.y+this.attribute_dimension+this.image_space_card+this.comment_card+this.atk_def_rank/2+this.atk_def_rank/6);
 		ctx.stroke();
 		
-		ctx.beginPath();
-		ctx.rect(this.x,this.y,this.width, this.height); //image part
+		
+		//EXT SQUARE PART&ATTRIBUTES
+		ctx.beginPath(); 
+		ctx.rect(this.x,this.y,this.width, this.height);
 		ctx.strokeStyle = "white";
+		
+		//attributes part! (NOTE: LOADEDIMAGES IS A DEBUG.JS GLOBAL ARRAY!)
+		ctx.drawImage(loadedimages[0],this.x,this.y+this.nameheight_space+this.image_space_card-this.attribute_dimension,this.attribute_dimension,this.attribute_dimension); //attack
+		ctx.drawImage(loadedimages[1],this.x+this.width-this.attribute_dimension,this.y+this.nameheight_space+this.image_space_card-this.attribute_dimension,this.attribute_dimension,this.attribute_dimension); //life
+		ctx.drawImage(loadedimages[2],this.x+(this.width-this.attribute_dimension)/2,this.y+this.nameheight_space+this.image_space_card-this.attribute_dimension+(this.attribute_dimension)/2,this.attribute_dimension,this.attribute_dimension); //mana
+		//end attributes part
+		
 		ctx.stroke();
-
+		//end square part
+		
+		//NUMBERS PART (+this.attribute_dimension/24 is just to center the y text)
+		ctx.beginPath(); 
+		ctx.font=(this.numberFontSize)+"px Arial";
+		ctx.fillStyle = "red";
+		ctx.fillText(this.atk,this.x+this.attribute_dimension/2,this.y+this.nameheight_space+this.image_space_card-this.attribute_dimension*(2/5)+this.attribute_dimension/24);
+		ctx.fillStyle = "lightblue";
+		ctx.fillText(this.level,this.x+this.width/2,this.y+this.nameheight_space+this.image_space_card+this.attribute_dimension*(1/10)+this.attribute_dimension/24);
+		ctx.fillStyle = "green";
+		ctx.fillText(this.life,this.x+this.width-this.attribute_dimension/2,this.y+this.nameheight_space+this.image_space_card-this.attribute_dimension*(2/5)+this.attribute_dimension/24);
+		ctx.stroke();
+		
 			if(	this.x > 0 && (this.x+this.width) < ctx.canvas.width &&
 				this.y > 0 && (this.y + this.height) < ctx.canvas.height
 			){

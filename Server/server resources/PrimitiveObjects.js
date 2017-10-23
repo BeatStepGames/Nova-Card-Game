@@ -104,7 +104,7 @@ class GameObject {
         let ex = new Executor(this);
         this.animationList.push(ex);
     }
-	
+	/* NOT WORKING...
 	rotation(angle, isAntiClockWise, steps, context, callback){ //isAntiClockWise = true -> rotate in opposite direction ; false -> e.g. the direction of the clock
         let deltaAngle = (angle/steps)*Math.PI/180;
 
@@ -151,7 +151,7 @@ class GameObject {
         }
         return false;
     }
-	
+	*/
 }
 	
 /*
