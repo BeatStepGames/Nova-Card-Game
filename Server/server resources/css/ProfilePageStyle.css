@@ -3,10 +3,36 @@ div#profilePageContainer{
     overflow: auto;
 }
 
+#welcomeName{
+    height: 1.15em;
+    margin-bottom: 0.83em;
+    margin-top: 0.83em;
+}
+
 #deckShowcaseDiv{
     width: 50%;
-    padding: 0;
+    min-height: calc(100% - 5em);
+    padding: 0.5em;
     margin: 0;
+    display: block;
+    float: left;
+    border-right: 1px solid silver;
+    box-sizing: border-box;
+}
+
+#cardsOwnedShowcaseDiv{
+    width: 50%;
+    min-height: calc(100% - 5em);
+    padding: 0.5em;
+    margin: 0;
+    display: block;
+    float: left;
+    border-left: 1px solid silver;
+    box-sizing: border-box;
+}
+
+#cardsOwnedShowcaseDiv *{
+    float: right;
 }
 
 .deckShowcaseTable{

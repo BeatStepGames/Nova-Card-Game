@@ -90,30 +90,34 @@
 		<div id="navbar">
 			<ul>
 				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
-				<li><a id="profilepagelink" class="active">Profile Page</a></li>
-				<li><a id="goToMatch" onclick = "goToMatch(arguments[0])">Go To Match</a></li>
+				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
+				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
 				<li><a id="showchat">Show Chat</a></li>
 				<li><a id="onlineusers">Show Online Users</a></li>
 				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
 				<li class="right"><a id="logoutlink" href="/logout">Logout</a></li>
 			</ul>
-
 		</div>
+
 		<div id="profilePageContainer" class="container">
-			<h2>Hi #{username}</h2>
-			
+			<h2 id="welcomeName">Hi #{username}</h2>
 			<div id="deckShowcaseDiv">
-				<label>Select your deck </label>
+				<label style="margin-right: 0.5em;">Select your deck: </label>
 				<select id="deckSelect">
 				</select>
 				<button id="deleteDeckBtn" value="Delete Deck" style="float: right; margin-right: 2%;">Delete Deck</button>
 			</div>
+			<div id="cardsOwnedShowcaseDiv">
+				<label style="float: left;"><b style="float: left;">Cards you own</b>, drag & drop them into a deck</label>
+			</div>
+		
 		</div>
 		
 		<div id="gameCanvasContainer" class="container">
 			<canvas id="matchCanvas"></canvas>
 		</div>
 	</div>
+
 	<div id="portraitError" class="redbox">
 		<h4>Rotate your device to landscape</h4>
 	</div>

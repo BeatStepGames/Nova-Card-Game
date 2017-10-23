@@ -21,18 +21,14 @@ function testNotif() {
 
 
 function goToMatch(e){
-    var pc = document.getElementById("profilePageContainer");				
-    var gc = document.getElementById("gameCanvasContainer");
-    if(pc.style.display == "block"){
-        pc.style.display = "none";
-        gc.style.display = "block";
+    if(getPageSection() == 1){
         startMatch();
         e.target.innerText = "Go To Profile";
+        setPageSection(2);
     }
     else{
-        pc.style.display = "block";
-        gc.style.display = "none";
         stopMatch();
         e.target.innerText = "Go To Match";
+        setPageSection(1);
     }
 }

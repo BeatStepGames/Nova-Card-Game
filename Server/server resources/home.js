@@ -62,6 +62,7 @@ function Server(serverURL){
 	}.bind(this);
 	
 	this.sendMessage = function(message){
+		console.log("Sending message to WS: "+message);
 		// Check if there is a cached resource for this request
 		var cacheRes = cache.getItem(message);
 		if(cacheRes){
@@ -75,16 +76,17 @@ function Server(serverURL){
 			var event = {
 				data: JSON.stringify(res)
 			};
+			console.log("Request ("+message+") resolved from cache");
 			this.onMessage(event);
 			return 1;
 		}
 		if(this.webSocket.readyState == 1){
-			console.log("Sending message to WS: "+message);
 			var req = {
 				data: message,
 				headers: {}
 			}
 			var jsonReq = JSON.stringify(req);
+			console.log("Request ("+message+") sent to server");
 			this.webSocket.send(jsonReq);
 			return 1;
 		}
@@ -93,7 +95,12 @@ function Server(serverURL){
 	
 	//To register callback called when the comunication with the server is finally established
 	this.registerOnOpenCallback = function(callback){
-		this.earlyCallbacks.push(callback);
+		if(this.open == false){
+			this.earlyCallbacks.push(callback);
+		}
+		else{
+			callback();
+		}
 	}
 
 	this.register = function(filter,callback){
@@ -157,6 +164,10 @@ function Server(serverURL){
 		this.sendMessage("requestdecksamount");
 	}
 
+	this.requestCardsOwned = function(){
+		this.sendMessage("requestcardsowned");
+	}
+
 	// Adds a card to the desired deck, or, if deckIndex == "new", creates new deck and adds card to it
 	this.addCardToDeck = function(cardName, deckIndex){
 		this.sendMessage("addcardtodeck " + cardName + " " + deckIndex);
@@ -172,6 +183,10 @@ function Server(serverURL){
 		let sure = confirm("Are you sure you want to delete deck n. " + deckIndex + "?");
 		if(sure){
 			this.sendMessage("deletedeck " + deckIndex);
+			return true;
+		}
+		else{
+			return false;
 		}
 	}
 	
@@ -265,10 +280,46 @@ function onLoadHome(){
 }
 
 function onResizeHome(){
-	profilePage ? profilePage.drawCards() : undefined;
+	profilePage.onResize();
 	onResize();
 }
 
 
+var pageSection = 1;
 
+function setPageSection(section){
+	let totalContainer = document.getElementById("totalContainer");
+	let allContainers = totalContainer.querySelectorAll(".container");
+	allContainers.forEach(function(element) {
+		element.style.display = "none";
+	}, this);
+
+	let navbar = document.getElementById("navbar");
+	let allNavbarItems = totalContainer.querySelectorAll(".active");
+	allNavbarItems.forEach(function(element) {
+		element.classList.remove("active");
+	}, this);
+
+	var container;
+	var navbarItem;
+
+	switch(section) {
+		default: // Default is section 1
+		case 1: 
+			container = document.getElementById("profilePageContainer");
+			navbarItem = document.getElementById("profilePageLink");
+			break;
+		case 2:
+			container = document.getElementById("gameCanvasContainer");
+			navbarItem = document.getElementById("goToMatch");
+			break;
+	}
+	container.style.display = "block";
+	navbarItem.classList.add("active");
+	pageSection = section;
+}
+
+function getPageSection(){
+	return pageSection;
+}
 

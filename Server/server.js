@@ -337,13 +337,13 @@ function ServerPrograms() {
 		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
 	}
 
-	//A personal chat message, params: [0] user [1] message sent
+	//A personal chat message, params: [0] user, [1] message sent
 	this.personalchat = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
 		secondUser.sendRes("personalChat "+userWS[sessionName].username + " " + params[1] );
 	}
 
-	//A ping message to check that the other player is still receiving data, params: [0] user [1] request or response
+	//A ping message to check that the other player is still receiving data, params: [0] user, [1] request or response
 	this.pinguser = function(userWS,params){
 		var secondUser = wsServer.getWebSocketByUsername(params[0]);
 		secondUser.sendRes("pinguser "+userWS[sessionName].username + " " + params[1] );
@@ -374,7 +374,7 @@ function ServerPrograms() {
 		userWS.sendRes("requestcard " + cardData);
 	}
 
-	//Request for an x ammount of cards from the user's deck, params: [0] deck index starting from 1 [1] n. of cards
+	//Request for an x ammount of cards from the user's deck, params: [0] deck index starting from 1, [1] n. of cards
 	this.requestdeck = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var deck = [];
@@ -388,6 +388,13 @@ function ServerPrograms() {
 			deck = deck.slice(0,params[1]);
 		}
 		userWS.sendRes("requestdeck " + JSON.stringify(deck));
+	}
+
+	// Send the array of cards owned
+	this.requestcardsowned = function(userWS, params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var deck = userData.cardsOwned;
+		userWS.sendRes("requestcardsowned " + JSON.stringify(deck));
 	}
 
 	this.requestrank = function(userWS,params){
