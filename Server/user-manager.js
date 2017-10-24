@@ -189,12 +189,14 @@ function UserManager(){
 			username: username,
 			rank: 0,
 			matchesPlayed: 0,
-			decks: []
+			money: 0,
+			decks: [],
+			cardsOwned: []
 		}
 		try{
-			var deck = fs.readFileSync(path.join(__dirname,"server resources","data","default-deck.json"));
-			user.decks[0] = JSON.parse(deck.toString());
-			user.decks[1] = JSON.parse(deck.toString());
+			var defaultDeck = fs.readFileSync(path.join(__dirname,"server resources","data","default-deck.json"));
+			user.decks[0] = JSON.parse(defaultDeck.toString());
+			user.cardsOwned = JSON.parse(defaultDeck.toString());
 		}
 		catch(err){
 			console.log(err);

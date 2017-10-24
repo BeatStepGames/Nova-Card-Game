@@ -80,7 +80,6 @@ class Field extends GameObject {
 					
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
-					
 					return true;
 				}
 			}

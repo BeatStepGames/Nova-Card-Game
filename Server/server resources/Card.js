@@ -89,6 +89,7 @@ class Card extends GameObject{
 
 	draw(ctx){
 		super.draw(ctx);
+
     if(this.imageData == undefined){
 		
 		//BACKGROUND CARD PART
@@ -128,7 +129,7 @@ class Card extends GameObject{
 			ctx.fillRect(this.x,this.y+this.nameheight_space,this.width, this.image_space_card);
 			ctx.drawImage(this.img,this.x,this.y+this.nameheight_space,this.width,this.image_space_card); //image
 		}
-			
+
 		//ctx.font=(this.commentFontSize)+"px Arial";
 		
 		ctx.fillStyle = "white";

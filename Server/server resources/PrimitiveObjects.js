@@ -7,12 +7,10 @@ class GameObject {
         this.height = height;
         this.originalWidth = width;
         this.originalHeight = height;
-		
-
-		this.animationList = [];
+        this.animationList = [];
     }
-	
-	getCenterX(){
+
+    getCenterX(){
         return this.centerX;
     }
 
@@ -50,7 +48,7 @@ class GameObject {
 	
 	
     draw(context){
-		for(let i in this.animationList){
+        for(let i in this.animationList){
             if(this.animationList[i].active){
                 this.animationList[i].execute();
             }
@@ -67,8 +65,8 @@ class GameObject {
         this.width = this.originalWidth*sizeFactor;
         this.height = this.originalHeight* sizeFactor;
     }
-	
-	zoom(finalWidth, finalHeight, steps, callback){
+
+    zoomIn(finalWidth, finalHeight, steps, callback){
         let deltaWidth = (finalWidth-this.width)/steps;
         let deltaHeight = (finalHeight-this.height)/steps;
 
@@ -86,6 +84,7 @@ class GameObject {
                     this.currentStep++;
                     this.obj.width += this.deltaWidth;
                     this.obj.height += this.deltaHeight;
+
 					
 					this.obj.x -= this.deltaWidth/2;
 					this.obj.y -= this.deltaHeight/2;
@@ -151,6 +150,7 @@ class GameObject {
         }
         return false;
     }
+
 	*/
 }
 	

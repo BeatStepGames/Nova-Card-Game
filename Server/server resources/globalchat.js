@@ -1,11 +1,11 @@
 function debugGlobalChat(){
-	var canvas = document.getElementById("canvas");
+	var canvas = document.getElementById("totalContainer");
 	var chatDiv = document.getElementById("chatdiv");
-	var charBtn = document.getElementById("showchat");
-	charBtn.addEventListener("click",function(){
+	var chatBtn = document.getElementById("showchat");
+	chatBtn.addEventListener("click",function(){
 		toggleChat();
 	});
-	charBtn.addEventListener("touchstart",function(){
+	chatBtn.addEventListener("touchstart",function(){
 		toggleChat();
 	});
 	

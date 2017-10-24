@@ -19,6 +19,7 @@ function testNotif() {
     notif.show();
 }
 
+
 //DEBUG LOADER, USED TO LOAD ATTRIBUTES IMGS!
 
 var loadedimages = [];
@@ -57,11 +58,24 @@ function loadImages(imagefiles) {
  
         // Set the source url of the image
         image.src = imagefiles[i];
-		image.onerror =  function(){ alert('Some images could not be loaded.'); }; //error handler, just to make sure everything is fine (but preloaded=false is the same thing)
+		    image.onerror =  function(){ alert('Some images could not be loaded.'); }; //error handler, just to make sure everything is fine (but preloaded=false is the same thing)
         // Save to the image array
         loadedimages[i] = image;
     }
  
     // Return an array of images
     return loadedimages;
+}
+
+function goToMatch(e){
+    if(getPageSection() == 1){
+        startMatch();
+        e.target.innerText = "Go To Profile";
+        setPageSection(2);
+    }
+    else{
+        stopMatch();
+        e.target.innerText = "Go To Match";
+        setPageSection(1);
+    }
 }

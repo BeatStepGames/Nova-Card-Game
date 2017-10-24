@@ -2,6 +2,7 @@ var matchRunning = false;
 var canvas = document.getElementById("matchCanvas");
 canvas.width = window.innerWidth; //resize canvas!
 canvas.height = window.innerHeight;
+var animationFrameCallbackID;
 
 // Image loading global variables
 var loadcount = 0;
@@ -86,7 +87,7 @@ function onResize(){
 //Looping function -- Work in here for the game logic
 function animate() {
 	if (matchRunning) {
-		requestAnimationFrame(animate);
+		animationFrameCallbackID = requestAnimationFrame(animate);
 
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -130,6 +131,7 @@ var deckIndex = 1;
 function startMatch(){
 	//resize canvas!
 	//onResize();
+	stopMatch();
 
 	field = new Field(canvas.width/2, canvas.height*(1/20), baseDimensions.original_card_width+20, baseDimensions.original_card_height+20, 2, 4);
 	hand_cards = new HandCards();
@@ -153,7 +155,8 @@ function startMatch(){
 	
 	onResize();
 	matchRunning = true;
-	animate();
+	cancelAnimationFrame(animationFrameCallbackID);
+	requestAnimationFrame(animate);
 	
 }
 
@@ -163,6 +166,7 @@ function stopMatch(){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 	server.deleteCallback("requestdeck",matchServerRequestsID.deckHandlerID);
 	server.deleteCallback("requestcard",matchServerRequestsID.cardHandlerID);
+	cancelAnimationFrame(animationFrameCallbackID);
 	matchRunning = false;
 }
 
@@ -179,7 +183,7 @@ function requestCardHandler(cardData){
 		hand_cards.handStack.push(
 			new Card(
 				canvas.width,
-				hand_cards.y-baseDimensions.card_height,
+				(canvas.height/2)-(baseDimensions.card_height/2),
 				baseDimensions.original_card_height,
 				cardData.name,
 				cardData.level,
@@ -190,7 +194,6 @@ function requestCardHandler(cardData){
 				sizeFactor
 			)
 		);
-		console.log(cardData);
 	}
 	else{
 		console.log("Card requested doesn't exist!");

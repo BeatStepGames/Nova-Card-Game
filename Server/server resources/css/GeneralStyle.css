@@ -1,0 +1,78 @@
+body{
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    background-image: url("/img/sapphire-back.png");
+    background-repeat: repeat;
+    box-sizing: border-box;
+}
+
+.title{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -10;
+    padding-top: 10%;
+    text-align: center;
+    color: silver;
+}
+
+a:link {
+    color: white;
+}
+
+/* visited link */
+a:visited {
+    color: silver;
+}
+
+/* mouse over link */
+a:hover {
+    color: white;
+    cursor: pointer;
+}
+
+/* selected link */
+a:active {
+    color: white;
+}
+
+button{
+    border-radius: 2px;
+    border: 0;
+    padding: 2px 8px;
+    text-align: center;
+    color: black;
+    background-color: silver;
+    cursor: pointer;
+    box-shadow: 0 0.2em #7E7E7E;
+    transition-duration: 100ms;    
+}
+
+button:hover{
+    background-color: #ADADAD;
+}
+
+button:active{
+    background-color: rgb(100, 100, 100);
+    box-shadow: 0 0 #7E7E7E;
+    transform: translateY(1px);
+}
+
+/* 
+::-webkit-scrollbar{
+  width: 4px; 
+  height: 4px; 
+}
+
+::-webkit-scrollbar-track{
+  background: rgba(192, 192, 192, 0.2);
+}
+
+::-webkit-scrollbar-thumb{
+    background: rgba(192, 192, 192, 0.8);
+    border-radius: 2px;
+} */
+
+

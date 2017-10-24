@@ -2,32 +2,13 @@
 <head>
 	<title>Nova Card Game</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
 	<style type="text/css">
 
 		html{
 			margin: 0px;
 			border: 0px;
 			padding: 0px;
-		}
-		
-		body{
-			margin: 0px;
-			border: 0px;
-			padding: 0px;
-			background-image: url('sapphire-back.png');
-			background-size:contain;
-		}
-
-		.title{
-			position: absolute;
-			top: 0;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			z-index: -10;
-			padding-top: 10%;
-			text-align: center;
-			color: silver;
 		}
 		
 		#matchCanvas {
@@ -40,31 +21,11 @@
 
 		.container{
 			width:100%;
-			height: 95%;
+			height: 94%;
 			padding: 0px;
 			margin: 0px;
 			border: 0px;
 			display: none;
-		}
-		
-		a:link {
-			color: white;
-		}
-
-		/* visited link */
-		a:visited {
-			color: silver;
-		}
-
-		/* mouse over link */
-		a:hover {
-			color: white;
-			cursor: pointer;
-		}
-
-		/* selected link */
-		a:active {
-			color: white;
 		}
 
 		.redbox{
@@ -97,38 +58,27 @@
 			}
 		}
 	</style>
-	<link rel="stylesheet" type="text/css" href="css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
+	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
+
+	<link rel="manifest" href="/data/manifest.json">
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 </head>
+
 <body onload="onLoadHome()" onresize="onResizeHome()">
 
-	<h1 class="title">Nova Card Game</h1>
+	<!-- <h1 class="title">Nova Card Game</h1> -->
 	
-	<div id="DEBUGDIV" style="height: 5%; width: 100%">
-		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
+	<div id="DEBUGDIV" style="height: 5%; width: 100%; display: none">
+		<!-- <a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<button id="onlineusers" style="display: inline">Show online users</button>
 		<button id="testnotificationbtn" style="display: inline" onclick="testNotif()">Test notification</button>
-		<button id="goToMatch" onclick = "goToMatch(arguments[0])">Go To Match</button>
-		<script>
-			function goToMatch(e){
-				var pc = document.getElementById("profilePageContainer");				
-				var gc = document.getElementById("gameCanvasContainer");
-				console.log("WHEN BTN CLICK; PRALLALA ");
-				console.log(e);
-				if(pc.style.display == "block"){
-					pc.style.display = "none";
-					gc.style.display = "block";
-					startMatch();
-					e.target.innerText = "Go To Profile";
-				}
-				else{
-					pc.style.display = "block";
-					gc.style.display = "none";
-					stopMatch();
-					e.target.innerText = "Go To Match";
-				}
-			}
-		</script>
+		<button id="goToMatch" onclick = "goToMatch(arguments[0])">Go To Match</button> -->
 		<div id="chatdiv" style="display: none">
 			<textarea id="globalchat" rows="20" cols="50" style="display: block; width: 100%"></textarea>
 			<br/>
@@ -137,17 +87,37 @@
 	</div>
 
 	<div id=totalContainer>
+		<div id="navbar">
+			<ul>
+				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
+				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
+				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
+				<li><a id="showchat">Show Chat</a></li>
+				<li><a id="onlineusers">Show Online Users</a></li>
+				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
+				<li class="right"><a id="logoutlink" href="/logout">Logout</a></li>
+			</ul>
+		</div>
+
 		<div id="profilePageContainer" class="container">
-			<h2>Hi #{username}</h2>
-			<label>Select your deck </label><select id="deckSelect">
-			</select>
-			<div id="deckShowcaseDiv"></div>
+			<h2 id="welcomeName">Hi #{username}</h2>
+			<div id="deckShowcaseDiv">
+				<label style="margin-right: 0.5em;">Select your deck: </label>
+				<select id="deckSelect">
+				</select>
+				<button id="deleteDeckBtn" value="Delete Deck" style="float: right; margin-right: 2%;">Delete Deck</button>
+			</div>
+			<div id="cardsOwnedShowcaseDiv">
+				<label style="float: left;"><b style="float: left;">Cards you own</b>, drag & drop them into a deck</label>
+			</div>
+		
 		</div>
 		
 		<div id="gameCanvasContainer" class="container">
 			<canvas id="matchCanvas"></canvas>
 		</div>
 	</div>
+
 	<div id="portraitError" class="redbox">
 		<h4>Rotate your device to landscape</h4>
 	</div>
@@ -168,6 +138,7 @@
 	<script type="text/javascript" src="globalchat.js"></script>
 
 	<script type="text/javascript" src="debug.js"></script>
+	
 	
 </body>
 </html>
