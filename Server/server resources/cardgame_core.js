@@ -16,11 +16,9 @@ var baseDimensions = { //width and height of all elements in card
 	original_card_width: 160,
 	card_width: 160*sizeFactor,
 	card_height: 240*sizeFactor,
-	top_space_card: 30*sizeFactor,
-	image_space_card: 110*sizeFactor,
-	comment_card: 70*sizeFactor,
-	atk_def_rank: 30*sizeFactor,
-	atk_def_gap: 60*sizeFactor
+	//attribute_dimension: 30*sizeFactor,
+	//image_space_card: 110*sizeFactor,
+	//comment_card: 70*sizeFactor,
 };
 
 var ctx = canvas.getContext("2d");
@@ -45,14 +43,15 @@ function onResize(){
 	canvas.height = window.innerHeight*devicePixelRatio;
 	//size factor
 	sizeFactor = canvas.width/1536; 
-
+	
+	//do we need this??
 	baseDimensions.card_height =  baseDimensions.original_card_height*sizeFactor;
 	baseDimensions.card_width =  baseDimensions.card_height*(2/3);
-	baseDimensions.top_space_card = baseDimensions.card_height*(1/8);
-	baseDimensions.image_space_card = baseDimensions.card_height*(11/24);
-	baseDimensions.comment_card = baseDimensions.card_height*(7/24);
-	baseDimensions.atk_def_rank = baseDimensions.card_height*(1/8);
-	baseDimensions.atk_def_gap = baseDimensions.card_height*(1/4);
+	baseDimensions.top_space_card = baseDimensions.card_height*(1/8); //why??
+	//baseDimensions.image_space_card = baseDimensions.card_height*(11/24);
+	//baseDimensions.comment_card = baseDimensions.card_height*(7/24);
+	//baseDimensions.atk_def_rank = baseDimensions.card_height*(1/8);
+	//baseDimensions.atk_def_gap = baseDimensions.card_height*(1/4);
 	
 	//field elements:
 	if(field){
@@ -134,7 +133,7 @@ function startMatch(){
 	//onResize();
 	stopMatch();
 
-	field = new Field(canvas.width/2, canvas.height*(1/20), baseDimensions.original_card_width, baseDimensions.original_card_height, 2, 4);
+	field = new Field(canvas.width/2, canvas.height*(1/20), baseDimensions.original_card_width+20, baseDimensions.original_card_height+20, 2, 4);
 	hand_cards = new HandCards();
 	
 	matchServerRequestsID.deckHandlerID = server.register("requestdeck",requestDeckHandler);
