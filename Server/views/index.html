@@ -2,71 +2,133 @@
 <head>
 	<title>Nova Card Game</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
 	<style type="text/css">
+
 		html{
 			margin: 0px;
 			border: 0px;
 			padding: 0px;
 		}
 		
-		body{
-			margin: 0px;
-			border: 0px;
-			padding: 0px;
-			background-image: url('sapphire-back.png');
-			background-size:contain;
-		}
-		
-		canvas {
+		#matchCanvas {
 			width: 100%;
-			height: 95%;	
+			height: 100%;	
 			margin: 0px;
 			border: 0px;
 			padding: 0px;
-			
+		}
+
+		.container{
+			width:100%;
+			height: 94%;
+			padding: 0px;
+			margin: 0px;
+			border: 0px;
+			display: none;
+		}
+
+		.redbox{
+			border: 3px solid red;
+			border-radius: 3px;
+			text-align: center;
+			background-color: rgba(255,0,0,0.4);
+			color: white;
+			vertical-align: middle;
+			display: none;
+			position: absolute;
+			top: 80%;
+			left: 50%;
+			transform: translate(-50%, -50%); 
+			width: 33vw;
+			height: 12vh;
 		}
 		
-		a:link {
-			color: white;
-		}
+		@media screen and (orientation: portrait) {
+			#totalContainer{
+				display: none;
+			}
+			#portraitError{
+				display: block;
+			}
 
-		/* visited link */
-		a:visited {
-			color: silver;
+			.title{
+				padding: 0px;
+				top: 50%;
+			}
 		}
-
-		/* mouse over link */
-		a:hover {
-			color: white;
-			cursor: pointer;
-		}
-
-		/* selected link */
-		a:active {
-			color: white;
-		}
-		
 	</style>
-</head>
-<body onload="onLoadHome()" onresize="onResize()">
+	<link rel="stylesheet" type="text/css" href="/css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
+	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
+
+	<link rel="manifest" href="/data/manifest.json">
 	
-	<div id="DEBUGDIV" style="height: 5%; width: 100%">
-		<a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+</head>
+
+<body onload="onLoadHome()" onresize="onResizeHome()">
+
+	<!-- <h1 class="title">Nova Card Game</h1> -->
+	
+	<div id="DEBUGDIV" style="height: 5%; width: 100%; display: none">
+		<!-- <a href="/logout" style="display: inline">LOGOUT from Nova Card Game</a>
 		<button id="showchat" style="display: inline">Show global chat</button>
 		<button id="onlineusers" style="display: inline">Show online users</button>
 		<button id="testnotificationbtn" style="display: inline" onclick="testNotif()">Test notification</button>
+		<button id="goToMatch" onclick = "goToMatch(arguments[0])">Go To Match</button> -->
 		<div id="chatdiv" style="display: none">
 			<textarea id="globalchat" rows="20" cols="50" style="display: block; width: 100%"></textarea>
 			<br/>
 			<input type="text" id="chatinput" cols="50" style="display: block; width:100%"/>
 		</div>
 	</div>
+
+	<div id=totalContainer>
+		<div id="navbar">
+			<ul>
+				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
+				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
+				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
+				<li><a id="showchat">Show Chat</a></li>
+				<li><a id="onlineusers">Show Online Users</a></li>
+				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
+				<li class="right"><a id="logoutlink" href="/logout">Logout</a></li>
+			</ul>
+		</div>
+
+		<div id="profilePageContainer" class="container">
+			<h2 id="welcomeName">Hi #{username}</h2>
+			<div id="deckShowcaseDiv">
+				<label style="margin-right: 0.5em;">Select your deck: </label>
+				<select id="deckSelect">
+				</select>
+				<button id="deleteDeckBtn" value="Delete Deck" style="float: right; margin-right: 2%;">Delete Deck</button>
+			</div>
+			<div id="cardsOwnedShowcaseDiv">
+				<label style="float: left;"><b style="float: left;">Cards you own</b>, drag & drop them into a deck</label>
+			</div>
+		
+		</div>
+		
+		<div id="gameCanvasContainer" class="container">
+			<canvas id="matchCanvas"></canvas>
+		</div>
+	</div>
+
+	<div id="portraitError" class="redbox">
+		<h4>Rotate your device to landscape</h4>
+	</div>
 	
-	<canvas id="canvas"></canvas>	
+	
+	<script type="text/javascript" src="PrimitiveObjects.js"></script>
 	<script type="text/javascript" src="home.js"></script>
 	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
 	<script type="text/javascript" src="FloatingNotification.js"></script>
+
+	<script type="text/javascript" src="profile_page.js"></script>
 	
 	<script type="text/javascript" src="cardgame_core.js"></script>	
 	<script type="text/javascript" src="Card.js"></script>
@@ -75,18 +137,8 @@
 	
 	<script type="text/javascript" src="globalchat.js"></script>
 
-	<script>
-		function testNotif(){
-			buttons = [];
-			buttons.push(new NotificationButton("Got It",function(e){alert("Callback function - "+e.target.innerHTML)} ));
-			buttons.push(new NotificationButton("Maybe Not",function(e){alert("Callback function - "+e.target.innerHTML)} ));
-			buttons.push(new NotificationButton("Third button!",function(e){alert("Callback function - "+e.target.innerHTML)} ));
-			buttons.push(new NotificationButton("Poop",function(e){alert("Callback function - "+e.target.innerHTML)} ));
-			var notif = new FloatingNotification(document.getElementById("chatinput").value,buttons);
-			notif.show();
-		}
+	<script type="text/javascript" src="debug.js"></script>
 	
-	</script>
 	
 </body>
 </html>

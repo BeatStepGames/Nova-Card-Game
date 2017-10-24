@@ -1,73 +1,83 @@
-function Field() {
-	
-	this.fieldCards = new Array();
-	this.collisionMasks = new Array();
-	
-	this.gap_from_border = 50*sizeFactor;
-	this.n_of_pos = 4; //( pos = where you place a card )
-	this.lines = 2;
-	this.padding = 10*sizeFactor;
-	this.pos_width = card_elements.card_lenght_x+(this.padding*2);
-	this.pos_height = card_elements.card_lenght_y+(this.padding*2);
-	
-	this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-	this.y = 10*sizeFactor;
-	
-	this.fieldArea = new Rectangle(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
-	
-	for(var j=0;j<=1;j++){
-		for(var i=0;i<this.n_of_pos;i++){
-			this.collisionMasks[j+""+i] = new Rectangle(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+class Field extends GameObject {
+	//x is CENTRAL
+	constructor(x, y, cardWidth, cardHeight, rows, columns){
+		super(x, y, columns*(cardWidth), rows*(cardHeight) );
+		
+		this.fieldCards = new Array();
+		this.collisionMasks = new Array();
+		
+		this.rows = rows;
+		this.columns = columns;
+		
+		this.originalCardWidth = cardWidth;
+		this.originalCardHeight = cardHeight;
+		this.cardWidth = cardWidth;
+		this.cardHeight = cardHeight;
+
+		this.borderX = this.x-(this.width/2); //border x of the field, not the center x
+		//this.borderY = this.y-(this.height/2); //border y of the field, not the center y
+		this.borderY = this.y;
+		
+		this.fieldArea = new Rectangle(this.borderX, this.borderY, this.width, this.height);
+		
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
+				this.collisionMasks[j+""+i] = new Rectangle(this.borderX + this.cardWidth*i,this.borderY + this.cardHeight*j,this.cardWidth,this.cardHeight);
+			}
 		}
+		
 	}
 	
-	this.draw = function(){
-		
+	draw(ctx){
 		ctx.beginPath();
 		ctx.textAlign = "center";
 		ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
 		
-		for(var j=0;j<=1;j++){
-			for(var i=0;i<this.n_of_pos;i++){
-				ctx.rect(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
+				ctx.rect(this.borderX + this.cardWidth*i,this.borderY + this.cardHeight*j,this.cardWidth,this.cardHeight);
 			}
 		}
 		ctx.fill();
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = 'white';
 		ctx.stroke();
-		
-		
-	};
+	}
 	
-	this.updateFieldCards = function(){
-		for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
+	drawFieldCards(ctx){
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
+				if(this.fieldCards[j+""+i] != undefined){
+					this.fieldCards[j+""+i].draw(ctx);
+				}
+			}
+		}
+	}
+	
+	updateFieldCards(){
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
 				if(this.fieldCards[j+""+i] != undefined){
 					this.fieldCards[j+""+i].fieldUpdate();
 				}
 			}
 		}
-	};
+	}
 	
-	this.drawFieldCards = function(){
-		for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
-				if(this.fieldCards[j+""+i] != undefined){
-					this.fieldCards[j+""+i].draw();
-				}
-			}
-		}
-	};
-	
-	this.placeCard = function(x,y,card){
-		var j=1;
+	placeCard(x,y,card){
+		var j=1; //ally field (?)
 		//for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
+			for(var i=0;i<this.columns;i++){
 				if(field.collisionMasks[j+""+i].contains(x,y) && field.fieldCards[j+""+i] == undefined){
-					card.x = this.collisionMasks[j+""+i].x + this.padding;
-					card.y = this.collisionMasks[j+""+i].y + this.padding;
+					
+					card.setCenterX(this.collisionMasks[j+""+i].x+this.collisionMasks[j+""+i].width/2);
+					card.setCenterY(this.collisionMasks[j+""+i].y+this.collisionMasks[j+""+i].height/2);
+					
 					field.fieldCards[j+""+i] = card;
+					
+					//field.fieldCards[j+""+i].zoom(field.fieldCards[j+""+i].width*2,field.fieldCards[j+""+i].height*2,100); //DEBUG ANIMATION TEST HERE!!! <----
+					//field.fieldCards[j+""+i].rotation(120,false,110,ctx); //DEBUG ANIMATION TEST HERE!!! <----
+					
 					hand_cards.handStack.remove(card._stackID);
 					server.sendMessage("debug card_palced");
 					return true;
@@ -76,29 +86,35 @@ function Field() {
 		//}
 		
 		return false;
-	};
+	}
 	
-	this.onResize = function(){
-		this.x = canvas.width/2 - (card_elements.card_lenght_x+(this.padding*2))*(this.n_of_pos/2);
-		this.y = 10;
+	onResize(sizeFactor){
+		super.onResize(sizeFactor);
 		
-		this.fieldArea.update(this.x,this.y,this.pos_width*this.n_of_pos,this.pos_height*this.lines);
+		this.cardHeight = this.originalCardHeight*sizeFactor;
+		this.cardWidth = this.originalCardWidth*sizeFactor;
+		this.borderX = this.x-(this.width/2);
+		//this.borderY = this.y-(this.height/2);
+		this.borderY = this.y;
 		
-		for(var j=0;j<=1;j++){
-			for(var i=0;i<this.n_of_pos;i++){
-				this.collisionMasks[j+""+i].update(this.x + this.pos_width*i,this.y + this.pos_height*j,this.pos_width,this.pos_height);
+		this.fieldArea.update(this.borderX,this.borderY ,this.cardWidth*this.columns,this.cardHeight*this.rows);
+		
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
+				this.collisionMasks[j+""+i].update(this.borderX + this.cardWidth*i,this.borderY + this.cardHeight*j,this.cardWidth,this.cardHeight);
 			}
 		}
 		
-		for(var j=0;j<=1;j++){
-			for(var i=0;i<field.n_of_pos;i++){
+		for(var j=0;j<this.rows;j++){
+			for(var i=0;i<this.columns;i++){
 				if(field.fieldCards[j+""+i] != undefined){
-					this.fieldCards[j+""+i].x = this.collisionMasks[j+""+i].x + this.padding;
-					this.fieldCards[j+""+i].y = this.collisionMasks[j+""+i].y + this.padding;
+					this.fieldCards[j+""+i].onResize(sizeFactor);
+					this.fieldCards[j+""+i].setCenterX(this.collisionMasks[j+""+i].x + this.cardWidth/2);
+					this.fieldCards[j+""+i].setCenterY(this.collisionMasks[j+""+i].y + this.cardHeight/2);
+					 
 				}
 			}
 		}
-		
 	}
 	
-};
+}

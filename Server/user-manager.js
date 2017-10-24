@@ -16,12 +16,10 @@ function loadDataFromJsonFile(path){
 	var data;
 	try{
 		var jsonData = fs.readFileSync(path);
-		data = JSON.parse(jsonData);
-		console.log("Users loaded");
+		data = JSON.parse(jsonData.toString());
 	}
 	catch(err){
-		console.log("No users directory " + err.code);
-		console.log(err);
+		console.log("Error " + err.code + " reading file: " + path);
 	}
 	return data;
 }
@@ -30,7 +28,7 @@ function saveDataToJsonFile(data,path){
 	var jsonData = JSON.stringify(data);
 	fs.writeFile(path,jsonData,function(err){
 		if(err){
-			console.log("Error saving users " + err.code);
+			console.log("Error saving data to file " + err.code);
 		}
 	});
 }
@@ -39,9 +37,9 @@ function saveDataToJsonFile(data,path){
 
 function UserManager(){
 	
-	this.secureDir = path.join(__dirname,"secure-data");
-	this.signupDataPath = path.join(__dirname,"signup-data","users.json");
-	this.userDataDir = path.join(__dirname,"user-data");
+	this.secureDir = path.join(__dirname,"data","secure-data");
+	this.signupDataPath = path.join(__dirname,"data","signup-data","users.json");
+	this.userDataDir = path.join(__dirname,"data","user-data");
 	
 	this.registeredUsers = loadDataFromJsonFile(this.signupDataPath) || [];
 	this.usersData = {};
@@ -146,7 +144,7 @@ function UserManager(){
 			this.usersData[username].user = loadDataFromJsonFile(path.join(this.userDataDir,username+".json"));
 			//Create the data if it doesn't exists
 			if(this.usersData[username].user == undefined){
-				this.usersData[username].user = {};
+				this.usersData[username].user = this.createUserData(username);
 			}
 			//Setting the autosave timeout every hour
 			this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
@@ -164,6 +162,7 @@ function UserManager(){
 	}
 
 	//Saves data passed for the username passed
+	//Options can have params : "forceSave" to file and a "delete" the paramName 
 	this.saveUserData = function(username,paramName,paramValue,options){
 		if(this.usersData[username] == undefined){
 			this.getUserData();
@@ -183,6 +182,31 @@ function UserManager(){
 			return 1;
 		}
 		return 0;
+	}
+
+	this.createUserData = function(username){
+		var user = {
+			username: username,
+			rank: 0,
+			matchesPlayed: 0,
+			money: 0,
+			decks: [],
+			cardsOwned: []
+		}
+		try{
+			var defaultDeck = fs.readFileSync(path.join(__dirname,"server resources","data","default-deck.json"));
+			user.decks[0] = JSON.parse(defaultDeck.toString());
+			user.cardsOwned = JSON.parse(defaultDeck.toString());
+		}
+		catch(err){
+			console.log(err);
+		}
+		fs.writeFile(path.join(this.userDataDir,username+".json"),JSON.stringify(user),(err) => {
+			if(err && err.code){
+				console.log("Error " + err.code + " while creating user data file");
+			}
+		});
+		return user;
 	}
 
 	//Recursive calling timeout to save data to file
