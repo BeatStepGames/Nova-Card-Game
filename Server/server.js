@@ -33,6 +33,10 @@ Array.prototype.indexOfAll = function(val){
     return indexes;
 }
 
+String.prototype.replaceAt=function(index, replacement) {
+    return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+}
+
 //Express setup
 //-------------
 
@@ -185,20 +189,34 @@ wsServer.on("connection",function(userWS, req){
 				data: ""
 			}
 		}
-		message = reqWS.data || "";
+		let message = reqWS.data || "";
 		userWS.res = new WSResponse(message);
 		userWS.res.setHeader("X-Powered-By","Nova Card Game");
 		userWS.sendRes = sendRes;
 
-		message = message.trim();
 		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
 
 		var prog = "";
 		var params = "";
+		let inQuote = false;
+		for(let i=0; i<message.length; i++){
+			if(message[i] == "\""){
+				inQuote = !inQuote;
+				message = message.replaceAt(i," ");
+			}
+			else if(inQuote && message[i] == " "){
+				message = message.replaceAt(i,"§");
+			}
+		}
+		message = message.trim();
+		message = message.replace(/\s+/g," ");
 		if(message.indexOf(" ") != -1){
 			var params = message.split(/\s/g);
 			prog = params[0];
 			params.splice(0,1);
+			for(let i=0; i<params.length; i++){
+				params[i] = params[i].replace(/§/g," ");
+			}
 		}
 		else {
 			prog = message;
@@ -355,12 +373,11 @@ function ServerPrograms() {
 		wsServer.clients.forEach(function each(client) {
 			list.push(client[sessionName].username);
 		});
-		userWS.sendRes("userlist " +JSON.stringify(list).replace(/\s/g,"%20"));
+		userWS.sendRes("userlist " +JSON.stringify(list));
 	}
 	
 	//Request of the the deck of the player, params: [0] card name
 	this.requestcard = function(userWS,params){
-		params[0] = params[0].replace(/%20/g," ");
 		var p = path.join(__dirname, "server resources","cards",params[0]+".json");
 		var cardData = "ERROR 404: Not Found";
 		try{
@@ -423,10 +440,10 @@ function ServerPrograms() {
 			if(userData.cardsOwned.indexOf(params[0]) != -1){
 				let deck = userData.decks[userData.decks.length] = [];
 				deck.push(params[0]);
-				userWS.sendRes("addcardtodeck YES " + params[0] + " " + userData.decks.length);
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length);
 			}
 			else{
-				userWS.sendRes("addcardtodeck NO " + params[0] + " " + userData.decks.length);
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length);
 			}
 		}
 		else if(params[1] <= userData.decks.length && params[1] > 0){
@@ -435,14 +452,14 @@ function ServerPrograms() {
 			let nCardsDeck = userData.decks[params[1]].indexOfAll(params[0]).length;
 			if(nCardsDeck < 3 && nCardsOwned > nCardsDeck){
 				userData.decks[params[1]].push(params[0]);
-				userWS.sendRes("addcardtodeck YES " + params[0] + " " + params[1]);
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1));
 			}
 			else{
-				userWS.sendRes("addcardtodeck NO " + params[0] + " " + params[1]);
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1));
 			}
 		}
 		else{
-			userWS.sendRes("addcardtodeck NO " + params[0] + " " + params[1]);
+			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1]);
 		}
 	}
 
@@ -455,14 +472,14 @@ function ServerPrograms() {
 			let index = userData.decks[params[1]].indexOf(params[0]);
 			if(index != -1){
 				userData.decks[params[1]].splice(index, 1);
-				userWS.sendRes("removecardfromdeck YES " + params[0] + " " + params[1]);
+				userWS.sendRes("removecardfromdeck YES \"" + params[0] + "\" " + (params[1]+1));
 				return;
 			}
 		}
-		userWS.sendRes("removecardfromdeck NO " + params[0] + " " + params[1]);
+		userWS.sendRes("removecardfromdeck NO \"" + params[0] + "\" " + params[1]);
 	}
 
-	// Delete the entire deck form the user's decks list
+	// Delete the entire deck form the user's decks list. [0] deck index
 	this.deletedeck = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		params[0] -= 1;

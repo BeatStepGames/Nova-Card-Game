@@ -78,7 +78,17 @@ class ProfilePage {
         setPageSection(1);
 
         this.deckContainer = document.getElementById("deckShowcaseDiv");
+        $("#deckShowcaseDiv").droppable({
+            accept: ".ownedCard",
+            hoverClass: "droppableZone",
+            drop: this.deckSectionDrop.bind(this)
+          });
         this.cardsOwnedContainer = document.getElementById("cardsOwnedShowcaseDiv");
+        $("#cardsOwnedShowcaseDiv").droppable({
+            accept: ".deckCard",
+            hoverClass: "droppableZone",
+            drop: this.ownSectionDrop.bind(this)
+          });
 
         this.deleteDeckBtn = document.getElementById("deleteDeckBtn");
 
@@ -103,6 +113,8 @@ class ProfilePage {
         this.singleCardOwnedCallback = this.singleCardOwnedCallback.bind(this);
         this.loadDeck = this.loadDeck.bind(this);
         this.loadCardsOwned = this.loadCardsOwned.bind(this); 
+        this.ownSectionDrop = this.ownSectionDrop.bind(this);
+        this.deckSectionDrop = this.deckSectionDrop.bind(this);
     }
 
     populateDeckSelect(n){
@@ -264,13 +276,15 @@ class ProfilePage {
             canvas.setAttribute("id","deckCardCanvas"+i);
             let div =  this.cardCanvasList[i].getCanvasDiv();
             div.setAttribute("id","deckCardDiv"+i);
+            div.classList.add("deckCard");
             td.appendChild(div);
             row.appendChild(td);
 
             $("#deckCardDiv"+i).draggable({
                 zIndex: 100,
-                revert: "invalid",
+                revert: true,
                 revertDuration: 350,
+                cursor: "pointer",
                 start: this.cardCanvasList[i].onDragStart
             });
         }
@@ -296,6 +310,7 @@ class ProfilePage {
             canvas.setAttribute("id","cardOwnedCanvas"+i);
             let div =  this.cardsOwnedCanvasList[i].getCanvasDiv();
             div.setAttribute("id","cardOwnedDiv"+i);
+            div.classList.add("ownedCard");
             td.appendChild(div);
             row.appendChild(td);
 
@@ -303,6 +318,7 @@ class ProfilePage {
                 zIndex: 100,
                 revert: true,
                 revertDuration: 350,
+                cursor: "pointer",
                 start: this.cardsOwnedCanvasList[i].onDragStart
             });
         }
@@ -317,6 +333,56 @@ class ProfilePage {
             canvasList[i].printFullCard();
         }
     }
+
+    // Whene card dropped here, delete it from the deck
+    ownSectionDrop(event,ui){
+        var cardCanvas;
+        for(let i=0; i<this.cardCanvasList.length; i++){
+            if(this.cardCanvasList[i].getCanvasDiv().id == ui.draggable[0].id){
+                cardCanvas = this.cardCanvasList[i];
+                break;
+            }
+        }
+        this.removeCardFromDeckHandlerID = server.register("removecardfromdeck",function(message){
+            return this.removeCardFromDeckHandler(message,cardCanvas);
+        }.bind(this));
+        server.removeCardFromDeck(cardCanvas.card.name,this.deckSelect.value);
+    }
+
+    removeCardFromDeckHandler(message, cardCanvas){
+        let params = server.splitParams(message);
+        if(params[1] == cardCanvas.card.name){
+            if(params[0] == "YES"){
+                if(params[2] == this.deckSelect.value){
+                    let toRemove = cardCanvas.getCanvasDiv().parentElement;
+                    toRemove ? toRemove.remove() : undefined;
+                    let index = cardCanvas.getCanvasDiv().id.substr("deckCardDiv".length);
+                    for(let i=0; i<this.cardCanvasList.length; i++){
+                        if(this.cardCanvasList[i].getCanvasDiv().id == cardCanvas.getCanvasDiv().id){
+                            this.cardCanvasList.splice(i,1);
+                            break;
+                        }
+                    }
+                }
+            }
+            else{
+                let btns = [];
+                btns.push(new NotificationButton("Got it"));
+                let notif = new FloatingNotification(params[1] + " not removed from deck",btns);
+                notif.show();
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    // When card dropped here, add it to the deck
+    deckSectionDrop(event,ui){
+
+    }
+
 
     onResize(){
         this.drawCards(this.cardCanvasList);

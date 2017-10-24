@@ -1,3 +1,7 @@
+String.prototype.replaceAt=function(index, replacement) {
+    return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+}
+
 //Handles all server comunications
 //serverURL has to be the plain server domain, no protocolo at the beggining
 function Server(serverURL){
@@ -16,6 +20,7 @@ function Server(serverURL){
 		this.callback = callback;
 		this.active = true;
 		this.ID = IDManager.getUniqueID();
+		this.justOnce = false;
 	}
 
 	this.onMessage = function(event){
@@ -37,7 +42,11 @@ function Server(serverURL){
 		if(this.messageCallbacks[filter]){
 			for(var i=0; i<this.messageCallbacks[filter].length; i++){
 				if(this.messageCallbacks[filter][i].active == true){
-					this.messageCallbacks[filter][i].callback(message);
+					// The callbacks can return a boolean to say if they're done and can be deleted
+					let destroy = this.messageCallbacks[filter][i].callback(message);
+					if(destroy || (this.messageCallbacks[filter][i] && this.messageCallbacks[filter][i].justOnce)){
+						this.messageCallbacks[filter].splice(i,1);
+					}
 				}
 			}
 		}
@@ -103,11 +112,12 @@ function Server(serverURL){
 		}
 	}
 
-	this.register = function(filter,callback){
+	this.register = function(filter,callback,justOnce){
 		if(this.messageCallbacks[filter] == undefined){
 			this.messageCallbacks[filter] = [];
 		}
 		let cBack = new CallbackObject(callback);
+		cBack.justOnce = justOnce || false;
 		this.messageCallbacks[filter].push(cBack);
 		return cBack.ID;
 	}
@@ -150,14 +160,33 @@ function Server(serverURL){
 		}
 		return 0;
 	}
+
+	this.splitParams = function(message){
+		let inQuote = false;
+		for(let i=0; i<message.length; i++){
+			if(message[i] == "\""){
+				inQuote = !inQuote;
+				message = message.replaceAt(i," ");
+			}
+			else if(inQuote && message[i] == " "){
+				message = message.replaceAt(i,"§");
+			}
+		}
+		message = message.trim();
+		message = message.replace(/\s+/g, " ");
+		var params = message.split(/\s/g);
+		for (let i = 0; i < params.length; i++) {
+			params[i] = params[i].replace(/§/g, " ");
+		}
+		return params;
+	}
 	
 	this.requestDeck = function(deckIndex, nCards){
 		this.sendMessage("requestdeck " + (deckIndex || "1") + " " + (nCards || ""));
 	}
 	
 	this.requestCard = function(name){
-		name = name.replace(/\s/g,"%20");
-		this.sendMessage("requestcard "+name);
+		this.sendMessage("requestcard \""+name+"\"");
 	}
 
 	this.requestDecksAmount = function(){
@@ -170,12 +199,12 @@ function Server(serverURL){
 
 	// Adds a card to the desired deck, or, if deckIndex == "new", creates new deck and adds card to it
 	this.addCardToDeck = function(cardName, deckIndex){
-		this.sendMessage("addcardtodeck " + cardName + " " + deckIndex);
+		this.sendMessage("addcardtodeck \"" + cardName + "\" " + deckIndex);
 	}
 
 	// Removes a card from the specified deck
 	this.removeCardFromDeck = function(cardName, deckIndex){
-		this.sendMessage("removecardfromdeck " + cardName + " " + deckIndex);
+		this.sendMessage("removecardfromdeck \"" + cardName + "\" " + deckIndex);
 	}
 
 	// Completelly delete a deck, prompt a message to be sure of the action
@@ -322,4 +351,5 @@ function setPageSection(section){
 function getPageSection(){
 	return pageSection;
 }
+
 
