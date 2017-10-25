@@ -218,6 +218,10 @@ function Server(serverURL){
 			return false;
 		}
 	}
+
+	this.requestPlayerInfo = function(){
+		this.sendMessage("requestplayerinfo");
+	}
 	
 }
 
@@ -314,9 +318,11 @@ function onResizeHome(){
 }
 
 
-var pageSection = 1;
+var pageSection = 0;
 
 function setPageSection(section){
+	if(pageSection == section)
+		return;
 	let totalContainer = document.getElementById("totalContainer");
 	let allContainers = totalContainer.querySelectorAll(".container");
 	allContainers.forEach(function(element) {

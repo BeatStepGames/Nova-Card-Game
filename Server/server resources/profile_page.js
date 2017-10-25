@@ -5,6 +5,7 @@ function startProfilePage(){
     if(profilePage == undefined){
         profilePage = new ProfilePage();
     }
+    profilePage.refreshInfoPlayer();
     
 }
 
@@ -147,6 +148,18 @@ class ProfilePage {
         this.loadCardsOwned = this.loadCardsOwned.bind(this); 
         this.ownSectionDrop = this.ownSectionDrop.bind(this);
         this.deckSectionDrop = this.deckSectionDrop.bind(this);
+    }
+
+    refreshInfoPlayer(){
+        server.register("requestplayerinfo",this.requestPlayerInfoHandler);
+        server.requestPlayerInfo();
+    }
+
+    requestPlayerInfoHandler(message){
+        let params = server.splitParams(message);
+        let infoText = document.getElementById("playerInfo");
+        infoText.innerText = `Rank: ${params[0]} - Matches Played: ${params[1]} - Money: ${params[2]}`
+        return true;
     }
 
     populateDeckSelect(n){

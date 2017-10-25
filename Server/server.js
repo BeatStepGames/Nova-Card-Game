@@ -423,14 +423,22 @@ function ServerPrograms() {
 
 	this.requestmatchesplayed = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
-		var matches = userData.matchsPlayed || 0;
-		userWS.sendRes("requestmatchesplayed " + matchs);
+		var matches = userData.matchesPlayed || 0;
+		userWS.sendRes("requestmatchesplayed " + matches);
 	}
 
 	this.requestmoney = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var money = userData.money || 0;
 		userWS.sendRes("requestmoney " + money);
+	}
+
+	this.requestplayerinfo = function(userWS, params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var rank = userData.rank || 0;
+		var matches = userData.matchesPlayed || 0;
+		var money = userData.money || 0;
+		userWS.sendRes("requestplayerinfo " + rank + " " + matches + " " + money);
 	}
 
 	this.requestdecksamount = function(userWS,params){

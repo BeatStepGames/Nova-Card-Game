@@ -5,8 +5,12 @@ div#profilePageContainer{
 
 div#profilePageContainer #welcomeName{
     height: 1.15em;
-    margin-bottom: 0.83em;
-    margin-top: 0.83em;
+    margin: 0.83em;
+}
+
+div#profilePageContainer #playerInfo{
+    float: right;
+    font-size: 0.8em;
 }
 
 div#profilePageContainer #deckShowcaseDiv{
