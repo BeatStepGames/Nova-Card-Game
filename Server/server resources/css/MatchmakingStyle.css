@@ -10,7 +10,7 @@ div#matchmakingPageContainer{
 	text-align: center;
 }
 
-#matchSelectionButtons{
+#matchSelectionButtons{	/* matchBlocks container (3 for now) */
     width: 100%;
     height: 50%;
     border: px solid #c3c3c3;
@@ -21,14 +21,15 @@ div#matchmakingPageContainer{
 	margin: auto;
 }
 
-.matchBlockContainer {
+.matchBlockContainer { /* single matchBlock */
     position: relative;
 	margin: auto;
     width: 20%;
-	Height: 20%;
+	Height: auto;
+	
 }
 
-.matchBlock {
+.matchBlock { /* image position */
   opacity: 1;
   display: block;
   width: 100%;
@@ -36,13 +37,25 @@ div#matchmakingPageContainer{
   transition: .5s ease;
   -webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
   backface-visibility: hidden;
+  border-radius: 8px;
 }
 
-.centralElement {
+.matchBlockBackground { /* image position */
+  opacity: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: .5s ease;
+  -webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
+
+.centralElement { /* text position */
   transition: .5s ease;
   opacity: 0;
   position: absolute;
-  top: 100%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%)
@@ -52,11 +65,15 @@ div#matchmakingPageContainer{
   opacity: 0.3;
 }
 
+.matchBlockContainer:hover .matchBlockBackground {
+  opacity: 1;
+}
+
 .matchBlockContainer:hover .centralElement {
   opacity: 1;
 }
 
-.text {
+.text {	/* text&background color */
   background-color: gray;
   color: white;
   font-size: 16px;
