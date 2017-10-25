@@ -342,6 +342,10 @@ function setPageSection(section){
 			container = document.getElementById("gameCanvasContainer");
 			navbarItem = document.getElementById("goToMatch");
 			break;
+		case 3:
+			container = document.getElementById("matchmakingPageContainer");
+			navbarItem = document.getElementById("matchmaking");
+			break;
 	}
 	container.style.display = "block";
 	navbarItem.classList.add("active");

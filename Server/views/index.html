@@ -59,6 +59,7 @@
 		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="/css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/MatchmakingStyle.css">
 	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
 	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
 
@@ -92,6 +93,7 @@
 				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
 				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
 				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
+				<li><a id="matchmaking" onclick = "stopMatch(); setPageSection(3);">Matchmaking</a></li>
 				<li><a id="showchat">Show Chat</a></li>
 				<li><a id="onlineusers">Show Online Users</a></li>
 				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
@@ -116,7 +118,36 @@
 		<div id="gameCanvasContainer" class="container">
 			<canvas id="matchCanvas"></canvas>
 		</div>
-	</div>
+		<!-- MatchMaking page-->
+		<div id="matchmakingPageContainer" class="container">
+			<h1 id="matchSelectionTitle">#{username}, select the match!</h2>
+			
+			<div id = "matchSelectionButtons">
+			
+				<div class="matchBlockContainer">
+				  <img src="/img/matchblock.png" class="matchBlock">
+				  <div class="centralElement">
+					<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+				  </div>
+				</div>
+				
+				<div class="matchBlockContainer">
+				  <img src="/img/matchblock.png" class="matchBlock">
+				  <div class="centralElement">
+					<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+				  </div>
+				</div>
+				
+				<div class="matchBlockContainer">
+				  <img src="/img/matchblock.png" class="matchBlock">
+				  <div class="centralElement">
+					<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+				  </div>
+				</div>
+			
+			</div>
+		
+		</div>
 
 	<div id="portraitError" class="redbox">
 		<h4>Rotate your device to landscape</h4>
