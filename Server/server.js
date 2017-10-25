@@ -77,6 +77,7 @@ var staticOptions = {
 	}
 };
 app.use("/card_images",express.static("server resources/card_images/",staticOptions));
+app.use("/card_attributes",express.static("server resources/card_attributes/",staticOptions));
 app.use("/img",express.static("server resources/img/",staticOptions));
 
 app.use(express.static("server resources",{
@@ -426,12 +427,18 @@ function ServerPrograms() {
 		userWS.sendRes("requestmatchesplayed " + matchs);
 	}
 
+	this.requestmoney = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var money = userData.money || 0;
+		userWS.sendRes("requestmoney " + money);
+	}
+
 	this.requestdecksamount = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
 		var ndecks = userData.decks.length || 0;
 		userWS.sendRes("requestdecksamount " + ndecks);
 	}
-	
+
 	// Adds the card to deck if the user has it and if there are still less than 3 in the deck
 	// params[0] = which card to add, param[1] = which deck to add to starting from 1, or "new" to create a new deck
 	this.addcardtodeck = function(userWS,params){
@@ -440,26 +447,32 @@ function ServerPrograms() {
 			if(userData.cardsOwned.indexOf(params[0]) != -1){
 				let deck = userData.decks[userData.decks.length] = [];
 				deck.push(params[0]);
-				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length);
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length + " \"new\"");
 			}
 			else{
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length);
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length + " \"card not owned\"");
 			}
 		}
 		else if(params[1] <= userData.decks.length && params[1] > 0){
 			params[1] -= 1;
 			let nCardsOwned = userData.cardsOwned.indexOfAll(params[0]).length;
 			let nCardsDeck = userData.decks[params[1]].indexOfAll(params[0]).length;
-			if(nCardsDeck < 3 && nCardsOwned > nCardsDeck){
+			if(nCardsDeck < 3 && nCardsOwned > 0 && nCardsOwned > nCardsDeck){
 				userData.decks[params[1]].push(params[0]);
-				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1));
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1) + " \"noinfo\"");
 			}
-			else{
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1));
+			else if (nCardsDeck >= 3){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"no more than 3 copies of a card per deck\"");
+			}
+			else if(nCardsOwned <= 0){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"card not owned\"");
+			}
+			else if(nCardsOwned <= nCardsDeck){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"no more copies of this card owned\"");
 			}
 		}
 		else{
-			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1]);
+			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1] + " \"deck dosen't exists\"");
 		}
 	}
 
