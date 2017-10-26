@@ -122,6 +122,7 @@
 		<div id="matchmakingPageContainer" class="container">
 			<h1 id="matchSelectionTitle">#{username}, select the match!</h2>
 			
+			<!-- Matchmaking selection-->
 			<div id = "matchSelectionButtons">
 			
 				<div class="matchBlockContainer">
@@ -130,26 +131,37 @@
 						<img src="/img/matchblock_back.png" class="matchBlockBackground">
 					</div>
 					<div class="centralElement">
-						<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+						<button type="button" class="text" onclick="setMatchmakingSection(1)">START!</button>
 					</div>
 				</div>
 				
 				<div class="matchBlockContainer">
 				  <img src="/img/matchblock.png" class="matchBlock">
 				  <div class="centralElement">
-					<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+					<button type="button" class="text">START!</button>
 				  </div>
 				</div>
 				
 				<div class="matchBlockContainer">
 				  <img src="/img/matchblock.png" class="matchBlock">
 				  <div class="centralElement">
-					<div class="text"><a href="URL_TO_NORANKED_PAGE">START!</a></div>
+					<button type="button" class="text">START!</button>
 				  </div>
 				</div>
 			
 			</div>
-		
+		</div>
+		<!-- MatchMaking friendly-->
+		<div id = "friendlySelection" class="container">
+			<div class="matchBlockContainer">
+				<img src="/img/matchblock.png" class="matchBlock">
+				<div class="centralElement" style="width: 100%;">
+					<img src="/img/matchblock_back.png" class="matchBlockBackground">
+				</div>
+				<div class="centralElement">
+					<button type="button" class="text">LOL</button>
+				</div>
+			</div>
 		</div>
 
 	<div id="portraitError" class="redbox">
@@ -173,6 +185,7 @@
 
 	<script type="text/javascript" src="debug.js"></script>
 	
+	<script type="text/javascript" src="matchmaking.js"></script>
 	
 </body>
 </html>
