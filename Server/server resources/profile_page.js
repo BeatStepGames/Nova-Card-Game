@@ -152,7 +152,7 @@ class ProfilePage {
 
     refreshInfoPlayer(){
         server.register("requestplayerinfo",this.requestPlayerInfoHandler);
-        server.requestPlayerInfo();
+        server.registerOnOpenCallback(server.requestPlayerInfo);
     }
 
     requestPlayerInfoHandler(message){
