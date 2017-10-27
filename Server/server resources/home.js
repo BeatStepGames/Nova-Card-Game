@@ -180,6 +180,14 @@ function Server(serverURL){
 		}
 		return params;
 	}
+
+	this.requestUserList = function(){
+		server.sendMessage("userlist");
+	}.bind(this);
+
+	this.globalChat = function(message){
+		this.sendMessage("globalchat \""+message.trim()+"\"");
+	}
 	
 	this.requestDeck = function(deckIndex, nCards){
 		this.sendMessage("requestdeck " + (deckIndex || "1") + " " + (nCards || ""));
