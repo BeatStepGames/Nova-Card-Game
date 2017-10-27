@@ -138,18 +138,23 @@
 				<div class="matchBlockContainer">
 				  <img src="/img/matchblock.png" class="matchBlock">
 				  <div class="centralElement">
-					<button type="button" class="text">START!</button>
+					<button type="button" class="text" onclick="setMatchmakingSection(0)">START!</button>
 				  </div>
 				</div>
 				
 				<div class="matchBlockContainer">
 				  <img src="/img/matchblock.png" class="matchBlock">
 				  <div class="centralElement">
-					<button type="button" class="text">START!</button>
+					<button type="button" class="text" onclick="setMatchmakingSection(2)">START!</button>
 				  </div>
 				</div>
 			
 			</div>
+		</div>
+		<!-- waiting Selection (MatchMaking unranked/ranked) -->
+		<div id = "waitingSelection" class="container">
+			<img src="/img/waitingblock.png" class="waitingClock">
+			<h1 id="waitingSelectionTitle">Choosing the best player to fight...</h2>
 		</div>
 		<!-- MatchMaking friendly-->
 		<div id = "friendlySelection" class="container">

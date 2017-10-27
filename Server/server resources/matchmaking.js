@@ -17,10 +17,7 @@ function setMatchmakingSection(section){
 			container = document.getElementById("friendlySelection");
 			break;
 		case 2:
-			container = document.getElementById("friendlySelection");
-			break;
-		case 3:
-			container = document.getElementById("friendlySelection");
+			container = document.getElementById("waitingSelection");
 			break;
 	}
 	container.style.display = "block";

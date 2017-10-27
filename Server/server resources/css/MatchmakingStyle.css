@@ -86,3 +86,46 @@ div#matchmakingPageContainer{
   font-size: 16px;
   padding: 16px 32px;
 }
+
+/* WAITING ROOM CSS */
+
+div#waitingSelection{
+    color: silver;
+    overflow: auto;
+}
+
+#waitingSelectionTitle{
+    height: 1.15em;
+    margin-bottom: 0.83em;
+    margin-top: 0.83em;
+	text-align: center;
+	transition: all .5s ease;
+	-webkit-transition: all .5s ease; /* For Safari 3.1 to 6.0 */
+}
+
+.waitingClock {
+    position: relative;
+	display: block;
+    margin: 0 auto;
+    width: 20%;
+	Height: auto;
+    -webkit-animation:spin 2s ease infinite;
+    -moz-animation:spin 2s ease infinite;
+    animation:spin 2s ease infinite;
+	transition: .5s ease;
+	-webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
+}
+
+.waitingClock:hover {
+	opacity: 0.6;
+	width: 23%;
+	Height: auto;
+}
+
+.waitingClock:hover + #waitingSelectionTitle{
+	background-color: rgba(200,200,200,0.2);
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
