@@ -94,7 +94,7 @@ function FloatingNotification(data,buttons,options){
         }
         this.container.style.opacity = 1;
         
-        callback(e,...callbackArgs); // "...something is the spread operator"
+        if(callback) callback(e,...callbackArgs); // "...something is the spread operator"
 
         this.disappear(300);
         
@@ -117,7 +117,7 @@ function FloatingNotification(data,buttons,options){
         button.getTextboxObj().focus();
         button.getButtonObj().onclick = function(e){
             if(!button.options.notEmpty || (button.options.notEmpty && button.getTextboxObj().value.trim() != "")){
-                button.callback(e,button.getTextboxObj().value,...callbackArgs);
+                if(button.callback) button.callback(e,button.getTextboxObj().value,...callbackArgs);
                 this.disappear(300);
             }
         }.bind(this);
