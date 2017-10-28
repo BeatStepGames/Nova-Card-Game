@@ -2,16 +2,70 @@ div#profilePageContainer{
     color: silver;
     overflow: auto;
 }
-
+/* Info about the user style*/
+div#profilePageContainer .infoContDiv{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    margin: 0.83em;
+    position: relative;
+}
 div#profilePageContainer #welcomeName{
     height: 1.15em;
-    margin: 0.83em;
+    margin: 0;
+    margin-right: auto;
 }
 
-div#profilePageContainer #playerInfo{
+div#profilePageContainer .infoPlayerDiv{
+    box-sizing: border-box;
+    display: flex;
+    position: absolute;
+    right: 1.83em;
+    transition-duration: 300ms;
+    padding: 1em;
+}
+
+div#profilePageContainer .infoPlayerDiv ul{
+    list-style-type: none;
+    margin: auto;
+    padding: 0;
+
+}
+
+div#profilePageContainer .infoPlayerDiv .info{
+    display: none;
+    transition: display 1s;
+}
+
+div#profilePageContainer .infoPlayerDiv li{
+    display: inline;
+    transition: display 1s;
+    font-style: bold;
+}
+
+div#profilePageContainer .infoPlayerDiv:hover{
+    background-color: silver;
+    border: 1px solid black;
+    border-radius: 4px;
+    color: black;
+    z-index: 1;
+}
+div#profilePageContainer .infoPlayerDiv:hover li{
+    display: block;
+}
+div#profilePageContainer .infoPlayerDiv:hover .info{
+    display: inline;
+}
+
+
+/* End info about the user style */
+
+
+/* div#profilePageContainer #playerInfo{
     float: right;
     font-size: 0.8em;
-}
+} */
 
 div#profilePageContainer #deckShowcaseDiv{
     width: 50%;

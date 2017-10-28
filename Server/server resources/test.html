@@ -1,0 +1,76 @@
+<html>
+    <head>
+        <title>Test</title>
+        <style>
+            .infoContDiv{
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+            }
+
+            #welcomeName{
+                margin-right: auto;
+            }
+
+            .infoPlayerDiv{
+                display: flex;
+                float: right;
+                transition: display 1s;
+                padding: 1em;
+                
+                z-index: 1;
+                position: relative;
+                left: 0;
+            }
+
+            .infoPlayerDiv ul{
+                list-style-type:disc;
+                margin: auto;
+                padding: 0;
+
+            }
+
+            .infoPlayerDiv .info{
+                display: none;
+                transition: display 1s;
+            }
+
+            .infoPlayerDiv li{
+                display: inline;
+                transition: display 1s;
+            }
+
+            .infoPlayerDiv:hover{
+                background-color: silver;
+                border-radius: 2px;
+                
+            }
+            .infoPlayerDiv:hover li{
+                display: block;
+            }
+            .infoPlayerDiv:hover .info{
+                display: inline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="infoContDiv">
+            <h2 id="welcomeName">Hi User</h2>
+            <span class="infoPlayerDiv">
+                <ul>
+                    <li>
+                        <span class="info">Money: </span><span class="rankInfo">100</span></li>
+                    <li>
+                        <span class="info">Rank: </span><span class="matchesInfo">100</span></li>
+                    <li>
+                        <span class="info">Mathces: </span><span class="moneyInfo">100</span></li>
+                </ul>
+            </span>
+        </div>
+
+
+        <ul style="list-style-type:disc">
+            <li>Prova</li>
+        </ul>
+    </body>
+</html>

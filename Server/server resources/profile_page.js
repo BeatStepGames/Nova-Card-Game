@@ -157,8 +157,9 @@ class ProfilePage {
 
     requestPlayerInfoHandler(message){
         let params = server.splitParams(message);
-        let infoText = document.getElementById("playerInfo");
-        infoText.innerText = `Rank: ${params[0]} - Matches Played: ${params[1]} - Money: ${params[2]}`
+        document.getElementById("rankInfo").innerText = params[0];
+        document.getElementById("matchesInfo").innerText = params[1];
+        document.getElementById("moneyInfo").innerText = params[2];
         return true;
     }
 

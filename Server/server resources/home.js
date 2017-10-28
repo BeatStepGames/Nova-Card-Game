@@ -1,7 +1,3 @@
-String.prototype.replaceAt=function(index, replacement) {
-    return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
-}
-
 //Handles all server comunications
 //serverURL has to be the plain server domain, no protocolo at the beggining
 function Server(serverURL){

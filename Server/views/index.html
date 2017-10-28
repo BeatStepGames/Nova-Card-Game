@@ -101,7 +101,25 @@
 		</div>
 
 		<div id="profilePageContainer" class="container">
-			<h2 id="welcomeName">Hi #{username}<span id="playerInfo">Rank: 0 - Matches Played: 0 - Money: 0</span></h2>
+			<div class="infoContDiv">
+				<h2 id="welcomeName">Hi User</h2>
+				<span class="infoPlayerDiv">
+					<ul>
+						<li>🌟
+							<span class="info">Rank: </span>
+							<span id="rankInfo">0</span>
+						</li>
+						<li>⚔️
+							<span class="info">Matches Played: </span>
+							<span id="matchesInfo">0</span>
+						</li>
+						<li>💰
+							<span class="info">Money: </span>
+							<span id="moneyInfo"0</span>
+						</li>
+					</ul>
+				</span>
+			</div>
 			<div id="deckShowcaseDiv">
 				<label style="margin-right: 0.5em;">Select your deck: </label>
 				<select id="deckSelect">
@@ -123,7 +141,8 @@
 		<h4>Rotate your device to landscape</h4>
 	</div>
 	
-	
+
+	<script type="text/javascript" src="FunctionsDefinitions.js"></script>
 	<script type="text/javascript" src="PrimitiveObjects.js"></script>
 	<script type="text/javascript" src="home.js"></script>
 	<script type="text/javascript" src="BeatStepWebFramework.js"></script>
