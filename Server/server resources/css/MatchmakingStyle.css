@@ -1,6 +1,7 @@
 div#matchmakingPageContainer{
     color: silver;
     overflow: auto;
+	font-size: 1.2vw; 
 }
 
 #matchSelectionTitle{
@@ -44,6 +45,7 @@ div#matchmakingPageContainer{
   -webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
   backface-visibility: hidden;
   border-radius: 8px;
+  pointer-events: none;
 }
 
 .matchBlockContainer:hover .matchBlock {
@@ -59,6 +61,7 @@ div#matchmakingPageContainer{
   -webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
   backface-visibility: hidden;
   border-radius: 8px;
+  pointer-events: none;
 }
 
 .matchBlockContainer:hover .matchBlockBackground {
@@ -92,6 +95,7 @@ div#matchmakingPageContainer{
 div#waitingSelection{
     color: silver;
     overflow: auto;
+	font-size: 1.2vw; 
 }
 
 #waitingSelectionTitle{
@@ -103,7 +107,7 @@ div#waitingSelection{
 	-webkit-transition: all .5s ease; /* For Safari 3.1 to 6.0 */
 }
 
-.waitingClock {
+.waitingClock { /* clock in waiting room */
     position: relative;
 	display: block;
     margin: 0 auto;
@@ -122,8 +126,15 @@ div#waitingSelection{
 	Height: auto;
 }
 
-.waitingClock:hover + #waitingSelectionTitle{
+.waitingClock:hover + #waitingSelectionTitle{ /* affects the waiting text */
 	background-color: rgba(200,200,200,0.2);
+	animation: background-color_transition 2s linear infinite;
+}
+
+@keyframes background-color_transition {
+    0% {background-color: rgba(200,200,200,0.2);}
+    50% {background-color: rgba(200,200,200,0.5);}
+	100% {background-color: rgba(200,200,200,0.2);}
 }
 
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }

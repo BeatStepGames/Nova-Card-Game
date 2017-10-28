@@ -22,3 +22,4 @@ function setMatchmakingSection(section){
 	}
 	container.style.display = "block";
 }
+
