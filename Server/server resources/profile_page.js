@@ -11,7 +11,8 @@ function startProfilePage(){
 
 class CardCanvas {
     constructor(card){
-        this.card = card;        
+        this.card = card;
+        this.cardCount = 1;
         this.div = document.createElement("div");
         this.div.style.display = "flex";
         this.div.style.position = "relative";
@@ -30,7 +31,12 @@ class CardCanvas {
         
         this.hoverBackground.appendChild(this.hoverText);
 
+        this.hoverCountBubble = document.createElement("div");
+        this.hoverCountBubble.classList.add("hoverCountBubble");
+        this.hoverCountBubble.innerText = "x1";
+
         this.div.appendChild(this.canvas);
+        this.div.appendChild(this.hoverCountBubble);
         this.div.appendChild(this.hoverBackground);
 
         this.ctx = this.canvas.getContext("2d");
@@ -48,21 +54,36 @@ class CardCanvas {
         // this.img.remove();
     }
 
+    getCardCount(){
+        return this.cardCount;
+    }
+
+    setCardCount(n){
+        this.cardCount = n;
+        this.hoverCountBubble.innerText = "x"+n;
+    }
+
+    // Convinient method to increment the cardCounter (decrement if n is negative)
+    incrementCardCount(n){
+        this.setCardCount(this.cardCount+n);
+    }
+
     printFullCard(){
         if(this.card.img.loaded == false){
             setTimeout(this.printFullCard,50);
         }
         this.card.x = 0;
         this.card.y = 0;
-        this.canvas.width = (this.canvas.getBoundingClientRect().width*devicePixelRatio);
+        var boundingClientRect = this.canvas.getBoundingClientRect();
+        this.canvas.width = (boundingClientRect.width*devicePixelRatio);
         this.canvas.height = this.canvas.width*(3/2);
 
         this.card.onResize(this.canvas.height/this.card.originalHeight);
         this.card.draw(this.ctx);
         
-        this.canvas.style.height = this.canvas.getBoundingClientRect().width*(3/2);
+        this.canvas.style.height = boundingClientRect.width*(3/2);
         //this.canvas.parentElement.parentElement.style.width = this.canvas.getBoundingClientRect().width;
-        this.canvas.parentElement.parentElement.style.height = this.canvas.getBoundingClientRect().height;
+        this.canvas.parentElement.parentElement.style.height = boundingClientRect.height;
     }
 
     getCard(){
@@ -179,13 +200,27 @@ class ProfilePage {
         server.deleteCallback("requestdecksamount",this.deckNumRequestID);
     }
 
+    // Prototype function to find the index of the first occurence of a card in a CardCanvas array
+    findCard(name){
+        for(let i = 0; i<this.length; i++){
+            if(this[i].card.name == name){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     loadDeck(index){
         if(server.open){
             let tabs = this.deckContainer.querySelectorAll(".deckShowcaseTable");
             tabs.forEach(function(element) {
                 element.remove();
             }, this);
+            // Empty the cardCanvasList to a fresh start
             this.cardCanvasList = [];
+            // Add the findCard function the the array
+            this.cardCanvasList.findCard = this.findCard.bind(this.cardCanvasList);
+
             if(index != "New"){
                 this.deckHandlerID = server.register("requestdeck",this.deckCallback);
                 server.requestDeck(index);
@@ -208,6 +243,7 @@ class ProfilePage {
                 element.remove();
             }, this);
             this.cardsOwnedCanvasList = [];
+            this.cardsOwnedCanvasList.findCard = this.findCard.bind(this.cardsOwnedCanvasList);
             this.cardsOwnedHandlerID = server.register("requestcardsowned",this.cardsOwnedCallback);
             server.requestCardsOwned();
         }
@@ -221,6 +257,7 @@ class ProfilePage {
     deckCallback(data){
         var deck = JSON.parse(data);
         this.numberOfDeckCardsToLoad = deck.length;
+        document.getElementById("nCardsDeck").innerText = deck.length;
         this.deckCardHandlerID = server.register("requestcard",this.deckCardCallback);
         for(var i=0; i<deck.length; i++){
             server.requestCard(deck[i]);
@@ -231,6 +268,7 @@ class ProfilePage {
     cardsOwnedCallback(data){
         var deck = JSON.parse(data);
         this.numberOfCardsOwnedToLoad = deck.length;
+        document.getElementById("nCardsOwned").innerText = `You own ${deck.length} cards`;
         this.singleCardOwnedHandlerID = server.register("requestcard",this.singleCardOwnedCallback);
         for(var i=0; i<deck.length; i++){
             server.requestCard(deck[i]);
@@ -241,20 +279,29 @@ class ProfilePage {
     deckCardCallback(cardData){
         if(cardData != "ERROR 404: Not Found"){
             cardData = JSON.parse(cardData);
-            this.cardCanvasList.push(new CardCanvas(
-                new Card(
-                    0,
-                    0,
-                    baseDimensions.original_card_height,
-                    cardData.name,
-                    cardData.level,
-                    cardData.comment,
-                    cardData.atk,
-                    cardData.def,
-                    "card_images/"+cardData.name+".png",
-                    1
-                )
-            ));
+
+            // Find index of this card, if present just increment the card counter
+            let cardIndex = this.cardCanvasList.findCard(cardData.name);
+            if (cardIndex == -1) {
+                this.cardCanvasList.push(new CardCanvas(
+                    new Card(
+                        0,
+                        0,
+                        baseDimensions.original_card_height,
+                        cardData.name,
+                        cardData.level,
+                        cardData.comment,
+                        cardData.atk,
+                        cardData.def,
+                        "card_images/" + cardData.name + ".png",
+                        1
+                    )
+                ));
+            }
+            else{
+                this.cardCanvasList[cardIndex].incrementCardCount(1);
+            }
+
         }
         this.numberOfDeckCardsToLoad -= 1;
         if(this.numberOfDeckCardsToLoad <= 0){
@@ -266,20 +313,28 @@ class ProfilePage {
     singleCardOwnedCallback(cardData){
         if(cardData != "ERROR 404: Not Found"){
             cardData = JSON.parse(cardData);
-            this.cardsOwnedCanvasList.push(new CardCanvas(
-                new Card(
-                    0,
-                    0,
-                    baseDimensions.original_card_height,
-                    cardData.name,
-                    cardData.level,
-                    cardData.comment,
-                    cardData.atk,
-                    cardData.def,
-                    "card_images/"+cardData.name+".png",
-                    1
-                )
-            ));
+            
+            let cardIndex = this.cardsOwnedCanvasList.findCard(cardData.name);
+            if (cardIndex == -1) {
+                this.cardsOwnedCanvasList.push(new CardCanvas(
+                    new Card(
+                        0,
+                        0,
+                        baseDimensions.original_card_height,
+                        cardData.name,
+                        cardData.level,
+                        cardData.comment,
+                        cardData.atk,
+                        cardData.def,
+                        "card_images/" + cardData.name + ".png",
+                        1
+                    )
+                ));
+            }
+            else{
+                this.cardsOwnedCanvasList[cardIndex].incrementCardCount(1);
+            }
+
         }
         this.numberOfCardsOwnedToLoad-= 1;
         if(this.numberOfCardsOwnedToLoad <= 0){
@@ -366,6 +421,13 @@ class ProfilePage {
 
     // Whene card dropped here, delete it from the deck
     ownSectionDrop(event,ui){
+        // Remove the text "Remove from deck"
+        let hover = ui.draggable[0].children.hoverBackground;
+        hover.children.hoverText.innerText = "";
+        $(hover).animate({
+            opacity: 0
+        }, 200);
+
         var cardCanvas;
         for(let i=0; i<this.cardCanvasList.length; i++){
             if(this.cardCanvasList[i].getCanvasDiv().id == ui.draggable[0].id){
@@ -379,19 +441,30 @@ class ProfilePage {
         server.removeCardFromDeck(cardCanvas.card.name,this.deckSelect.value);
     }
 
+    // Handles the response from the server to a removeCardFromDeck request
     removeCardFromDeckHandler(message, cardCanvas){
         let params = server.splitParams(message);
+        // Check if this response from the server is for this method
         if(params[1] == cardCanvas.card.name){
+            // Check if the card was actually removed
             if(params[0] == "YES"){
+                // Check if the deck involved is still showing on the screen
                 if(params[2] == this.deckSelect.value){
-                    let toRemove = cardCanvas.getCanvasDiv().parentElement; // This is the <td> of that card
-                    toRemove ? toRemove.remove() : undefined; // Removing the card from the page
-                    for(let i=0; i<this.cardCanvasList.length; i++){
-                        if(this.cardCanvasList[i].getCanvasDiv().id == cardCanvas.getCanvasDiv().id){
-                            this.cardCanvasList.splice(i,1);
-                            break;
+                    // Check if is the last copy of this card in the deck, if not just decrement by one the cardCounter
+                    if(cardCanvas.getCardCount() > 1){
+                        cardCanvas.incrementCardCount(-1);
+                    }
+                    else{
+                        let toRemove = cardCanvas.getCanvasDiv().parentElement; // This is the <td> of that card
+                        toRemove ? toRemove.remove() : undefined; // Removing the card from the page
+                        for(let i=0; i<this.cardCanvasList.length; i++){
+                            if(this.cardCanvasList[i].getCanvasDiv().id == cardCanvas.getCanvasDiv().id){
+                                this.cardCanvasList.splice(i,1);
+                                break;
+                            }
                         }
                     }
+
                 }
             }
             else{
@@ -445,37 +518,25 @@ class ProfilePage {
         server.addCardToDeck(cardCanvas.card.name,this.deckSelect.value);
     }
 
+    // Handles response from server to the add card to deck request
     addCardToDeckHandler(message,cardCanvas){
         let params = server.splitParams(message);
+        // Check if this response from the server is for this method
         if(params[1] == cardCanvas.card.name){
+            // Check if the card was actually added
             if(params[0] == "YES"){
-
+                // Check the deck involved is still showing
                 if(params[2] == this.deckSelect.value){
-
-                    // let td = document.createElement("td");
-                    // let canvas = cardCanvas.getCanvas();
-                    // canvas.setAttribute("id","deckCardCanvas" + this.cardCanvasList.length);
-                    // let div =  cardCanvas.getCanvasDiv();
-                    // div.setAttribute("id","deckCardDiv" + this.cardCanvasList.length);
-                    // div.classList.add("deckCard");
-                    // td.appendChild(div);
-
-                    // let row = document.querySelector(".deckShowcaseTable tr");
-                    // row.appendChild(td);
-
-                    // $(cardCanvas.getCanvasDiv()).draggable({
-                    //     zIndex: 100,
-                    //     revert: true,
-                    //     revertDuration: 350,
-                    //     cursor: "pointer",
-                    //     start: cardCanvas.onDragStart
-                    // });
-
-                    // this.cardCanvasList.push(cardCanvas);
-
-                    let row = document.querySelector(".deckShowcaseTable tr");
-                    this.addCardCanvasToRow(cardCanvas, this.cardCanvasList.length, row, this.cardCanvasList);
-                    cardCanvas.printFullCard();
+                    // First we check if there is already a copy of this card in the deck, if no create the cardCanvas, else just increment the cardCounter
+                    let cardIndex = this.cardCanvasList.findCard(params[1]);
+                    if(cardIndex == -1){
+                        let row = document.querySelector(".deckShowcaseTable tr");
+                        this.addCardCanvasToRow(cardCanvas, this.cardCanvasList.length, row, this.cardCanvasList);
+                        cardCanvas.printFullCard();
+                    }
+                    else{
+                        this.cardCanvasList[cardIndex].incrementCardCount(1);
+                    }
 
                 }
                 // this.deckAmount < params[2] è usato perchè se una richiesta successiva viene ricevuta prima di una fatta precedentemente,
@@ -487,7 +548,6 @@ class ProfilePage {
                     this.deckAmount = params[2];
                     this.populateDeckSelect(this.deckAmount); // Ripopulate the <select>, this wil select deck 1
                     this.deckSelect.selectedIndex = params[2]-1; // Change from the first index to the right one
-                    this.cardCanvasList = []; // We are in a new empty deck, force empty the list of cards previously saved
 
                     let row = document.querySelector(".deckShowcaseTable tr");
                     this.addCardCanvasToRow(cardCanvas, this.cardCanvasList.length, row, this.cardCanvasList);

@@ -176,6 +176,8 @@ wsServer.on("connection",function(userWS, req){
 	//To load from file the data, even if not used
 	userManager.getUserData(req[sessionName].username);
 
+	
+	console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") connected to websocket");
 	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
@@ -458,7 +460,7 @@ function ServerPrograms() {
 				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length + " \"new\"");
 			}
 			else{
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length + " \"card not owned\"");
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length + " \"Card not owned\"");
 			}
 		}
 		else if(params[1] <= userData.decks.length && params[1] > 0){
@@ -470,17 +472,17 @@ function ServerPrograms() {
 				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1) + " \"noinfo\"");
 			}
 			else if (nCardsDeck >= 3){
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"no more than 3 copies of a card per deck\"");
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"No more than 3 copies of a card per deck\"");
 			}
 			else if(nCardsOwned <= 0){
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"card not owned\"");
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"Card not owned\"");
 			}
 			else if(nCardsOwned <= nCardsDeck){
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"no more copies of this card owned\"");
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"No more copies of this card owned\"");
 			}
 		}
 		else{
-			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1] + " \"deck dosen't exists\"");
+			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1] + " \"Deck dosen't exists\"");
 		}
 	}
 

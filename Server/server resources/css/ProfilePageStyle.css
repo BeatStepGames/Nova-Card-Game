@@ -1,9 +1,9 @@
-div#profilePageContainer{
+#profilePageContainer{
     color: silver;
     overflow: auto;
 }
 /* Info about the user style*/
-div#profilePageContainer .infoContDiv{
+#profilePageContainer .infoContDiv{
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -11,13 +11,13 @@ div#profilePageContainer .infoContDiv{
     margin: 0.83em;
     position: relative;
 }
-div#profilePageContainer #welcomeName{
+#profilePageContainer #welcomeName{
     height: 1.15em;
     margin: 0;
     margin-right: auto;
 }
 
-div#profilePageContainer .infoPlayerDiv{
+#profilePageContainer .infoPlayerDiv{
     box-sizing: border-box;
     display: flex;
     position: absolute;
@@ -26,48 +26,83 @@ div#profilePageContainer .infoPlayerDiv{
     padding: 1em;
 }
 
-div#profilePageContainer .infoPlayerDiv ul{
+#profilePageContainer .infoPlayerDiv ul{
     list-style-type: none;
     margin: auto;
     padding: 0;
 
 }
 
-div#profilePageContainer .infoPlayerDiv .info{
+#profilePageContainer .infoPlayerDiv .info{
     display: none;
     transition: display 1s;
 }
 
-div#profilePageContainer .infoPlayerDiv li{
+#profilePageContainer .infoPlayerDiv li{
     display: inline;
     transition: display 1s;
-    font-style: bold;
+    font-weight: bold;
 }
 
-div#profilePageContainer .infoPlayerDiv:hover{
+#profilePageContainer .infoPlayerDiv:hover{
     background-color: silver;
     border: 1px solid black;
     border-radius: 4px;
     color: black;
+    top: 0;
     z-index: 1;
 }
-div#profilePageContainer .infoPlayerDiv:hover li{
+#profilePageContainer .infoPlayerDiv:hover li{
     display: block;
 }
-div#profilePageContainer .infoPlayerDiv:hover .info{
+#profilePageContainer .infoPlayerDiv:hover .info{
     display: inline;
 }
-
-
 /* End info about the user style */
 
 
-/* div#profilePageContainer #playerInfo{
-    float: right;
-    font-size: 0.8em;
-} */
+/* Deck mod info style */
+#profilePageContainer #deckModInfoDiv{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0.5em;
+    transition-duration: 300ms;
+    padding-left: 1em;
+    padding-right: 1em;
+    color: silver;
+    cursor: pointer;
+    border: 2px solid silver;
+    border-radius: 8px;
+}
 
-div#profilePageContainer #deckShowcaseDiv{
+#profilePageContainer #deckModInfoDiv #info{
+    display: none;
+    white-space: pre-line;
+}
+
+#profilePageContainer #deckModInfoDiv:hover{
+    background-color: silver;
+    border: 1px solid black;
+    color: black;
+    border-radius: 4px;
+    z-index: 1;
+}
+
+#profilePageContainer #deckModInfoDiv:hover #infoSign{
+    padding-right: 0.8em;
+}
+
+#profilePageContainer #deckModInfoDiv:hover #info{
+    display: inline;
+}
+
+/* End deck mod info style */
+
+#profilePageContainer #deckShowcaseDiv{
     width: 50%;
     min-height: calc(100% - 5em);
     padding: 0.5em;
@@ -79,7 +114,8 @@ div#profilePageContainer #deckShowcaseDiv{
     transition-duration: 200ms;
 }
 
-div#profilePageContainer #cardsOwnedShowcaseDiv{
+#profilePageContainer #cardsOwnedShowcaseDiv{
+    position: relative;
     width: 50%;
     min-height: calc(100% - 5em);
     padding: 0.5em;
@@ -91,21 +127,21 @@ div#profilePageContainer #cardsOwnedShowcaseDiv{
     transition-duration: 200ms;
 }
 
-div#profilePageContainer #cardsOwnedShowcaseDiv *{
+#profilePageContainer #cardsOwnedShowcaseDiv *{
     float: right;
 }
 
-div#profilePageContainer .deckShowcaseTable{
+#profilePageContainer .deckShowcaseTable{
     width: 100%;
 }
 
-div#profilePageContainer tr{
+#profilePageContainer tr{
     width: 100%;
     padding: 0px;
     border: 0px;
 }
 
-div#profilePageContainer td{
+#profilePageContainer td{
     width: 16.7%; /*6 cards per row*/
     /*max-width: 16.7%;*/
     /* padding-top: 150%; */
@@ -114,7 +150,7 @@ div#profilePageContainer td{
     display: inline-block;
 }
 
-div#profilePageContainer td > div{
+#profilePageContainer td > div{
     width: 100%;
     height: 100%;
     position: absolute;
@@ -122,24 +158,24 @@ div#profilePageContainer td > div{
     top: 0px;
 }
 
-div#profilePageContainer .profileCardCanvas{
+#profilePageContainer .profileCardCanvas{
     width:100%;
     /*height: 100%;*/
     max-width:100%;
     /*max-height: 100%;*/
 }
 
-div#profilePageContainer td > div > img {
+#profilePageContainer td > div > img {
     width: 100%;
     height: 100%;
 }
 
-div#profilePageContainer .droppableZone{
+#profilePageContainer .droppableZone{
     background: rgba(255, 213, 0, 0.4);
     border-color: gold;
 }
 
-div#profilePageContainer .hoverText{
+#profilePageContainer .hoverText{
     position: absolute;
     left: 50%;
     top: 50%;
@@ -152,10 +188,34 @@ div#profilePageContainer .hoverText{
     margin: 0;
 }
 
-div#profilePageContainer .hoverBackground{
+#profilePageContainer .hoverBackground{
     position: absolute;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.685);
+    opacity: 0;
+}
+
+#profilePageContainer .hoverCountBubble{
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0.2em;
+    width: 1.5vw;
+    height: 1.5vw;
+    font-weight: bold;
+    border-radius: 50%;
+    background: black;
+    border: 1px solid silver;
+    color: silver;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: consolas monospace;
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+#profilePageContainer td > div:hover .hoverCountBubble{
     opacity: 0;
 }

@@ -102,7 +102,7 @@
 
 		<div id="profilePageContainer" class="container">
 			<div class="infoContDiv">
-				<h2 id="welcomeName">Hi User</h2>
+				<h2 id="welcomeName">Hi #{username}</h2>
 				<span class="infoPlayerDiv">
 					<ul>
 						<li>🌟
@@ -124,10 +124,19 @@
 				<label style="margin-right: 0.5em;">Select your deck: </label>
 				<select id="deckSelect">
 				</select>
+				<label> (Contains <span id="nCardsDeck">0</span> cards)</label>
 				<button id="deleteDeckBtn" value="Delete Deck" style="float: right; margin-right: 2%;">Delete Deck</button>
 			</div>
 			<div id="cardsOwnedShowcaseDiv">
-				<label style="float: left;"><b style="float: left;">Cards you own</b>, drag & drop them into a deck</label>
+				<label id="nCardsOwned" style="float: left;">You own 0 cards</label>
+				<div id="deckModInfoDiv">
+					<span id="infoSign">
+							ℹ️
+					</span>
+					<span id="info">●Drag from the cards you own to the deck: add card to deck (Max 3 copies per card)
+						●Drag from the deck to the cards you own:remove card from deck
+					</span>
+				</div>
 			</div>
 		
 		</div>
