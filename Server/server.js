@@ -378,6 +378,20 @@ function ServerPrograms() {
 		});
 		userWS.sendRes("userlist " +JSON.stringify(list));
 	}
+
+	//Request for a specific user data, params: [0] username
+	this.thirduserdata = function(userWS, params){
+		//Second parameter is false cause we don't need it to create the new user if it doesn't exists
+		var userData = userManager.getUserData(userWS[sessionName].username,false) || {};
+		let ret = {
+			username: userData.username || "Unknown User",
+			rank: userData.rank || 0,
+			matchesPlayed = userData.matchesPlayed || 0,
+			matchesWon: userData.matchesWon || 0,
+			matchesLost: userData.matchesLost || 0
+		};
+		userWS.sendRes("thirduserdata " + JSON.stringify(ret));
+	}
 	
 	//Request of the the deck of the player, params: [0] card name
 	this.requestcard = function(userWS,params){

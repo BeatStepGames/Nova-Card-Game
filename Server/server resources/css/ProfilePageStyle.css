@@ -8,8 +8,11 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    margin: 0.83em;
+    margin-top: 0.83em;
+    margin-bottom: 0.83em;
+    padding: 0 0.83em;
     position: relative;
+    box-sizing: border-box;
 }
 #profilePageContainer #welcomeName{
     height: 1.15em;

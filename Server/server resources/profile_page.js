@@ -74,16 +74,15 @@ class CardCanvas {
         }
         this.card.x = 0;
         this.card.y = 0;
-        var boundingClientRect = this.canvas.getBoundingClientRect();
-        this.canvas.width = (boundingClientRect.width*devicePixelRatio);
+        this.canvas.width = (this.canvas.getBoundingClientRect().width*devicePixelRatio);
         this.canvas.height = this.canvas.width*(3/2);
 
         this.card.onResize(this.canvas.height/this.card.originalHeight);
         this.card.draw(this.ctx);
         
-        this.canvas.style.height = boundingClientRect.width*(3/2);
+        this.canvas.style.height = this.canvas.getBoundingClientRect().width*(3/2);
         //this.canvas.parentElement.parentElement.style.width = this.canvas.getBoundingClientRect().width;
-        this.canvas.parentElement.parentElement.style.height = boundingClientRect.height;
+        this.canvas.parentElement.parentElement.style.height = this.canvas.getBoundingClientRect().height;
     }
 
     getCard(){
@@ -226,6 +225,7 @@ class ProfilePage {
                 server.requestDeck(index);
             }
             else{
+                document.getElementById("nCardsDeck").innerText = "0";
                 this.createDeckRoseter();
             }
         }
