@@ -19,7 +19,7 @@ var httpServer;
 var app = express();
 
 //Server vars
-var port = 80;
+var port = Process.env.PORT || 8080;
 var securePort = 443;
 var DEBUG = true;
 
@@ -120,7 +120,7 @@ app.use(function(err, req, res, next) {
 var httpServer = http.createServer(app);
 
 //Starting the server
-httpServer.listen(port,function(){
+httpServer.listen(port, function(){
 	console.log("Server started on port "+port);
 });
 
