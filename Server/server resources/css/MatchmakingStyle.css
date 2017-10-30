@@ -4,14 +4,14 @@ div#matchmakingPageContainer{
 	font-size: 1.2vw; 
 }
 
-#matchSelectionTitle{
+#matchmakingPageContainer #matchSelectionTitle{
     height: 1.15em;
     margin-bottom: 0.83em;
     margin-top: 0.83em;
 	text-align: center;
 }
 
-#matchSelectionButtons{	/* matchBlocks container (3 for now) */
+#matchmakingPageContainer #matchSelectionButtons{	/* matchBlocks container (3 for now) */
     width: 100%;
     height: 80%;
     border: px solid #c3c3c3;
@@ -22,7 +22,7 @@ div#matchmakingPageContainer{
 	margin: auto;
 }
 
-.matchBlockContainer { /* single matchBlock */
+#matchmakingPageContainer .matchBlockContainer { /* single matchBlock */
     position: relative;
 	margin: auto;
     width: 20%;
@@ -31,12 +31,12 @@ div#matchmakingPageContainer{
 	transition: width 0.5s, height 0.5s;
 }
 
-.matchBlockContainer:hover {
+#matchmakingPageContainer .matchBlockContainer:hover {
     width: 35%;
 	Height: auto;
 }
 
-.matchBlock { /* image position */
+#matchmakingPageContainer .matchBlock { /* image position */
   opacity: 1;
   display: block;
   width: 100%;
@@ -48,11 +48,11 @@ div#matchmakingPageContainer{
   pointer-events: none;
 }
 
-.matchBlockContainer:hover .matchBlock {
+#matchmakingPageContainer .matchBlockContainer:hover .matchBlock {
   opacity: 0.3;
 }
 
-.matchBlockBackground { /* image position */
+#matchmakingPageContainer .matchBlockBackground { /* image position */
   opacity: 0;
   display: block;
   width: 100%;
@@ -64,11 +64,11 @@ div#matchmakingPageContainer{
   pointer-events: none;
 }
 
-.matchBlockContainer:hover .matchBlockBackground {
+#matchmakingPageContainer .matchBlockContainer:hover .matchBlockBackground {
   opacity: 1;
 }
 
-.centralElement { /* text position */
+#matchmakingPageContainer .centralElement { /* text position */
   transition: .5s ease;
   opacity: 0;
   position: absolute;
@@ -79,11 +79,11 @@ div#matchmakingPageContainer{
 }
 
 
-.matchBlockContainer:hover .centralElement {
+#matchmakingPageContainer .matchBlockContainer:hover .centralElement {
   opacity: 1;
 }
 
-.text {	/* text&background color */
+#matchmakingPageContainer  .text {	/* text&background color */
   background-color: gray;
   color: white;
   font-size: 16px;
@@ -92,13 +92,7 @@ div#matchmakingPageContainer{
 
 /* WAITING ROOM CSS */
 
-div#waitingSelection{
-    color: silver;
-    overflow: auto;
-	font-size: 1.2vw; 
-}
-
-#waitingSelectionTitle{
+#matchmakingPageContainer #waitingSelectionTitle{
     height: 1.15em;
     margin-bottom: 0.83em;
     margin-top: 0.83em;
@@ -107,7 +101,7 @@ div#waitingSelection{
 	-webkit-transition: all .5s ease; /* For Safari 3.1 to 6.0 */
 }
 
-.waitingClock { /* clock in waiting room */
+#matchmakingPageContainer .waitingClock { /* clock in waiting room */
     position: relative;
 	display: block;
     margin: 0 auto;
@@ -120,13 +114,13 @@ div#waitingSelection{
 	-webkit-transition: .5s ease; /* For Safari 3.1 to 6.0 */
 }
 
-.waitingClock:hover {
+#matchmakingPageContainer .waitingClock:hover {
 	opacity: 0.6;
 	width: 23%;
 	Height: auto;
 }
 
-.waitingClock:hover + #waitingSelectionTitle{ /* affects the waiting text */
+#matchmakingPageContainer .waitingClock:hover + #waitingSelectionTitle{ /* affects the waiting text */
 	background-color: rgba(200,200,200,0.2);
 	animation: background-color_transition 2s linear infinite;
 }
@@ -140,3 +134,62 @@ div#waitingSelection{
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+/* FIENDLY PAGE CSS */
+
+#matchmakingPageContainer #friendlySelection{
+    height: auto;
+}
+
+#matchmakingPageContainer #friendlySelectionTitle{
+    height: 1.15em;
+    margin-bottom: 0.83em;
+    margin-top: 0.83em;
+	text-align: center;
+}
+
+#matchmakingPageContainer #friendlySelectionBlock {
+    border: px solid #c3c3c3;
+	margin: 0 auto;
+	position: relative;
+	top: 20%;
+	width: 60%;
+	Height: 60%;
+	overflow-y: auto;
+}
+
+#matchmakingPageContainer #matchmakingLabelClass {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+	
+}
+
+#matchmakingPageContainer #matchmakingLabelClass td, #matchmakingPageContainer #matchmakingLabelClass th{
+    border: 1px solid #ddd;
+    padding: 8px;
+	background-color: #b3c6b3;
+}
+
+#matchmakingPageContainer #matchmakingLabelClass th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+	background-color: #717c71;
+    color: white;
+}
+#matchmakingPageContainer tr:hover {background-color: #ddd;}
+
+/* Scrollbar */
+#friendlySelectionBlock::-webkit-scrollbar{
+    width:10px;
+}
+#friendlySelectionBlock::-webkit-scrollbar-track{
+    border-radius:10px; 
+    background:#eee; 
+    -webkit-box-shadow:inset 0 0 4px rgba(0,0,0,0.1);
+}
+#friendlySelectionBlock::-webkit-scrollbar-thumb{
+    border-radius:10px; 
+    background:#bbb;
+}
