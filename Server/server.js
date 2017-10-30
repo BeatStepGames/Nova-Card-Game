@@ -386,7 +386,7 @@ function ServerPrograms() {
 		let ret = {
 			username: userData.username || "Unknown User",
 			rank: userData.rank || 0,
-			matchesPlayed = userData.matchesPlayed || 0,
+			matchesPlayed: userData.matchesPlayed || 0,
 			matchesWon: userData.matchesWon || 0,
 			matchesLost: userData.matchesLost || 0
 		};
