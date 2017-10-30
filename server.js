@@ -19,7 +19,7 @@ var httpServer;
 var app = express();
 
 //Server vars
-var port = Process.env.PORT || 8080;
+var port = process.env.PORT || 8080;
 var securePort = 443;
 var DEBUG = true;
 
