@@ -4,10 +4,13 @@
   "description": "The server side of the Nova Card game",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	"start": "node server.js"
   },
   "author": "Pas Silvestri",
   "license": "GPL-3.0",
+  "engines": {
+    "node": "8.4.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
