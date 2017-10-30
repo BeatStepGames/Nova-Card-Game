@@ -374,7 +374,15 @@ function ServerPrograms() {
 	this.userlist = function(userWS,params){
 		var list = [];
 		wsServer.clients.forEach(function each(client) {
-			list.push(client[sessionName].username);
+			let userData = userManager.getUserData(userWS[sessionName].username);
+			let playerObj = {
+				username: client[sessionName].username,
+				rank: userData.rank || 0,
+				matchesPlayer: userData.matchesPlayed || 0,
+				matchesWon: userData.matchesWon || 0,
+				matchesLost: userData.matchesLost || 0
+			}
+			list.push(playerObj);
 		});
 		userWS.sendRes("userlist " +JSON.stringify(list));
 	}

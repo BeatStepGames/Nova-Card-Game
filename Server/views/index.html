@@ -59,6 +59,7 @@
 		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="/css/ProfilePageStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/MatchmakingStyle.css">
 	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
 	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
 
@@ -93,6 +94,7 @@
 				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
 				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
 				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
+				<li><a id="matchmaking" onclick = "stopMatch(); setPageSection(3); match.setMatchmakingSection(0)">Matchmaking</a></li>
 				<li><a id="showchat">Show Chat</a></li>
 				<li><a id="onlineusers">Show Online Users</a></li>
 				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
@@ -144,11 +146,70 @@
 		<div id="gameCanvasContainer" class="container">
 			<canvas id="matchCanvas"></canvas>
 		</div>
-	</div>
+		
+		<!-- MatchMaking page-->
+		<div id="matchmakingPageContainer" class="container">
+			
+			<!-- Matchmaking selection-->
+			<div id = "matchSelection" class="matchmakingContainer">
+				
+				<h1 id="matchSelectionTitle">#{username}, select the match!</h2>
+				
+				<div id = "matchSelectionButtons">
+				
+					<div class="matchBlockContainer">
+						<img src="/img/matchblock.png" class="matchBlock">
+						<div class="centralElement" style="width: 100%;">
+							<img src="/img/matchblock_back.png" class="matchBlockBackground">
+						</div>
+						<div class="centralElement">
+							<button type="button" class="text" onclick="match.setMatchmakingSection(1); match.loadUserList()">START!</button>
+						</div>
+					</div>
+					
+					<div class="matchBlockContainer">
+					  <img src="/img/matchblock.png" class="matchBlock">
+					  <div class="centralElement">
+						<button type="button" class="text" onclick="setMatchmakingSection(0)">START!</button>
+					  </div>
+					</div>
+					
+					<div class="matchBlockContainer">
+					  <img src="/img/matchblock.png" class="matchBlock">
+					  <div class="centralElement">
+						<button type="button" class="text" onclick="match.setMatchmakingSection(2)">START!</button>
+					  </div>
+					</div>
+				
+				</div>
+			</div>
+			
+			<!-- waiting Selection (MatchMaking unranked/ranked) -->
+			<div id = "waitingSelection" class="matchmakingContainer">
+				<img src="/img/waitingblock.png" draggable="false" class="waitingClock">
+				<h1 id="waitingSelectionTitle">Choosing the best player to fight...</h2>
+			</div>
+			
+			<!-- MatchMaking friendly -->
+			<div id = "friendlySelection" class="matchmakingContainer">
+				<h1 id="matchSelectionTitle">#{username}, choose your opponent!</h2>
+				<div id="friendlySelectionBlock">
+					<table id="matchmakingLabelClass">
+						<tr>
+							<th>Name</th>
+							<th>Rank</th>
+							<th>Play</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+			
+		</div>
+		
 
-	<div id="portraitError" class="redbox">
-		<h4>Rotate your device to landscape</h4>
-	</div>
+		<div id="portraitError" class="redbox">
+			<h4>Rotate your device to landscape</h4>
+		</div>
 	
 
 	<script type="text/javascript" src="FunctionsDefinitions.js"></script>
@@ -168,6 +229,7 @@
 
 	<script type="text/javascript" src="debug.js"></script>
 	
+	<script type="text/javascript" src="matchmaking.js"></script>
 	
 </body>
 </html>

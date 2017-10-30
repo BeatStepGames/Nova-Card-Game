@@ -5,6 +5,13 @@ body{
     background-image: url("/img/sapphire-back.png");
     background-repeat: repeat;
     box-sizing: border-box;
+		/*	No text element can be selected	*/
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
 }
 
 .title{
