@@ -1,7 +1,8 @@
 //Handles all server comunications
 //serverURL has to be the plain server domain, no protocolo at the beggining
 function Server(serverURL){
-	this.webSocket = new WebSocket("ws://"+serverURL);
+	let protocol = (location.protocol.indexOf("https") != -1) ? "wss://" : "ws://";
+	this.webSocket = new WebSocket(protocol+serverURL);
 	this.open = false;
 	this.messageCallbacks = {};
 	this.earlyCallbacks = [];
