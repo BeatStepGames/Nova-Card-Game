@@ -1,15 +1,111 @@
-div#profilePageContainer{
+#profilePageContainer{
     color: silver;
     overflow: auto;
 }
-
-#welcomeName{
-    height: 1.15em;
-    margin-bottom: 0.83em;
+/* Info about the user style*/
+#profilePageContainer .infoContDiv{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
     margin-top: 0.83em;
+    margin-bottom: 0.83em;
+    padding: 0 0.83em;
+    position: relative;
+    box-sizing: border-box;
+}
+#profilePageContainer #welcomeName{
+    height: 1.15em;
+    margin: 0;
+    margin-right: auto;
 }
 
-#deckShowcaseDiv{
+#profilePageContainer .infoPlayerDiv{
+    box-sizing: border-box;
+    display: flex;
+    position: absolute;
+    right: 1.83em;
+    transition-duration: 300ms;
+    padding: 1em;
+}
+
+#profilePageContainer .infoPlayerDiv ul{
+    list-style-type: none;
+    margin: auto;
+    padding: 0;
+
+}
+
+#profilePageContainer .infoPlayerDiv .info{
+    display: none;
+    transition: display 1s;
+}
+
+#profilePageContainer .infoPlayerDiv li{
+    display: inline;
+    transition: display 1s;
+    font-weight: bold;
+}
+
+#profilePageContainer .infoPlayerDiv:hover{
+    background-color: silver;
+    border: 1px solid black;
+    border-radius: 4px;
+    color: black;
+    top: 0;
+    z-index: 1;
+}
+#profilePageContainer .infoPlayerDiv:hover li{
+    display: block;
+}
+#profilePageContainer .infoPlayerDiv:hover .info{
+    display: inline;
+}
+/* End info about the user style */
+
+
+/* Deck mod info style */
+#profilePageContainer #deckModInfoDiv{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0.5em;
+    transition-duration: 300ms;
+    padding-left: 1em;
+    padding-right: 1em;
+    color: silver;
+    cursor: pointer;
+    border: 2px solid silver;
+    border-radius: 8px;
+}
+
+#profilePageContainer #deckModInfoDiv #info{
+    display: none;
+    white-space: pre-line;
+}
+
+#profilePageContainer #deckModInfoDiv:hover{
+    background-color: silver;
+    border: 1px solid black;
+    color: black;
+    border-radius: 4px;
+    z-index: 1;
+}
+
+#profilePageContainer #deckModInfoDiv:hover #infoSign{
+    padding-right: 0.8em;
+}
+
+#profilePageContainer #deckModInfoDiv:hover #info{
+    display: inline;
+}
+
+/* End deck mod info style */
+
+#profilePageContainer #deckShowcaseDiv{
     width: 50%;
     min-height: calc(100% - 5em);
     padding: 0.5em;
@@ -21,7 +117,8 @@ div#profilePageContainer{
     transition-duration: 200ms;
 }
 
-#cardsOwnedShowcaseDiv{
+#profilePageContainer #cardsOwnedShowcaseDiv{
+    position: relative;
     width: 50%;
     min-height: calc(100% - 5em);
     padding: 0.5em;
@@ -33,21 +130,21 @@ div#profilePageContainer{
     transition-duration: 200ms;
 }
 
-#cardsOwnedShowcaseDiv *{
+#profilePageContainer #cardsOwnedShowcaseDiv *{
     float: right;
 }
 
-.deckShowcaseTable{
+#profilePageContainer .deckShowcaseTable{
     width: 100%;
 }
 
-tr{
+#profilePageContainer tr{
     width: 100%;
     padding: 0px;
     border: 0px;
 }
 
-td{
+#profilePageContainer td{
     width: 16.7%; /*6 cards per row*/
     /*max-width: 16.7%;*/
     /* padding-top: 150%; */
@@ -56,7 +153,7 @@ td{
     display: inline-block;
 }
 
-td > div{
+#profilePageContainer td > div{
     width: 100%;
     height: 100%;
     position: absolute;
@@ -64,19 +161,64 @@ td > div{
     top: 0px;
 }
 
-.profileCardCanvas{
+#profilePageContainer .profileCardCanvas{
     width:100%;
     /*height: 100%;*/
     max-width:100%;
     /*max-height: 100%;*/
 }
 
-td > div > img {
+#profilePageContainer td > div > img {
     width: 100%;
     height: 100%;
 }
 
-.droppableZone{
+#profilePageContainer .droppableZone{
     background: rgba(255, 213, 0, 0.4);
     border-color: gold;
+}
+
+#profilePageContainer .hoverText{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%);
+    color: gold;
+    font-size: 1vw;
+    white-space:nowrap;
+    padding: 0.2vw;
+    border-radius: 2px;
+    margin: 0;
+}
+
+#profilePageContainer .hoverBackground{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.685);
+    opacity: 0;
+}
+
+#profilePageContainer .hoverCountBubble{
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0.2em;
+    width: 1.5vw;
+    height: 1.5vw;
+    font-weight: bold;
+    border-radius: 50%;
+    background: black;
+    border: 1px solid silver;
+    color: silver;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: consolas monospace;
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+#profilePageContainer td > div:hover .hoverCountBubble{
+    opacity: 0;
 }

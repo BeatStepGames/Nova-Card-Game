@@ -64,3 +64,6 @@ Server/cache/*
 #TLS key and cert
 Server/TLS-data/nova.*
 
+#user data, useless to the code
+Server/data/user-data/*
+!Server/data/user-data/token.gitkeep

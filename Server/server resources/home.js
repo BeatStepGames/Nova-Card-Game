@@ -1,7 +1,3 @@
-String.prototype.replaceAt=function(index, replacement) {
-    return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
-}
-
 //Handles all server comunications
 //serverURL has to be the plain server domain, no protocolo at the beggining
 function Server(serverURL){
@@ -100,7 +96,7 @@ function Server(serverURL){
 			return 1;
 		}
 		return 0;
-	}
+	}.bind(this);
 	
 	//To register callback called when the comunication with the server is finally established
 	this.registerOnOpenCallback = function(callback){
@@ -110,7 +106,7 @@ function Server(serverURL){
 		else{
 			callback();
 		}
-	}
+	}.bind(this);
 
 	this.register = function(filter,callback,justOnce){
 		if(this.messageCallbacks[filter] == undefined){
@@ -120,7 +116,7 @@ function Server(serverURL){
 		cBack.justOnce = justOnce || false;
 		this.messageCallbacks[filter].push(cBack);
 		return cBack.ID;
-	}
+	}.bind(this);
 
 	this.deleteCallback = function(filter,ID){
 		if(this.messageCallbacks[filter] == undefined){
@@ -133,7 +129,7 @@ function Server(serverURL){
 			}
 		}
 		return 0;
-	}
+	}.bind(this);
 
 	this.activateCallback = function(filter,ID){
 		if(this.messageCallbacks[filter] == undefined){
@@ -146,7 +142,7 @@ function Server(serverURL){
 			}
 		}
 		return 0;
-	}
+	}.bind(this);
 
 	this.deactivateCallback = function(filter,ID){
 		if(this.messageCallbacks[filter] == undefined){
@@ -159,7 +155,7 @@ function Server(serverURL){
 			}
 		}
 		return 0;
-	}
+	}.bind(this);
 
 	this.splitParams = function(message){
 		let inQuote = false;
@@ -180,32 +176,40 @@ function Server(serverURL){
 		}
 		return params;
 	}
+
+	this.requestUserList = function(){
+		server.sendMessage("userlist");
+	}.bind(this);
+
+	this.globalChat = function(message){
+		this.sendMessage("globalchat \""+message.trim()+"\"");
+	}
 	
 	this.requestDeck = function(deckIndex, nCards){
 		this.sendMessage("requestdeck " + (deckIndex || "1") + " " + (nCards || ""));
-	}
+	}.bind(this);
 	
 	this.requestCard = function(name){
 		this.sendMessage("requestcard \""+name+"\"");
-	}
+	}.bind(this);
 
 	this.requestDecksAmount = function(){
 		this.sendMessage("requestdecksamount");
-	}
+	}.bind(this);
 
 	this.requestCardsOwned = function(){
 		this.sendMessage("requestcardsowned");
-	}
+	}.bind(this);
 
 	// Adds a card to the desired deck, or, if deckIndex == "new", creates new deck and adds card to it
 	this.addCardToDeck = function(cardName, deckIndex){
 		this.sendMessage("addcardtodeck \"" + cardName + "\" " + deckIndex);
-	}
+	}.bind(this);
 
 	// Removes a card from the specified deck
 	this.removeCardFromDeck = function(cardName, deckIndex){
 		this.sendMessage("removecardfromdeck \"" + cardName + "\" " + deckIndex);
-	}
+	}.bind(this);
 
 	// Completelly delete a deck, prompt a message to be sure of the action
 	this.deleteDeck = function(deckIndex){
@@ -217,7 +221,11 @@ function Server(serverURL){
 		else{
 			return false;
 		}
-	}
+	}.bind(this);
+
+	this.requestPlayerInfo = function(){
+		this.sendMessage("requestplayerinfo");
+	}.bind(this);
 	
 }
 
@@ -314,9 +322,11 @@ function onResizeHome(){
 }
 
 
-var pageSection = 1;
+var pageSection = 0;
 
 function setPageSection(section){
+	if(pageSection == section)
+		return;
 	let totalContainer = document.getElementById("totalContainer");
 	let allContainers = totalContainer.querySelectorAll(".container");
 	allContainers.forEach(function(element) {
@@ -341,6 +351,10 @@ function setPageSection(section){
 		case 2:
 			container = document.getElementById("gameCanvasContainer");
 			navbarItem = document.getElementById("goToMatch");
+			break;
+		case 3:
+			container = document.getElementById("matchmakingPageContainer");
+			navbarItem = document.getElementById("matchmaking");
 			break;
 	}
 	container.style.display = "block";

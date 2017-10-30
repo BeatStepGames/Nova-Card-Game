@@ -77,6 +77,7 @@ var staticOptions = {
 	}
 };
 app.use("/card_images",express.static("server resources/card_images/",staticOptions));
+app.use("/card_attributes",express.static("server resources/card_attributes/",staticOptions));
 app.use("/img",express.static("server resources/img/",staticOptions));
 
 app.use(express.static("server resources",{
@@ -175,6 +176,8 @@ wsServer.on("connection",function(userWS, req){
 	//To load from file the data, even if not used
 	userManager.getUserData(req[sessionName].username);
 
+	
+	console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") connected to websocket");
 	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
 	
 	//When the user send a message
@@ -371,9 +374,31 @@ function ServerPrograms() {
 	this.userlist = function(userWS,params){
 		var list = [];
 		wsServer.clients.forEach(function each(client) {
-			list.push(client[sessionName].username);
+			let userData = userManager.getUserData(userWS[sessionName].username);
+			let playerObj = {
+				username: client[sessionName].username,
+				rank: userData.rank || 0,
+				matchesPlayer: userData.matchesPlayed || 0,
+				matchesWon: userData.matchesWon || 0,
+				matchesLost: userData.matchesLost || 0
+			}
+			list.push(playerObj);
 		});
 		userWS.sendRes("userlist " +JSON.stringify(list));
+	}
+
+	//Request for a specific user data, params: [0] username
+	this.thirduserdata = function(userWS, params){
+		//Second parameter is false cause we don't need it to create the new user if it doesn't exists
+		var userData = userManager.getUserData(userWS[sessionName].username,false) || {};
+		let ret = {
+			username: userData.username || "Unknown User",
+			rank: userData.rank || 0,
+			matchesPlayed: userData.matchesPlayed || 0,
+			matchesWon: userData.matchesWon || 0,
+			matchesLost: userData.matchesLost || 0
+		};
+		userWS.sendRes("thirduserdata " + JSON.stringify(ret));
 	}
 	
 	//Request of the the deck of the player, params: [0] card name
@@ -422,8 +447,22 @@ function ServerPrograms() {
 
 	this.requestmatchesplayed = function(userWS,params){
 		var userData = userManager.getUserData(userWS[sessionName].username);
-		var matches = userData.matchsPlayed || 0;
-		userWS.sendRes("requestmatchesplayed " + matchs);
+		var matches = userData.matchesPlayed || 0;
+		userWS.sendRes("requestmatchesplayed " + matches);
+	}
+
+	this.requestmoney = function(userWS,params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var money = userData.money || 0;
+		userWS.sendRes("requestmoney " + money);
+	}
+
+	this.requestplayerinfo = function(userWS, params){
+		var userData = userManager.getUserData(userWS[sessionName].username);
+		var rank = userData.rank || 0;
+		var matches = userData.matchesPlayed || 0;
+		var money = userData.money || 0;
+		userWS.sendRes("requestplayerinfo " + rank + " " + matches + " " + money);
 	}
 
 	this.requestdecksamount = function(userWS,params){
@@ -431,7 +470,7 @@ function ServerPrograms() {
 		var ndecks = userData.decks.length || 0;
 		userWS.sendRes("requestdecksamount " + ndecks);
 	}
-	
+
 	// Adds the card to deck if the user has it and if there are still less than 3 in the deck
 	// params[0] = which card to add, param[1] = which deck to add to starting from 1, or "new" to create a new deck
 	this.addcardtodeck = function(userWS,params){
@@ -440,26 +479,32 @@ function ServerPrograms() {
 			if(userData.cardsOwned.indexOf(params[0]) != -1){
 				let deck = userData.decks[userData.decks.length] = [];
 				deck.push(params[0]);
-				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length);
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + userData.decks.length + " \"new\"");
 			}
 			else{
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length);
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + userData.decks.length + " \"Card not owned\"");
 			}
 		}
 		else if(params[1] <= userData.decks.length && params[1] > 0){
 			params[1] -= 1;
 			let nCardsOwned = userData.cardsOwned.indexOfAll(params[0]).length;
 			let nCardsDeck = userData.decks[params[1]].indexOfAll(params[0]).length;
-			if(nCardsDeck < 3 && nCardsOwned > nCardsDeck){
+			if(nCardsDeck < 3 && nCardsOwned > 0 && nCardsOwned > nCardsDeck){
 				userData.decks[params[1]].push(params[0]);
-				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1));
+				userWS.sendRes("addcardtodeck YES \"" + params[0] + "\" " + (params[1]+1) + " \"noinfo\"");
 			}
-			else{
-				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1));
+			else if (nCardsDeck >= 3){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"No more than 3 copies of a card per deck\"");
+			}
+			else if(nCardsOwned <= 0){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"Card not owned\"");
+			}
+			else if(nCardsOwned <= nCardsDeck){
+				userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + (params[1]+1) + " \"No more copies of this card owned\"");
 			}
 		}
 		else{
-			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1]);
+			userWS.sendRes("addcardtodeck NO \"" + params[0] + "\" " + params[1] + " \"Deck dosen't exists\"");
 		}
 	}
 

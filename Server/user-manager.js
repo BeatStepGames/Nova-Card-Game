@@ -132,8 +132,8 @@ function UserManager(){
 		return 0;
 	}
 	
-	//Return the data of the user if in memory, load it from file and then returns it otherwise
-	this.getUserData = function(username){
+	//Return the data of the user if in memory, load it from file (if createIfNeeded is set to true) and then returns it otherwise
+	this.getUserData = function(username,createIfNeeded = true){
 		if(this.usersData[username] != undefined){
 			//Clear the old timeout
 			clearTimeout(this.usersData[username].deleteTimeout);
@@ -144,7 +144,12 @@ function UserManager(){
 			this.usersData[username].user = loadDataFromJsonFile(path.join(this.userDataDir,username+".json"));
 			//Create the data if it doesn't exists
 			if(this.usersData[username].user == undefined){
-				this.usersData[username].user = this.createUserData(username);
+				if(createIfNeeded){
+					this.usersData[username].user = this.createUserData(username);
+				}
+				else{
+					return undefined;
+				}
 			}
 			//Setting the autosave timeout every hour
 			this.usersData[username].autoSaveTimeout = setTimeout(recursiveAutoSave.bind(this),(1000*60*60),username);
@@ -189,6 +194,8 @@ function UserManager(){
 			username: username,
 			rank: 0,
 			matchesPlayed: 0,
+			matchesWon: 0,
+			matchesLost: 0,
 			money: 0,
 			decks: [],
 			cardsOwned: []
