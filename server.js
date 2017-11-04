@@ -14,12 +14,14 @@ var routes = require("./content-routes");
 var session = routes.session;
 var sessionName = 'session';
 var userManager = routes.userManager;
+var MatchPools = require("./MatchPools");
+var matchPools = new MatchPools(userManager,{sessionName: sessionName});
 
 var httpServer;
 var app = express();
 
 //Server vars
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 80;
 var securePort = 443;
 var DEBUG = true;
 
@@ -58,6 +60,7 @@ app.use(function(req,res,next){
 	// console.log(req.headers);
 	res.setHeader("X-Powered-By","Nova Card Game");
 	console.log("----------------");
+
 	next();
 });
 
@@ -176,9 +179,11 @@ wsServer.on("connection",function(userWS, req){
 	//To load from file the data, even if not used
 	userManager.getUserData(req[sessionName].username);
 
-	
 	console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") connected to websocket");
+	// Functions to execute when a user connects
 	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
+	//Broadcasts a program:userlist response cause a new user connected
+	wsServer.broadcast( programs.userlistConnectionUpdate(userWS,["connect"]) ); 
 	
 	//When the user send a message
 	userWS.on('message', function(jsonReq) {
@@ -242,6 +247,8 @@ wsServer.on("connection",function(userWS, req){
 	userWS.on('close', function() {
 		console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") disconnected from websocket");
 		userManager.forceRemoveUserData(req[sessionName].username);
+		//Broadcasts a program:userlist response cause a user disconnected
+		wsServer.broadcast( programs.userlistConnectionUpdate(userWS,["disconnect"]) ); 
     });
 	
 });
@@ -318,7 +325,7 @@ function sendRes(data){
 	this.res.setData(data);
 	var jsonRes = JSON.stringify(this.res);
 	this.send(jsonRes);
-	this.res = null;
+	// this.res = null;
 }
 
 //Checks if user's session ID is valid
@@ -374,7 +381,7 @@ function ServerPrograms() {
 	this.userlist = function(userWS,params){
 		var list = [];
 		wsServer.clients.forEach(function each(client) {
-			let userData = userManager.getUserData(userWS[sessionName].username);
+			let userData = userManager.getUserData(client[sessionName].username);
 			let playerObj = {
 				username: client[sessionName].username,
 				rank: userData.rank || 0,
@@ -384,7 +391,20 @@ function ServerPrograms() {
 			}
 			list.push(playerObj);
 		});
-		userWS.sendRes("userlist " +JSON.stringify(list));
+		userWS.sendRes("userlist full " +JSON.stringify(list));
+	}
+
+	//Helper function for the userlist program, params[0] = {string} connect || disconnect
+	this.userlistConnectionUpdate = function(userWS, params){
+		let userData = userManager.getUserData(userWS[sessionName].username);
+		let playerObj = {
+			username: userWS[sessionName].username,
+			rank: userData.rank || 0,
+			matchesPlayer: userData.matchesPlayed || 0,
+			matchesWon: userData.matchesWon || 0,
+			matchesLost: userData.matchesLost || 0
+		}
+		return "userlist " + params[0] + " " + JSON.stringify(playerObj);
 	}
 
 	//Request for a specific user data, params: [0] username
@@ -538,6 +558,20 @@ function ServerPrograms() {
 		else{			
 			userWS.sendRes("deletedeck NO " + (params[0]+1) );
 		}
+	}
+
+	/*
+	* Other possible events are:
+	* 	waitingmatch
+	*		- expired
+	*		- found lobbyID
+	*
+	*/
+	// Request to start a match. params [0] type of match (ranked, unranked, friendly), [1] (if type==firendly) enemy username
+	// Send back a response with either a lobbyID or "waiting"
+	this.startmatch = function(userWS,params){
+		let response = matchPools.requestMatch(userWS, params[0], params[1]);
+		userWS.sendRes("startmatch " + response);
 	}
 
 	//Events like attack, draw etc, are handled in here
