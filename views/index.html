@@ -29,19 +29,23 @@
 		}
 
 		.redbox{
+			display: none; /* Becomes flex if device in portrait */
+			flex-direction: row;
+			justify-content: center;
+			align-items: center; 
 			border: 3px solid red;
 			border-radius: 3px;
 			text-align: center;
 			background-color: rgba(255,0,0,0.4);
 			color: white;
-			vertical-align: middle;
-			display: none;
 			position: absolute;
 			top: 80%;
 			left: 50%;
 			transform: translate(-50%, -50%); 
-			width: 33vw;
-			height: 12vh;
+			min-width: 33vw;
+			min-height: 12vh;
+			box-sizing: border-box;
+			padding: 1em;
 		}
 		
 		@media screen and (orientation: portrait) {
@@ -49,7 +53,7 @@
 				display: none;
 			}
 			#portraitError{
-				display: block;
+				display: flex;
 			}
 
 			.title{
@@ -205,11 +209,11 @@
 			</div>
 			
 		</div>
-		
+	</div>	
 
-		<div id="portraitError" class="redbox">
-			<h4>Rotate your device to landscape</h4>
-		</div>
+	<div id="portraitError" class="redbox">
+		<h4>Rotate your device to landscape</h4>
+	</div>
 	
 
 	<script type="text/javascript" src="FunctionsDefinitions.js"></script>

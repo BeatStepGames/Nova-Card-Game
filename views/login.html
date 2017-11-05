@@ -34,12 +34,18 @@
 		}
 		
 		.redbox{
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center; 
 			border: 3px solid red;
 			border-radius: 3px;
 			text-align: center;
 			background-color: rgba(255,0,0,0.4);
 			color: white;
 			text-align: center;
+			box-sizing: border-box;
+			padding: 1em;
 		}
 		
 		#errordiv{
@@ -59,6 +65,12 @@
 			transform: translate(-50%, -50%); 
 			width: 55vw;
 			height: 18vh;
+		}
+
+		.aligned{
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 		}
 		
 	</style>
@@ -126,7 +138,10 @@
 		<form id="form" action="/login" method="post">
 			<input type="text" name="username" id="username" class="sized" rows="1" cols="50" placeholder="Username" required>
 			<input type="password" name="password" id="password" class="sized" rows="1" cols="25" placeholder="Password" required>
-			<input type="checkbox" name="rememberMe" id="saveuser" style="display: inline-block"><label style="color: silver; display: inline">Remember me</label>
+			<div class="aligned">
+				<input type="checkbox" name="rememberMe" id="saveuser" style="display: block">
+				<label style="color: silver; display: inline">Remember me</label>
+			</div>
 			<input type="submit" id="loginbtn" class="sized" rows="1" cols="25" value="Log In">
 		</form>
 		<div style="width:100%; text-align: center">
@@ -184,7 +199,7 @@
 		function showErrorPopup(){
 			password.value = "";
 			var JerrorDiv = $("#errordiv");
-			JerrorDiv.css("display","block");
+			JerrorDiv.css("display","flex");
 			animate(1,JerrorDiv);
 		}
 		

@@ -178,13 +178,18 @@ function Server(serverURL){
 		return params;
 	}
 
+	this.pingUser = function(username,type){
+		//Type can be request or response
+		this.sendMessage("pinguser " + username + " " + type);
+	}.bind(this);
+
 	this.requestUserList = function(){
-		server.sendMessage("userlist");
+		this.sendMessage("userlist");
 	}.bind(this);
 
 	this.globalChat = function(message){
 		this.sendMessage("globalchat \""+message.trim()+"\"");
-	}
+	}.bind(this);
 	
 	this.requestDeck = function(deckIndex, nCards){
 		this.sendMessage("requestdeck " + (deckIndex || "1") + " " + (nCards || ""));
@@ -310,6 +315,17 @@ var sizeFactor;
 function onLoadHome(){	
 	server = new Server(document.location.host);
 	window.server = server; //Useless. Just to be sure
+	// Set up the ping responding function
+	server.register("pinguser",function(message){
+		let params = server.splitParams(message);
+		// If it's a ping request send a response
+		// If is a response, some script in this client has sent a request, so it's going to handle the response that it was waiting
+		if(params[1]=="request"){
+			server.pingUser(params[0],"response");
+		}
+		return false; //To keep this callback alive
+	});
+
 	//size factor to keep dimensions consistent
 	sizeFactor = window.innerWidth*devicePixelRatio/1536;
 	window.sizeFactor = sizeFactor; //Useless. Just to be sure
