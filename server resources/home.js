@@ -159,13 +159,20 @@ function Server(serverURL){
 	}.bind(this);
 
 	this.splitParams = function(message){
+		let inObject = false;
 		let inQuote = false;
 		for(let i=0; i<message.length; i++){
-			if(message[i] == "\""){
+			if(message[i] == "{" || message[i] == "["){
+				inObject = true;
+			}
+			else if(message[i] == "}" || message[i] == "]"){
+				inObject = false;
+			}
+			else if(message[i] == "\"" && !inObject){
 				inQuote = !inQuote;
 				message = message.replaceAt(i," ");
 			}
-			else if(inQuote && message[i] == " "){
+			else if( (inQuote || inObject) && message[i] == " "){
 				message = message.replaceAt(i,"§");
 			}
 		}
@@ -178,8 +185,8 @@ function Server(serverURL){
 		return params;
 	}
 
+	//Type can be request or response
 	this.pingUser = function(username,type){
-		//Type can be request or response
 		this.sendMessage("pinguser " + username + " " + type);
 	}.bind(this);
 
@@ -187,8 +194,14 @@ function Server(serverURL){
 		this.sendMessage("userlist");
 	}.bind(this);
 
-	this.globalChat = function(message){
-		this.sendMessage("globalchat \""+message.trim()+"\"");
+	/**
+	 * Function to send a global message or to get the last sent
+	 * @param {string} type - either "send" to send a message or "update" to get the last sent by everyone
+	 * @param {string} message - the message to send globally
+	 */
+	this.globalChat = function(type,message){
+		if(!message) message = "";
+		this.sendMessage("globalchat "+type+" \""+message.trim()+"\"");
 	}.bind(this);
 	
 	this.requestDeck = function(deckIndex, nCards){
@@ -329,8 +342,9 @@ function onLoadHome(){
 	//size factor to keep dimensions consistent
 	sizeFactor = window.innerWidth*devicePixelRatio/1536;
 	window.sizeFactor = sizeFactor; //Useless. Just to be sure
-	startProfilePage();
-	debugGlobalChat();
+	
+	startGlobalChat();
+	setPageSection(1);
 }
 
 function onResizeHome(){
@@ -338,6 +352,10 @@ function onResizeHome(){
 	onResize();
 }
 
+
+
+
+// Navbar managing code
 
 var pageSection = 0;
 
@@ -364,6 +382,7 @@ function setPageSection(section){
 		case 1: 
 			container = document.getElementById("profilePageContainer");
 			navbarItem = document.getElementById("profilePageLink");
+			startProfilePage(); 
 			break;
 		case 2:
 			container = document.getElementById("gameCanvasContainer");
@@ -371,8 +390,14 @@ function setPageSection(section){
 			break;
 		case 3:
 			container = document.getElementById("matchmakingPageContainer");
-			navbarItem = document.getElementById("matchmaking");
+			navbarItem = document.getElementById("matchmakingLink");
+			match.setMatchmakingSection(0);
 			break;
+		case 4:
+			container = document.getElementById("globalChatContainer");
+			navbarItem = document.getElementById("globalChatLink");
+			break;
+
 	}
 	container.style.display = "block";
 	navbarItem.classList.add("active");

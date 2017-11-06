@@ -62,10 +62,12 @@
 			}
 		}
 	</style>
+	
+	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
 	<link rel="stylesheet" type="text/css" href="/css/ProfilePageStyle.css">
 	<link rel="stylesheet" type="text/css" href="/css/MatchmakingStyle.css">
-	<link rel="stylesheet" type="text/css" href="/css/Navbar.css">
-	<link rel="stylesheet" type="text/css" href="/css/GeneralStyle.css">
+	<link rel="stylesheet" type="text/css" href="/css/GlobalChatStyle.css">
 
 	<link rel="manifest" href="/data/manifest.json">
 	
@@ -96,9 +98,10 @@
 		<div id="navbar">
 			<ul>
 				<li><a id="navbarlogo" class="navbartitle">Nova Card Game</a></li>
-				<li><a id="profilePageLink" class="active" onclick="stopMatch(); startProfilePage(); setPageSection(1); ">Profile Page</a></li>
+				<li><a id="profilePageLink" class="active" onclick="stopMatch(); setPageSection(1); ">Profile Page</a></li>
 				<li><a id="goToMatch" onclick = "startMatch(); setPageSection(2);">Go To Match</a></li>
-				<li><a id="matchmaking" onclick = "stopMatch(); setPageSection(3); match.setMatchmakingSection(0)">Matchmaking</a></li>
+				<li><a id="matchmakingLink" onclick = "stopMatch(); setPageSection(3);">Matchmaking</a></li>
+				<li><a id="globalChatLink" onclick = "stopMatch(); setPageSection(4);">Global Chat</a></li>
 				<li><a id="showchat">Show Chat</a></li>
 				<li><a id="onlineusers">Show Online Users</a></li>
 				<li><a id="testnotificationbtn" onclick="testNotif()">Test Notification</a></li>
@@ -209,6 +212,25 @@
 			</div>
 			
 		</div>
+
+		<div id="globalChatContainer" class="container">
+			<div id=globalChatDiv>
+
+				<div style="max-height: 90%; overflow: auto;">
+					<table id="globalChatTable">
+						<tbody id="globalChatTableBody">
+						</tbody>
+					</table>
+				</div>
+
+				<div id="chatInputContainer">
+					<input id="globalChatInput" type="text" placeholder="Message to send...">
+					<button id="globalChatInputButton">▶</button>
+				</div>
+
+			</div>
+		</div>
+
 	</div>	
 
 	<div id="portraitError" class="redbox">

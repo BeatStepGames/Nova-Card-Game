@@ -360,9 +360,30 @@ function ServerPrograms() {
 		userWS.sendRes("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
-	//The chat visible to every player, params: [0] message sent
+	//The chat visible to every player, params: [0] method, either "send" or "update", [1] message sent (if method was "send")
 	this.globalchat = function(userWS,params){
-		wsServer.broadcast("globalchat " + userWS[sessionName].username + ": " + params[0]);
+		if(params[0] == "send" && params[1] && params[1].trim() != "" ){
+			let chatMessage = {
+				username: userWS[sessionName].username,
+				message: params[1].trim()
+			}
+			wsServer.broadcast(`globalchat send "${JSON.stringify(chatMessage)}"`);
+			//Create the record list for past messages if there isn't
+			if(!this.globalChatRecordList){
+				this.globalChatRecordList = [];
+			}
+			//If list>=50 take off the oldest record and push the new one in
+			else if(this.globalChatRecordList.length>=50){
+				this.globalChatRecordList.splice(0,1);
+			}
+			this.globalChatRecordList.push(chatMessage);
+		}
+		else{
+			if(!this.globalChatRecordList){
+				this.globalChatRecordList = [];
+			}
+			userWS.sendRes(`globalchat update "${JSON.stringify(this.globalChatRecordList)}"`);
+		}
 	}
 
 	//A personal chat message, params: [0] user, [1] message sent

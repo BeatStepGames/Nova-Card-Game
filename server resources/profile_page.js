@@ -108,7 +108,6 @@ class ProfilePage {
     constructor(){
         this.nCardPerRow = 6;
         this.deckAmount = 0;
-        setPageSection(1);
 
         this.deckContainer = document.getElementById("deckShowcaseDiv");
         $("#deckShowcaseDiv").droppable({
