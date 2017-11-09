@@ -148,17 +148,19 @@ httpsServer.listen(securePort,function(){
 /**
  * Comunication is made in client requests and server responses
  * Client request = {
- * 		data: string,
+ * 		program: {string},
+ * 		data: {object},
  * 		header:{
- * 			name: value
+ * 			name: value {string}
  * 		}
  * }
  * 
  * Server response = {
- * 		data: string,
- * 		req: string(the data of the request that triggered this response, if present)
+ * 		program: {string}
+ * 		data: {object},
+ * 		req: {string}(the JSON for the request that triggered this response, if present)
  * 		header:{
- * 			name: value
+ * 			name: value {string}
  * 		}
  * }
  * 
@@ -181,57 +183,71 @@ wsServer.on("connection",function(userWS, req){
 
 	console.log(req[sessionName].username + " (" + req.connection.remoteAddress + ") connected to websocket");
 	// Functions to execute when a user connects
-	wsServer.broadcast("$notify$ " + req[sessionName].username + " Just connected to Nova");
-	//Broadcasts a program:userlist response cause a new user connected
-	wsServer.broadcast( programs.userlistConnectionUpdate(userWS,["connect"]) ); 
+	wsServer.broadcast("$notify$", {message: req[sessionName].username + " Just connected to Nova"});
+	//Broadcasts a userlist message with the info on the newly connected user
+	wsServer.broadcast("userlist", programs.userlistConnectionUpdate(userWS,"connect") ); 
 	
 	//When the user send a message
 	userWS.on('message', function(jsonReq) {
 		let reqWS;
 		try{
-		reqWS = JSON.parse(jsonReq);
+			reqWS = JSON.parse(jsonReq);
 		}
 		catch(err){
-			console.log(err)
+			console.log(err);
 			reqWS = {
 				data: ""
 			}
 		}
-		let message = reqWS.data || "";
-		userWS.res = new WSResponse(message);
+		userWS.res = new WSResponse(jsonReq);
 		userWS.res.setHeader("X-Powered-By","Nova Card Game");
 		userWS.sendRes = sendRes;
 
-		console.log('Message recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + message);
+		console.log('Request recieved from ( '+ req[sessionName].username + ' / ' + req.connection.remoteAddress + ' ): ' + jsonReq);
 
-		var prog = "";
-		var params = "";
-		let inQuote = false;
-		for(let i=0; i<message.length; i++){
-			if(message[i] == "\""){
-				inQuote = !inQuote;
-				message = message.replaceAt(i," ");
-			}
-			else if(inQuote && message[i] == " "){
-				message = message.replaceAt(i,"§");
-			}
-		}
-		message = message.trim();
-		message = message.replace(/\s+/g," ");
-		if(message.indexOf(" ") != -1){
-			var params = message.split(/\s/g);
-			prog = params[0];
-			params.splice(0,1);
-			for(let i=0; i<params.length; i++){
-				params[i] = params[i].replace(/§/g," ");
-			}
-		}
-		else {
-			prog = message;
-		}
+		var prog = reqWS.program || "";
+		var data = reqWS.data || {};
+		// Parsing the parameters
+		// let inObject = false;
+		// let inArray = false;
+		// let inQuote = false;
+		// for(let i=0; i<message.length; i++){
+		// 	if(message[i] == "{" && !inObject && !inArray){
+		// 		inObject = true;
+		// 	}
+		// 	else if(message[i] == "[" && !inArray && !inObject){
+		// 		inArray = true;
+		// 	}
+		// 	else if(message[i] == "}" && inObject){
+		// 		inObject = false;
+		// 	}
+		// 	else if(message[i] == "]" && inArray){
+		// 		inArray = false;
+		// 	}
+		// 	else if(message[i] == "\"" && !inObject && !inArray){
+		// 		inQuote = !inQuote;
+		// 		message = message.replaceAt(i," ");
+		// 	}
+		// 	else if( (inQuote || inObject || inArray) && message[i] == " "){
+		// 		message = message.replaceAt(i,"§");
+		// 	}
+		// }
+		// message = message.trim();
+		// message = message.replace(/\s+/g," ");
+		// if(message.indexOf(" ") != -1){
+		// 	var params = message.split(/\s/g);
+		// 	prog = params[0];
+		// 	params.splice(0,1);
+		// 	for(let i=0; i<params.length; i++){
+		// 		params[i] = params[i].replace(/§/g," ");
+		// 	}
+		// }
+		// else {
+		// 	prog = message;
+		// }
 
 		if(programs[prog] != undefined){
-			var result = programs[prog](userWS,params);
+			var result = programs[prog](userWS,data);
 			console.log(prog + " executed");
 			if(result != undefined){
 				console.log(prog + " result " +result);
@@ -254,14 +270,14 @@ wsServer.on("connection",function(userWS, req){
 });
 
 //Broadcast function
-wsServer.broadcast = function(data) {
+wsServer.broadcast = function(program,data,headers) {
 	wsServer.clients.forEach(function each(client) {
 		if (client.readyState === webSocket.OPEN) {
-			client.res = new WSResponse();
+			client.res = new WSResponse(undefined,program,data,headers);
 			client.res.setHeader("Broadcast","true");
 			client.res.setHeader("X-Powered-By","Nova Card Game");
 			client.sendRes = sendRes;
-			client.sendRes(data);
+			client.sendRes();
 		}
 	});
 };
@@ -279,19 +295,28 @@ wsServer.getWebSocketByUsername = function(username){
 
 
 // Create a websocket response
-function WSResponse(req,data,headers){
+/**
+ * 
+ * @param {string | object} req - The JSON of the request recieved 
+ * @param {string} program - The program name to execute 
+ * @param {object} data - All the possible data the program might need
+ * @param {object} headers - Pairs of <key,value>, with value as string
+ */
+function WSResponse(req,program,data,headers){
+
+	this.setProgram = function(program){
+		this.program = program || "";
+	}
 
 	this.setData = function(data){
-		this.data = data || "";
+		this.data = data || {};
 	}
 
 	this.setHeader = function(header,value){
 		if(this.headers == undefined){
 			this.headers = {};
 		}
-		if(header != undefined){
-			this.headers[header] = value;
-		}
+		this.headers[header] = value;
 	}
 
 	this.setReq = function(req){
@@ -300,16 +325,17 @@ function WSResponse(req,data,headers){
 				this.req = req ;
 			}
 			else{
-				this.req = req.data;
+				this.req = JSON.stringify(req);
 			}
 		}
 		else{
-			req = "";
+			req = "{}";
 		}
 	}
 
 	
 	this.setReq(req);
+	this.setProgram(program);
 	this.setData(data);
 	for(let key in headers){
 		this.setHeader(key, headers[key]);
@@ -322,7 +348,10 @@ function sendRes(data){
 	if(this.res == undefined){
 		this.res = new WSResponse();
 	}
-	this.res.setData(data);
+	if(data != undefined){
+		this.res.setData(data);
+	}
+
 	var jsonRes = JSON.stringify(this.res);
 	this.send(jsonRes);
 	// this.res = null;
@@ -360,14 +389,25 @@ function ServerPrograms() {
 		userWS.sendRes("DEBUG request recieved from player "+ userWS[sessionName].username + ", params were: " + params);
 	}
 	
-	//The chat visible to every player, params: [0] method, either "send" or "update", [1] message sent (if method was "send")
+	//The chat visible to every player, params{ method: either "send" or "update", message: message sent  (if method was "send")
+	/**
+	 * @param {WebSocket} userWS - The websocket of the user that requested this program
+	 * @param {object} params - keys: type{string} - either "send" to send a new message or "update" to get the last 50
+	 * 								  message{string} - the message sent
+	 */
 	this.globalchat = function(userWS,params){
-		if(params[0] == "send" && params[1] && params[1].trim() != "" ){
+		
+		if(params.type == "send" && params.message && params.message.trim() != ""){
+
+			// Sanitizing the message
+
+
 			let chatMessage = {
+				type: "send",
 				username: userWS[sessionName].username,
-				message: params[1].trim()
+				message: params.message.trim()
 			}
-			wsServer.broadcast(`globalchat send "${JSON.stringify(chatMessage)}"`);
+			wsServer.broadcast("globalchat",chatMessage);
 			//Create the record list for past messages if there isn't
 			if(!this.globalChatRecordList){
 				this.globalChatRecordList = [];
@@ -382,7 +422,7 @@ function ServerPrograms() {
 			if(!this.globalChatRecordList){
 				this.globalChatRecordList = [];
 			}
-			userWS.sendRes(`globalchat update "${JSON.stringify(this.globalChatRecordList)}"`);
+			userWS.sendRes("globalchat", {type: "update", list: this.globalChatRecordList} );
 		}
 	}
 
@@ -415,8 +455,8 @@ function ServerPrograms() {
 		userWS.sendRes("userlist full " +JSON.stringify(list));
 	}
 
-	//Helper function for the userlist program, params[0] = {string} connect || disconnect
-	this.userlistConnectionUpdate = function(userWS, params){
+	//Helper function for the userlist program, type = {string} connect || disconnect
+	this.userlistConnectionUpdate = function(userWS, type){
 		let userData = userManager.getUserData(userWS[sessionName].username);
 		let playerObj = {
 			username: userWS[sessionName].username,
@@ -425,7 +465,7 @@ function ServerPrograms() {
 			matchesWon: userData.matchesWon || 0,
 			matchesLost: userData.matchesLost || 0
 		}
-		return "userlist " + params[0] + " " + JSON.stringify(playerObj);
+		return {type: type, player: playerObj};
 	}
 
 	//Request for a specific user data, params: [0] username

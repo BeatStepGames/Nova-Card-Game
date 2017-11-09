@@ -24,15 +24,23 @@ function Server(serverURL){
 		var res = JSON.parse(event.data);
 		// If the response has a maxage header, save response to cache
 		if(res.headers.maxage){
-			cache.setItem(res.req, res.data, res.headers.maxage);
+			let reqToCache = {
+				program: res.program,
+				data = res.data,
+				req: res.req,
+				headers: req.headers
+			}
+			delete reqToCache.headers.maxage;
+			// We cache a copy of the server response without the maxage header, and we use the JSON rapresentation of the request that triggered this response
+			cache.setItem(res.req, reqToCache, res.headers.maxage);
 		}
 
-		console.log("Game Server says: " + res.data);
-		var filter = res.data.substr(0,res.data.indexOf(" "));
-		var message = res.data.substr(res.data.indexOf(" ")+1);
+		console.log("Game Server sent: " + event.data);
+		var filter = res.program;
+		var data = res.data;
 
 		if(filter == "$notify$"){
-			var notif = new FloatingNotification(message);
+			var notif = new FloatingNotification(data.message);
 			notif.show();
 		}
 
@@ -40,7 +48,7 @@ function Server(serverURL){
 			for(var i=0; i<this.messageCallbacks[filter].length; i++){
 				if(this.messageCallbacks[filter][i].active == true){
 					// The callbacks can return a boolean to say if they're done and can be deleted
-					let destroy = this.messageCallbacks[filter][i].callback(message);
+					let destroy = this.messageCallbacks[filter][i].callback(data);
 					if(destroy || (this.messageCallbacks[filter][i] && this.messageCallbacks[filter][i].justOnce)){
 						this.messageCallbacks[filter].splice(i,1);
 					}
@@ -67,32 +75,29 @@ function Server(serverURL){
 		this.open = false;
 	}.bind(this);
 	
-	this.sendMessage = function(message){
-		console.log("Sending message to WS: "+message);
-		// Check if there is a cached resource for this request
-		var cacheRes = cache.getItem(message);
-		if(cacheRes){
-			// There is, meaning the resource is still valid, so create a fake server response obj
-			var res = {
-				data: cacheRes,
-				req: message,
-				headers: {}
-			}
-			// Simulate a websocket event
+	this.sendMessage = function(program,data,headers){
+		// Creating the request object as specified by the protocol
+		var req = {
+			program: program || "",
+			data: data || {},
+			headers: headers || {}
+		}
+		var jsonReq = JSON.stringify(req);
+		console.log("Sending message to WS: "+jsonReq);
+		// Check if there is a cached server response for this request
+		var cachedRes = cache.getItem(jsonReq);
+		if(cachedRes){
+			// There is, this means the resource is still valid, so force feed this cached server response object to the onMessage method
+			// Simulate a websocket event object
 			var event = {
-				data: JSON.stringify(res)
+				data: JSON.stringify(cachedRes)
 			};
-			console.log("Request ("+message+") resolved from cache");
+			console.log("Request ("+jsonReq+") resolved from cache");
 			this.onMessage(event);
 			return 1;
 		}
-		if(this.webSocket.readyState == 1){
-			var req = {
-				data: message,
-				headers: {}
-			}
-			var jsonReq = JSON.stringify(req);
-			console.log("Request ("+message+") sent to server");
+		else if(this.webSocket.readyState == 1){
+			console.log("Request ("+jsonReq+") sent to server");
 			this.webSocket.send(jsonReq);
 			return 1;
 		}
@@ -160,19 +165,26 @@ function Server(serverURL){
 
 	this.splitParams = function(message){
 		let inObject = false;
+		let inArray = false;
 		let inQuote = false;
 		for(let i=0; i<message.length; i++){
-			if(message[i] == "{" || message[i] == "["){
+			if(message[i] == "{" && !inObject && !inArray){
 				inObject = true;
 			}
-			else if(message[i] == "}" || message[i] == "]"){
+			else if(message[i] == "[" && !inArray && !inObject){
+				inArray = true;
+			}
+			else if(message[i] == "}" && inObject){
 				inObject = false;
 			}
-			else if(message[i] == "\"" && !inObject){
+			else if(message[i] == "]" && inArray){
+				inArray = false;
+			}
+			else if(message[i] == "\"" && !inObject && !inArray){
 				inQuote = !inQuote;
 				message = message.replaceAt(i," ");
 			}
-			else if( (inQuote || inObject) && message[i] == " "){
+			else if( (inQuote || inObject || inArray) && message[i] == " "){
 				message = message.replaceAt(i,"§");
 			}
 		}
@@ -181,8 +193,22 @@ function Server(serverURL){
 		var params = message.split(/\s/g);
 		for (let i = 0; i < params.length; i++) {
 			params[i] = params[i].replace(/§/g, " ");
+			params[i] = params[i].replace(/\$£/g, "\"");
+			params[i] = params[i].replace(/\$£{/g, "{");
+			params[i] = params[i].replace(/\$£}/g, "}");
+			params[i] = params[i].replace(/\$£\[/g, "[");
+			params[i] = params[i].replace(/\$£\]/g, "]");
 		}
 		return params;
+	}
+
+	this.escapeParam = function(str){
+		str = str.replace(/"\""/g,"$£");
+		str = str.replace(/{/g,"$£{");
+		str = str.replace(/}/g,"$£}");
+		str = str.replace(/\[/g,"$£[");
+		str = str.replace(/\]/g,"$£]");
+		return str
 	}
 
 	//Type can be request or response
@@ -197,11 +223,12 @@ function Server(serverURL){
 	/**
 	 * Function to send a global message or to get the last sent
 	 * @param {string} type - either "send" to send a message or "update" to get the last sent by everyone
-	 * @param {string} message - the message to send globally
+	 * @param {string} message - the message to send globally 
 	 */
 	this.globalChat = function(type,message){
 		if(!message) message = "";
-		this.sendMessage("globalchat "+type+" \""+message.trim()+"\"");
+		message = this.escapeParam(message);
+		this.sendMessage("globalchat "+type+" \""+message+"\"");
 	}.bind(this);
 	
 	this.requestDeck = function(deckIndex, nCards){
@@ -273,15 +300,15 @@ class StorageObject{
 	}
 
 	saveToMemory(){
-		var jsonCache = JSON.stringify(this.obj);
-		localStorage.setItem(this.name,jsonCache);
+		var jsonObj = JSON.stringify(this.obj);
+		localStorage.setItem(this.name,jsonObj);
 	}
 
 	retrieveFromMemory(){
-		var jsonCache = localStorage.getItem(this.name);
+		var jsonObj = localStorage.getItem(this.name);
 		// If it already exists in the localStorage, parse it and set it as obj
-		if(jsonCache){
-			this.obj = JSON.parse(jsonCache);
+		if(jsonObj){
+			this.obj = JSON.parse(jsonObj);
 		}
 		// Else create this data in the localStorage
 		else{

@@ -11,7 +11,7 @@ class GlobalChat {
 
 	constructor(){
 		this.messageList = [];
-		this.messageTable = document.getElementById("globalChatTableBody");
+		this.messageTableBody = document.getElementById("globalChatTableBody");
 
 		// Set up interface to send messages
 		this.inputBar = document.getElementById("globalChatInput");
@@ -83,7 +83,7 @@ class GlobalChat {
 		blue = Math.round( (255*blue)/(25*charPerColor) );
 
 
-		this.messageTable.innerHTML += 
+		this.messageTableBody.innerHTML += 
 		`<tr>
 			<th style="color: rgb(${red},${green},${blue});">${messageObject.username}</th>
 			<td>${messageObject.message}</td>
